@@ -7,7 +7,7 @@ export function Toasts() {
   const barVisible = useStore((s) => s.slip.items.length > 0 || s.slip.status === 'placed' || s.slip.status === 'placing')
   if (!toast) return null
   return (
-    <div className={cx('pointer-events-none fixed inset-x-0 z-[80] flex justify-center px-3 lg:bottom-6', barVisible ? 'bottom-[84px]' : 'bottom-4')}>
+    <div className={cx('pointer-events-none fixed inset-x-0 z-[80] flex justify-center px-3 mobile-toast lg:bottom-6', barVisible ? 'mobile-toast-above-slip' : '')}>
       <div key={toast.id} role="status" className="slide-in pointer-events-auto relative flex min-h-[48px] w-full max-w-[420px] items-center gap-3 overflow-hidden rounded-m bg-ink py-2 pl-4 pr-2 text-[14px] text-white shadow-raised">
         <span className="min-w-0 flex-1">{toast.text}</span>
         {toast.kind === 'undo' ? (

@@ -48,8 +48,8 @@ function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpen
 
   return (
     <header ref={ref} className="sticky top-0 z-40 border-b border-line bg-card/95 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1520px] items-center justify-between gap-3 px-4 lg:px-6">
-        <div className="flex min-w-0 items-center gap-6">
+      <div className="mx-auto flex h-16 max-w-[1520px] items-center justify-between gap-3 px-4 max-[380px]:gap-2 max-[380px]:px-3 lg:px-6">
+        <div className="flex min-w-0 items-center gap-6 max-[380px]:gap-2">
           <Link to="/" aria-label="Housebets home" className="shrink-0">
             <Logo />
           </Link>
@@ -61,7 +61,7 @@ function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpen
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-s border border-line bg-card lg:hidden"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-s border border-line bg-card max-[380px]:h-10 max-[380px]:w-10 lg:hidden"
             aria-label={searchOpen ? 'Close search' : 'Search teams, players, competitions and markets'}
             aria-expanded={searchOpen}
             onClick={() => setSearchOpen((v) => !v)}
@@ -74,7 +74,7 @@ function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpen
           <button
             type="button"
             onClick={onOpenWallet}
-            className="flex h-11 items-center gap-2 rounded-s border border-line bg-card px-3 text-[13px] font-semibold text-ink transition-colors hover:border-ink lg:h-10"
+            className="flex h-11 items-center gap-2 rounded-s border border-line bg-card px-3 text-[13px] font-semibold text-ink transition-colors hover:border-ink max-[380px]:h-10 max-[380px]:gap-1 max-[380px]:px-2 max-[380px]:text-[12px] lg:h-10"
             aria-label={`Demo balance ${fmtUSDT(balance)} USDT. Open demo wallet`}
           >
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand sm:text-muted">Demo</span>
@@ -85,7 +85,7 @@ function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpen
           <button
             type="button"
             onClick={onOpenMenu}
-            className="flex h-11 w-11 items-center justify-center rounded-s border border-line bg-card text-ink transition-colors hover:border-ink lg:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-s border border-line bg-card text-ink transition-colors hover:border-ink max-[380px]:h-10 max-[380px]:w-10 lg:hidden"
             aria-label="Open menu"
           >
             <Menu size={18} />
@@ -162,7 +162,7 @@ export function Layout() {
       <div className="mx-auto flex max-w-[1520px]">
         <Sidebar />
 
-        <main id="main" className="min-w-0 flex-1 px-4 pb-32 pt-5 sm:px-6 lg:pb-10">
+        <main id="main" className="mobile-main min-w-0 flex-1 px-4 pb-32 pt-5 sm:px-6 lg:pb-10">
           <Outlet />
           <Footer />
         </main>

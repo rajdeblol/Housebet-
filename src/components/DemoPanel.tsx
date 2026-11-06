@@ -19,7 +19,7 @@ export function DemoPanel() {
   const toggle = (on: boolean) => on ? 'flex h-11 w-full items-center gap-2.5 rounded-s border border-ink bg-ink px-3 text-left text-[14px] font-semibold text-white' : btn
 
   return (
-    <div className={cx('fixed right-3 z-50 xl:bottom-4 xl:left-4 xl:right-auto', barVisible ? 'bottom-[84px]' : 'bottom-4')}>
+    <div className={cx('fixed right-3 z-50 mobile-demo-control xl:bottom-4 xl:left-4 xl:right-auto', barVisible ? 'mobile-demo-above-slip' : '')}>
       {open ? (
         <div role="dialog" aria-label="Demo controls" className="slide-in w-[288px] rounded-m border border-line bg-page p-3 shadow-raised">
           <div className="mb-2 flex items-center justify-between">
