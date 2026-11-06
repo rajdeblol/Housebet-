@@ -1,5 +1,4 @@
 import { ArrowDown, ArrowUp, Check, Lock } from 'lucide-react'
-import { useRef } from 'react'
 import { actions, useStore } from '../engine/store'
 import { cx, fmtOdds } from '../lib/format'
 import { sportAccent } from '../lib/sportIcons'
@@ -18,13 +17,11 @@ export function OddsButton({ selId, tag, label, className }: Props) {
   const mk = useStore((s) => s.markets[`${matchId}:${key}`])
   const now = useStore((s) => s.now)
   const selected = useStore((s) => s.slip.items.some((i) => i.selId === selId))
-  const mountedAt = useRef(Date.now())
   const sel = mk.selections[Number(idx)]
   const m = useStore((s) => s.matches[matchId])
 
   const suspended = !!mk.suspendedUntil
   const closed = mk.closed || sel.closed || m.status === 'ft'
-  const fresh = sel.move && sel.movedAt > mountedAt.current && now - sel.movedAt < 1200
   const showArrow = sel.move && now - sel.movedAt < 6000 && !suspended && !closed
   const disabled = (suspended || closed) && !selected
 
@@ -55,7 +52,6 @@ export function OddsButton({ selId, tag, label, className }: Props) {
         className,
       )}
     >
-      {fresh && !selected && <span key={sel.movedAt} className={cx('pointer-events-none absolute inset-0', sel.move === 'up' ? 'tick-up' : 'tick-down')} aria-hidden="true" />}
       {label && <span className={cx('relative truncate text-[12.5px] leading-tight', selected ? 'text-page/80' : 'text-muted')}>{label}</span>}
       {tag && <span className={cx('relative text-[12px] font-semibold', selected ? 'text-white/85' : 'text-muted')}>{tag}</span>}
       <span className="relative flex items-center justify-end gap-1">
