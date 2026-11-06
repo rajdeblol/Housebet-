@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { House, Radio, Ticket, Wallet, X } from 'lucide-react'
+import { House, Radio, Sparkles, Ticket, Wallet, X } from 'lucide-react'
 import { sportPath, sports } from '../data/competitions'
 import { useStore } from '../engine/store'
 import { cx, fmtUSDT } from '../lib/format'
@@ -75,6 +75,7 @@ export function NavigationDrawer({ open, onClose, onOpenWallet }: { open: boolea
                   {openBets > 0 && <span className="tnum ml-auto text-[12px] font-semibold text-muted">{openBets} open</span>}
                 </NavLink>
               </li>
+              <li><NavLink to="/features" onClick={onClose} className={row}><Sparkles size={16} className="text-brand" aria-hidden="true" /> Play lab</NavLink></li>
             </ul>
 
             <p className="mb-1 mt-4 px-3 text-[11px] font-bold uppercase tracking-wider text-muted">Sports</p>

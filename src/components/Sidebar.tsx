@@ -1,4 +1,4 @@
-import { House, Radio, Ticket } from 'lucide-react'
+import { House, Radio, Sparkles, Ticket } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { competitions, sportPath, sports } from '../data/competitions'
@@ -45,6 +45,7 @@ export function Sidebar() {
         <Item to="/" end icon={<House size={16} aria-hidden="true" />} label="Home" />
         <Item to="/live" icon={<Radio size={16} className="text-live" aria-hidden="true" />} label="Live" count={<Count n={liveN} live />} />
         <Item to="/bets" icon={<Ticket size={16} aria-hidden="true" />} label="Bet slip & My bets" />
+        <Item to="/features" icon={<Sparkles size={16} className="text-brand" aria-hidden="true" />} label="Play lab" />
       </ul>
 
       <p className="mb-1.5 mt-5 px-2.5 text-[11px] font-bold uppercase tracking-wider text-muted">Sports</p>

@@ -6,6 +6,7 @@ import { FootballPage } from './pages/Football'
 import { MatchPage } from './pages/Match'
 import { SportPage } from './pages/Sport'
 import { MyBetsPage } from './pages/MyBets'
+import { AdvancedPage } from './pages/Advanced'
 import { NotFound } from './pages/NotFound'
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="sport/:sportId" element={<SportPage />} />
           <Route path="match/:id" element={<MatchPage />} />
           <Route path="bets" element={<MyBetsPage />} />
+          <Route path="features" element={<AdvancedPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

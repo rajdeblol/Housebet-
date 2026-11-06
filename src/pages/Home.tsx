@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, Compass, Star, Trophy, Activity, Ticket, TrendingUp } from 'lucide-react'
+import { ArrowRight, Clock, Compass, Sparkles, Star, Trophy, Activity, Ticket, TrendingUp } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { compById, competitions, sportById, sportPath, sports } from '../data/competitions'
@@ -158,6 +158,9 @@ export function HomePage() {
                 </Link>
                 <Link to="/football" className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-white/25 bg-black/20 px-4 text-[13.5px] font-bold text-white transition-colors hover:border-white/60 hover:bg-white/10">
                   Explore fixtures
+                </Link>
+                <Link to="/features" className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-[#A78BFA]/40 bg-[#A78BFA]/10 px-4 text-[13.5px] font-bold text-white transition-colors hover:border-[#A78BFA]/70 hover:bg-[#A78BFA]/20">
+                  <Sparkles size={15} className="text-[#C4B5FD]" aria-hidden="true" /> Play lab
                 </Link>
               </div>
             </div>
