@@ -34,7 +34,7 @@ export function Crest({ id, size = 28, className }: { id: string; size?: number;
         aria-label={`${t.name} crest`}
         title={t.name}
       >
-        <img src={t.logo ? `${import.meta.env.BASE_URL}${t.logo}` : `https://images.fotmob.com/image_resources/logo/teamlogo/${fotmobTeamIds[id]}.png`} alt="" width={size} height={size} loading="lazy" decoding="async" className={cx('h-full w-full object-contain', t.id === 'rheinau' && 'brightness-0')} />
+        <img src={fotmobTeamIds[id] ? `https://images.fotmob.com/image_resources/logo/teamlogo/${fotmobTeamIds[id]}.png` : `${import.meta.env.BASE_URL}${t.logo}`} alt="" width={size} height={size} loading="lazy" decoding="async" className={cx('h-full w-full object-contain', t.id === 'rheinau' && 'brightness-0')} />
       </span>
     )
   }
