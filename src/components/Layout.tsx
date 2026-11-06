@@ -164,9 +164,7 @@ export function Layout() {
         <Sidebar />
 
         <main id="main" className="mobile-main min-w-0 flex-1 px-4 pb-32 pt-5 sm:px-6 lg:pb-10">
-          <div key={pathname} className="page-enter">
-            <Outlet />
-          </div>
+          <Outlet />
           <Footer />
         </main>
 
