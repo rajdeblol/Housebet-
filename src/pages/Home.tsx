@@ -82,6 +82,8 @@ function Following() {
 export function HomePage() {
   const matches = useStore((s) => s.matches)
   const bets = useStore((s) => s.bets)
+  const markets = useStore((s) => s.markets)
+  const marketIds = useStore((s) => s.marketIds)
 
   const { live, soon } = useMemo(() => {
     const all = Object.values(matches)
@@ -108,10 +110,8 @@ export function HomePage() {
   const featuredHome = featured ? teams[featured.home] : null
   const featuredAway = featured ? teams[featured.away] : null
   const featuredScore = featured ? scoreText(featured) : null
-  const artFile: Record<string, string> = {
-    football: 'football', basketball: 'basketball', tennis: 'tennis', americanfootball: 'nfl',
-    baseball: 'mlb', icehockey: 'nhl', cricket: 'cricket', mma: 'ufc',
-  }
+  const featuredMarketId = featured ? marketIds[featured.id]?.find((id) => markets[id]?.group === 'popular') : undefined
+  const featuredMarket = featuredMarketId ? markets[featuredMarketId] : undefined
   const settledBets = bets.filter((b) => b.status !== 'open')
   const openBets = bets.filter((b) => b.status === 'open').length
   const settledStake = settledBets.reduce((sum, b) => sum + b.stake, 0)
@@ -129,13 +129,13 @@ export function HomePage() {
       {featured && featuredHome && featuredAway && (
         <section aria-labelledby="hero-title" className="relative isolate mb-6 overflow-hidden rounded-[24px] border border-[#24515A] bg-[#061316] text-white shadow-[0_22px_60px_-32px_rgba(0,28,35,.72)]">
           <img
-            src={`${import.meta.env.BASE_URL}sports-share-cards/housebets-${artFile[featured.sport] ?? 'football'}.png`}
+            src={`${import.meta.env.BASE_URL}housebets-home-hero.png`}
             alt=""
-            className="absolute inset-0 -z-20 h-full w-full object-cover object-right opacity-75"
+            className="absolute inset-0 -z-20 h-full w-full object-cover object-[65%_center] opacity-90"
             aria-hidden="true"
           />
-          <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,#061316_0%,rgba(6,19,22,.96)_37%,rgba(6,19,22,.58)_68%,rgba(6,19,22,.16)_100%)]" aria-hidden="true" />
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_12%_0%,rgba(2,247,253,.16),transparent_40%)]" aria-hidden="true" />
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,#061316_0%,rgba(6,19,22,.98)_30%,rgba(6,19,22,.75)_53%,rgba(6,19,22,.12)_100%)]" aria-hidden="true" />
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(0deg,rgba(3,14,17,.84),transparent_40%),radial-gradient(ellipse_at_10%_0%,rgba(2,247,253,.18),transparent_44%)]" aria-hidden="true" />
           <div className="relative flex min-h-[390px] flex-col justify-between gap-8 px-5 py-6 sm:min-h-[350px] sm:px-8 sm:py-7">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
@@ -148,9 +148,9 @@ export function HomePage() {
             </div>
 
             <div className="max-w-[540px]">
-              <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[.2em] text-[#02F7FD]">The matchday starts here</p>
-              <h1 id="hero-title" className="max-w-[490px] text-[38px] font-black leading-[.98] tracking-[-.055em] sm:text-[52px]">Feel every<br className="hidden sm:block" /> moment.</h1>
-              <p className="mt-3 max-w-[430px] text-[13.5px] leading-relaxed text-white/70 sm:text-[15px]">Live scores, big fixtures and a front-row view of the action. Welcome to Housebets.</p>
+              <p className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[.2em] text-[#02F7FD]"><span className="h-px w-6 bg-[#02F7FD]" />The matchday starts here</p>
+              <h1 id="hero-title" className="max-w-[490px] text-[38px] font-black leading-[.98] tracking-[-.055em] sm:text-[56px]">Every game.<br className="hidden sm:block" />A new story.</h1>
+              <p className="mt-3 max-w-[430px] text-[13.5px] leading-relaxed text-white/75 sm:text-[15px]">Follow the action, read the odds and find your next moment on the Housebets board.</p>
 
               <div className="mt-5 flex flex-wrap gap-2.5">
                 <Link to="/live" className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-[#02F7FD] px-4 text-[13.5px] font-extrabold text-[#052126] shadow-[0_8px_24px_-10px_rgba(2,247,253,.75)] transition-transform hover:-translate-y-0.5">
@@ -162,7 +162,7 @@ export function HomePage() {
               </div>
             </div>
 
-            <Link to={`/match/${featured.id}`} className="flex w-full max-w-[440px] items-center gap-3 rounded-[14px] border border-white/15 bg-[#071A1F]/90 px-3.5 py-3 shadow-lg backdrop-blur-md transition-colors hover:border-[#02F7FD]/60">
+            <Link to={`/match/${featured.id}`} className="flex w-full max-w-[500px] items-center gap-3 rounded-[14px] border border-white/15 bg-[#071A1F]/90 px-3.5 py-3 shadow-lg backdrop-blur-md transition-colors hover:border-[#02F7FD]/60">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#02F7FD]/10 text-[#02F7FD]"><SportIcon id={featured.sport} size={18} /></span>
               <span className="min-w-0 flex-1">
                 <span className="block text-[9px] font-bold uppercase tracking-[.16em] text-white/55">Featured match · {compById[featured.compId]?.short ?? sportById[featured.sport].name}</span>
@@ -175,6 +175,9 @@ export function HomePage() {
                   <Crest id={featured.away} size={24} />
                 </span>
               </span>
+              {featuredMarket?.selections?.length ? <span className="hidden shrink-0 items-center gap-1.5 sm:flex">
+                {featuredMarket.selections.slice(0, 3).map((selection) => <span key={selection.id} className="rounded-lg border border-white/10 bg-white/[.06] px-2 py-1 text-center"><span className="block max-w-[58px] truncate text-[8px] text-white/55">{selection.label}</span><span className="tnum text-[11px] font-extrabold text-[#02F7FD]">{selection.odds.toFixed(2)}</span></span>)}
+              </span> : null}
               <span className="shrink-0 text-right">
                 <span className={cx('block text-[9px] font-extrabold uppercase tracking-wide', featured.status === 'live' ? 'text-[#FF7770]' : 'text-white/55')}>{featured.status === 'live' ? '● Live' : 'Soon'}</span>
                 <span className="tnum block text-[10px] font-semibold text-white/55">{featured.status === 'live' ? statusShort(featured) : 'View'}</span>
