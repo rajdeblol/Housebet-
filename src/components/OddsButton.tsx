@@ -45,7 +45,7 @@ export function OddsButton({ selId, tag, label, className }: Props) {
         'group relative flex min-h-[44px] min-w-0 items-center overflow-hidden rounded-s border text-left transition-colors',
         label ? 'flex-col items-stretch justify-center gap-0.5 px-3 py-2 lg:min-h-[56px]' : 'justify-between gap-1 px-2.5 lg:min-h-[44px]',
         selected
-          ? 'border-accent bg-accent text-white'
+          ? 'border-accent bg-accent text-page'
           : disabled
             ? 'cursor-not-allowed border-line bg-sunk/60 text-muted'
             : 'border-line bg-sunk text-ink hover:border-ink',
@@ -53,7 +53,7 @@ export function OddsButton({ selId, tag, label, className }: Props) {
       )}
     >
       {fresh && !selected && <span key={sel.movedAt} className={cx('pointer-events-none absolute inset-0', sel.move === 'up' ? 'tick-up' : 'tick-down')} aria-hidden="true" />}
-      {label && <span className={cx('relative truncate text-[12.5px] leading-tight', selected ? 'text-white/90' : 'text-muted')}>{label}</span>}
+      {label && <span className={cx('relative truncate text-[12.5px] leading-tight', selected ? 'text-page/80' : 'text-muted')}>{label}</span>}
       {tag && <span className={cx('relative text-[12px] font-semibold', selected ? 'text-white/85' : 'text-muted')}>{tag}</span>}
       <span className="relative flex items-center justify-end gap-1">
         {suspended && !closed ? (
@@ -65,8 +65,8 @@ export function OddsButton({ selId, tag, label, className }: Props) {
             <span className="inline-flex w-3 justify-center" aria-hidden="true">
               {selected && !showArrow && <Check size={13} strokeWidth={3} />}
               {showArrow && (sel.move === 'up'
-                ? <ArrowUp size={12} strokeWidth={3} className={selected ? 'text-white' : 'text-up'} />
-                : <ArrowDown size={12} strokeWidth={3} className={selected ? 'text-white' : 'text-down'} />)}
+                ? <ArrowUp size={12} strokeWidth={3} className={selected ? 'text-page' : 'text-up'} />
+                : <ArrowDown size={12} strokeWidth={3} className={selected ? 'text-page' : 'text-down'} />)}
             </span>
             <span className="tnum text-[17px] font-bold leading-none tracking-tight">{fmtOdds(sel.odds)}</span>
           </>

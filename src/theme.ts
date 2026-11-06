@@ -8,49 +8,48 @@
 
 export const brand = {
   name: 'Housebets',
-  /** Wordmark text (lowercase per placeholder logo). */
+  /** Lowercase wordmark used on exported bet cards. */
   wordmark: 'housebets',
-  /** Brand red used for the logo mark. Placeholder until the brand pack is pasted in. */
-  logoColor: '#E4372B',
+  /** Cyan used by the official Housebets wordmark. */
+  logoColor: '#02F7FD',
   /** Font family. Inter is bundled locally (no network font calls). */
   fontFamily: "'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif",
 }
 
-/** "Paper scoreboard" palette. All text pairs checked for WCAG AA (4.5:1) on page and card. */
+/** Cool, high-contrast light palette for the Housebets sports identity. */
 export const colors = {
-  page: '#F6F2E9', // warm off-white page
-  card: '#FFFFFF', // raised cards
-  sunk: '#EFE9DC', // inset wells (odds buttons at rest, inputs)
-  ink: '#16140F', // primary text, score tiles
-  muted: '#6B6457', // secondary text (5.2:1 on page)
-  line: '#DDD6C6', // 1px borders
-  /** Single sharp accent: selected odds + primary button. #E4372B deepened 1 step so white text passes AA (5.0:1). */
-  accent: '#CF3428',
-  brand: brand.logoColor,
-  up: '#1E8E5A', // odds-up flash + arrows (non-text, 3.7:1)
-  upText: '#19774C', // odds-up text (5.0:1 on page)
-  down: '#C62F25', // odds-down flash, arrows and text (4.9:1 on page)
-  live: '#CF3428',
-  warn: '#8A5A00',
-  warnBg: '#FBF0D9',
+  page: '#F2F8F8',
+  card: '#FFFFFF',
+  sunk: '#E5F0F1',
+  ink: '#0B2028',
+  muted: '#4F686D',
+  line: '#C8D8DA',
+  accent: '#006E73',
+  brand: '#00777C',
+  up: '#1E8E68',
+  upText: '#14704F',
+  down: '#D94F49',
+  live: '#D94F49',
+  warn: '#715713',
+  warnBg: '#F8F0DA',
 }
 
-/** Dark mode: same structure, warm charcoal paper. Text pairs checked for AA on page and card. */
+/** Dark navy-teal palette from the Housebets upgrade brief. */
 export const darkColors: typeof colors = {
-  page: '#141311',
-  card: '#1D1B18',
-  sunk: '#272420',
-  ink: '#F2EEE4',
-  muted: '#A39B8C',
-  line: '#38342D',
-  accent: '#CF3428',
+  page: '#061316',
+  card: '#0B2028',
+  sunk: '#102831',
+  ink: '#F5F7F7',
+  muted: '#9CB0B4',
+  line: '#24434C',
+  accent: '#00D5D5',
   brand: brand.logoColor,
-  up: '#3DAE78',
-  upText: '#4CC38A',
-  down: '#FF6B5E',
-  live: '#FF6B5E',
-  warn: '#F2C46B',
-  warnBg: '#2E2614',
+  up: '#32C48D',
+  upText: '#32C48D',
+  down: '#FF7068',
+  live: '#FF625C',
+  warn: '#F2D278',
+  warnBg: '#2C291A',
 }
 
 export const radius = { s: 8, m: 12, l: 20 }
@@ -63,7 +62,7 @@ export function initialMode(): ThemeMode {
     const saved = localStorage.getItem(THEME_KEY)
     if (saved === 'light' || saved === 'dark') return saved
   } catch { /* storage unavailable */ }
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return 'dark'
 }
 
 export function saveMode(mode: ThemeMode) {

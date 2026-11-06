@@ -50,7 +50,7 @@ export function MobileSlip() {
               <><span className="flex h-7 w-7 items-center justify-center rounded-full bg-up text-white"><Check size={16} strokeWidth={3} aria-hidden="true" /></span><span className="font-bold">Bet placed</span><span className="text-[13px] text-white/75">View card</span></>
             ) : (
               <>
-                <span className="tnum relative flex h-8 min-w-8 items-center justify-center rounded-full bg-accent px-2 text-[14px] font-extrabold text-white">
+                <span className="tnum relative flex h-8 min-w-8 items-center justify-center rounded-full bg-accent px-2 text-[14px] font-extrabold text-page">
                   {items.length}
                   {attention && <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-ink bg-warn" aria-hidden="true" />}
                 </span>

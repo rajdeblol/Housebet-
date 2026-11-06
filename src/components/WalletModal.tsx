@@ -81,7 +81,7 @@ export function WalletModal({ open, onClose }: { open: boolean; onClose: () => v
                 aria-describedby={error ? 'wallet-error' : undefined}
                 className="tnum h-11 min-w-0 flex-1 rounded-s border border-line bg-page px-3 text-[15px] font-semibold outline-none focus:border-ink"
               />
-              <button type="submit" className="inline-flex h-11 items-center gap-1.5 rounded-s bg-accent px-4 text-[13.5px] font-bold text-white hover:opacity-90">
+              <button type="submit" className="inline-flex h-11 items-center gap-1.5 rounded-s bg-accent px-4 text-[13.5px] font-bold text-page hover:opacity-90">
                 <Plus size={15} aria-hidden="true" /> Add
               </button>
             </form>

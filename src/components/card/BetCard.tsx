@@ -10,14 +10,14 @@ import { useStore } from '../../engine/store'
 export type CardSport = SportId
 
 const sportTheme: Record<CardSport, { bg: string; line: string; label: string }> = {
-  football: { bg: '#1F5C3F', line: 'rgba(246,242,233,.55)', label: 'Football' },
-  basketball: { bg: '#B8622A', line: 'rgba(246,242,233,.6)', label: 'Basketball' },
-  tennis: { bg: '#2F5D8A', line: 'rgba(246,242,233,.7)', label: 'Tennis' },
-  americanfootball: { bg: '#2E6B34', line: 'rgba(246,242,233,.6)', label: 'American football' },
-  baseball: { bg: '#8A5A3B', line: 'rgba(246,242,233,.65)', label: 'Baseball' },
-  icehockey: { bg: '#3C6E8F', line: 'rgba(246,242,233,.7)', label: 'Ice hockey' },
-  cricket: { bg: '#5E7F3A', line: 'rgba(246,242,233,.6)', label: 'Cricket' },
-  mma: { bg: '#2B2A28', line: 'rgba(246,242,233,.45)', label: 'MMA / UFC' },
+  football: { bg: '#103B40', line: 'rgba(2,247,253,.55)', label: 'Football' },
+  basketball: { bg: '#153B48', line: 'rgba(2,247,253,.6)', label: 'Basketball' },
+  tennis: { bg: '#134553', line: 'rgba(2,247,253,.7)', label: 'Tennis' },
+  americanfootball: { bg: '#0E333C', line: 'rgba(2,247,253,.6)', label: 'American football' },
+  baseball: { bg: '#163847', line: 'rgba(2,247,253,.65)', label: 'Baseball' },
+  icehockey: { bg: '#153944', line: 'rgba(2,247,253,.7)', label: 'Ice hockey' },
+  cricket: { bg: '#10413C', line: 'rgba(2,247,253,.6)', label: 'Cricket' },
+  mma: { bg: '#183640', line: 'rgba(2,247,253,.5)', label: 'MMA / UFC' },
 }
 
 /** Pitch / court markings for the header band. */
@@ -84,7 +84,7 @@ function Markings({ sport }: { sport: CardSport }) {
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 360 200" preserveAspectRatio="none" aria-hidden="true">
         <g fill="none" stroke={c} strokeWidth="2">
           <ellipse cx="180" cy="100" rx="200" ry="150" />
-          <rect x="150" y="25" width="60" height="150" fill="rgba(246,242,233,.12)" stroke={c} strokeWidth="1.5" />
+          <rect x="150" y="25" width="60" height="150" fill="rgba(245,247,247,.12)" stroke={c} strokeWidth="1.5" />
           <line x1="145" y1="50" x2="215" y2="50" />
           <line x1="145" y1="150" x2="215" y2="150" />
           {/* Bowling crease stumps */}
@@ -117,7 +117,7 @@ function Markings({ sport }: { sport: CardSport }) {
 
 /** Football: Dynamic Striker striking a volley */
 function FootballPose({ shirt, shorts }: { shirt: string; shorts: string }) {
-  const skin = '#F6F2E9'
+  const skin = '#F5F7F7'
   return (
     <svg viewBox="0 0 170 160" className="h-full w-auto" aria-hidden="true">
       <g stroke={skin} strokeLinecap="round" strokeLinejoin="round" fill="none" opacity=".5" strokeWidth="3">
@@ -144,7 +144,7 @@ function FootballPose({ shirt, shorts }: { shirt: string; shorts: string }) {
 
 /** Cricket: Dynamic Batsman playing a power stroke with bat, pads, and helmet */
 function CricketPose({ shirt, trousers = '#ffffff' }: { shirt: string; trousers?: string }) {
-  const skin = '#F6F2E9'
+  const skin = '#F5F7F7'
   return (
     <svg viewBox="0 0 170 160" className="h-full w-auto" aria-hidden="true">
       {/* Motion swoosh trails */}
@@ -154,19 +154,19 @@ function CricketPose({ shirt, trousers = '#ffffff' }: { shirt: string; trousers?
       </g>
 
       {/* Cricket ball flying off the bat */}
-      <circle cx="148" cy="38" r="7.5" fill="#E4372B" stroke="#ffffff" strokeWidth="1.5" />
+      <circle cx="148" cy="38" r="7.5" fill="#02F7FD" stroke="#ffffff" strokeWidth="1.5" />
       <path d="M 143 36 Q 148 38 153 40" stroke="#ffffff" strokeWidth="1.2" strokeDasharray="2,2" fill="none" />
 
       {/* Cricket Bat in follow-through (raised high, 45 degree angle) */}
       <g transform="rotate(32 105 45)">
         {/* Rubber grip handle */}
-        <rect x="102" y="5" width="7" height="26" rx="2" fill="#EAE5D9" stroke="#16140F" strokeWidth="1.5" />
-        <line x1="102" y1="12" x2="109" y2="12" stroke="#16140F" strokeWidth="1.5" />
-        <line x1="102" y1="19" x2="109" y2="19" stroke="#16140F" strokeWidth="1.5" />
+        <rect x="102" y="5" width="7" height="26" rx="2" fill="#EAE5D9" stroke="#0B2028" strokeWidth="1.5" />
+        <line x1="102" y1="12" x2="109" y2="12" stroke="#0B2028" strokeWidth="1.5" />
+        <line x1="102" y1="19" x2="109" y2="19" stroke="#0B2028" strokeWidth="1.5" />
         {/* Willow Wood blade */}
-        <polygon points="98,31 113,31 115,85 96,85" fill="#E5B26E" stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
+        <polygon points="98,31 113,31 115,85 96,85" fill="#E5B26E" stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
         {/* Sweet spot sticker stripe */}
-        <line x1="101" y1="52" x2="110" y2="52" stroke="#E4372B" strokeWidth="3" />
+        <line x1="101" y1="52" x2="110" y2="52" stroke="#02F7FD" strokeWidth="3" />
       </g>
 
       {/* Batsman Back leg */}
@@ -175,29 +175,29 @@ function CricketPose({ shirt, trousers = '#ffffff' }: { shirt: string; trousers?
       <line x1="86" y1="95" x2="110" y2="132" stroke={trousers} strokeWidth="8" strokeLinecap="round" />
 
       {/* White Batting Leg Pads (Knee rolls & straps) */}
-      <rect x="42" y="102" width="18" height="38" rx="4" fill="#F8F6F0" stroke="#16140F" strokeWidth="2" />
+      <rect x="42" y="102" width="18" height="38" rx="4" fill="#F8F6F0" stroke="#0B2028" strokeWidth="2" />
       <line x1="43" y1="114" x2="59" y2="114" stroke="#999" strokeWidth="1.5" />
       <line x1="43" y1="125" x2="59" y2="125" stroke="#999" strokeWidth="1.5" />
 
-      <rect x="102" y="102" width="20" height="38" rx="4" fill="#F8F6F0" stroke="#16140F" strokeWidth="2" />
+      <rect x="102" y="102" width="20" height="38" rx="4" fill="#F8F6F0" stroke="#0B2028" strokeWidth="2" />
       <line x1="103" y1="114" x2="121" y2="114" stroke="#999" strokeWidth="1.5" />
       <line x1="103" y1="125" x2="121" y2="125" stroke="#999" strokeWidth="1.5" />
 
       {/* Spiked Cricket Boots */}
-      <polygon points="38,140 58,140 56,148 34,148" fill="#fff" stroke="#16140F" strokeWidth="1.5" />
-      <polygon points="100,140 126,140 124,148 98,148" fill="#fff" stroke="#16140F" strokeWidth="1.5" />
+      <polygon points="38,140 58,140 56,148 34,148" fill="#fff" stroke="#0B2028" strokeWidth="1.5" />
+      <polygon points="100,140 126,140 124,148 98,148" fill="#fff" stroke="#0B2028" strokeWidth="1.5" />
 
       {/* Torso with Team Jersey */}
-      <polygon points="60,52 94,48 90,98 58,98" fill={shirt} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
+      <polygon points="60,52 94,48 90,98 58,98" fill={shirt} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
 
       {/* Arms & Batting Gloves */}
       <polyline points="64,58 80,44 100,38" fill="none" stroke={skin} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
       <polyline points="88,58 102,46 106,40" fill="none" stroke={skin} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="100" cy="38" r="6" fill="#F8F6F0" stroke="#16140F" strokeWidth="1.5" />
-      <circle cx="106" cy="40" r="6" fill="#F8F6F0" stroke="#16140F" strokeWidth="1.5" />
+      <circle cx="100" cy="38" r="6" fill="#F8F6F0" stroke="#0B2028" strokeWidth="1.5" />
+      <circle cx="106" cy="40" r="6" fill="#F8F6F0" stroke="#0B2028" strokeWidth="1.5" />
 
       {/* Head with Protective Helmet & Visor */}
-      <circle cx="76" cy="34" r="12" fill={shirt} stroke="#16140F" strokeWidth="2" />
+      <circle cx="76" cy="34" r="12" fill={shirt} stroke="#0B2028" strokeWidth="2" />
       <path d="M 80 32 L 92 36 L 84 42 Z" fill="#222" opacity="0.9" />
       <line x1="82" y1="37" x2="91" y2="37" stroke="#fff" strokeWidth="1.5" />
       <line x1="81" y1="40" x2="88" y2="40" stroke="#fff" strokeWidth="1.5" />
@@ -207,24 +207,24 @@ function CricketPose({ shirt, trousers = '#ffffff' }: { shirt: string; trousers?
 
 /** Basketball: Soaring player dunking a basketball into the hoop */
 function BasketballPose({ jersey, shorts }: { jersey: string; shorts: string }) {
-  const skin = '#F6F2E9'
+  const skin = '#F5F7F7'
   return (
     <svg viewBox="0 0 170 160" className="h-full w-auto" aria-hidden="true">
       {/* Mini Hoop and net on right */}
       <g stroke="#ffffff" opacity=".4" strokeWidth="2" fill="none">
         <line x1="145" y1="15" x2="145" y2="65" />
         <rect x="142" y="18" width="22" height="18" rx="2" />
-        <line x1="128" y1="34" x2="142" y2="34" stroke="#E4372B" strokeWidth="3" />
+        <line x1="128" y1="34" x2="142" y2="34" stroke="#02F7FD" strokeWidth="3" />
         <path d="M 128 34 L 131 52 L 137 52 L 140 34" stroke="#fff" strokeWidth="1.5" strokeDasharray="3,2" />
       </g>
 
       {/* Basketball in soaring hand */}
       <g transform="translate(116, 18)">
-        <circle cx="10" cy="10" r="11" fill="#EA580C" stroke="#16140F" strokeWidth="1.5" />
-        <path d="M 0 10 H 20" stroke="#16140F" strokeWidth="1.2" />
-        <path d="M 10 0 V 20" stroke="#16140F" strokeWidth="1.2" />
-        <path d="M 3 4 Q 10 10 3 16" stroke="#16140F" strokeWidth="1.2" fill="none" />
-        <path d="M 17 4 Q 10 10 17 16" stroke="#16140F" strokeWidth="1.2" fill="none" />
+        <circle cx="10" cy="10" r="11" fill="#EA580C" stroke="#0B2028" strokeWidth="1.5" />
+        <path d="M 0 10 H 20" stroke="#0B2028" strokeWidth="1.2" />
+        <path d="M 10 0 V 20" stroke="#0B2028" strokeWidth="1.2" />
+        <path d="M 3 4 Q 10 10 3 16" stroke="#0B2028" strokeWidth="1.2" fill="none" />
+        <path d="M 17 4 Q 10 10 17 16" stroke="#0B2028" strokeWidth="1.2" fill="none" />
       </g>
 
       {/* Soaring Arm to dunk */}
@@ -235,42 +235,42 @@ function BasketballPose({ jersey, shorts }: { jersey: string; shorts: string }) 
       <polyline points="58,64 42,74 36,68" fill="none" stroke={skin} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
 
       {/* Sleeveless Jersey */}
-      <polygon points="56,50 84,48 86,92 54,92" fill={jersey} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
+      <polygon points="56,50 84,48 86,92 54,92" fill={jersey} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
       <path d="M 66 50 Q 70 58 74 50" stroke="#fff" strokeWidth="2" fill="none" />
 
       {/* Shorts */}
-      <polygon points="52,90 88,90 92,114 76,114 70,102 64,114 48,114" fill={shorts} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
+      <polygon points="52,90 88,90 92,114 76,114 70,102 64,114 48,114" fill={shorts} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
 
       {/* Leaping Legs */}
       <polyline points="56,114 40,132 32,138" fill="none" stroke={skin} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-      <polygon points="26,136 38,136 36,144 22,142" fill="#fff" stroke="#16140F" strokeWidth="1.5" />
+      <polygon points="26,136 38,136 36,144 22,142" fill="#fff" stroke="#0B2028" strokeWidth="1.5" />
 
       <polyline points="84,114 96,130 114,136" fill="none" stroke={skin} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-      <polygon points="110,132 124,136 122,144 108,140" fill="#E4372B" stroke="#16140F" strokeWidth="1.5" />
+      <polygon points="110,132 124,136 122,144 108,140" fill="#02F7FD" stroke="#0B2028" strokeWidth="1.5" />
 
       {/* Head with Headband */}
       <circle cx="70" cy="34" r="11" fill={skin} />
-      <rect x="60" y="28" width="20" height="4" rx="1.5" fill="#E4372B" />
+      <rect x="60" y="28" width="20" height="4" rx="1.5" fill="#02F7FD" />
     </svg>
   )
 }
 
 /** Tennis: Player serving an ace / overhead smash */
 function TennisPose({ shirt, shorts }: { shirt: string; shorts: string }) {
-  const skin = '#F6F2E9'
+  const skin = '#F5F7F7'
   return (
     <svg viewBox="0 0 170 160" className="h-full w-auto" aria-hidden="true">
       {/* Tennis ball */}
       <g transform="translate(124, 14)">
-        <circle cx="8" cy="8" r="8" fill="#CCFF00" stroke="#16140F" strokeWidth="1.5" />
+        <circle cx="8" cy="8" r="8" fill="#CCFF00" stroke="#0B2028" strokeWidth="1.5" />
         <path d="M 3 8 Q 8 4 13 8" stroke="#ffffff" strokeWidth="1.5" fill="none" />
         <path d="M 3 8 Q 8 12 13 8" stroke="#ffffff" strokeWidth="1.5" fill="none" />
       </g>
 
       {/* Racket Smash */}
       <g transform="rotate(-25 106 36)">
-        <rect x="104" y="44" width="5" height="28" rx="1.5" fill="#ffffff" stroke="#16140F" strokeWidth="1.5" />
-        <ellipse cx="106.5" cy="26" rx="14" ry="18" fill="none" stroke="#E4372B" strokeWidth="3" />
+        <rect x="104" y="44" width="5" height="28" rx="1.5" fill="#ffffff" stroke="#0B2028" strokeWidth="1.5" />
+        <ellipse cx="106.5" cy="26" rx="14" ry="18" fill="none" stroke="#02F7FD" strokeWidth="3" />
         <line x1="99" y1="16" x2="99" y2="36" stroke="#ddd" strokeWidth="1" />
         <line x1="106.5" y1="10" x2="106.5" y2="42" stroke="#ddd" strokeWidth="1" />
         <line x1="114" y1="16" x2="114" y2="36" stroke="#ddd" strokeWidth="1" />
@@ -282,29 +282,29 @@ function TennisPose({ shirt, shorts }: { shirt: string; shorts: string }) {
       <polyline points="60,60 72,36 80,20" fill="none" stroke={skin} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
 
       {/* Polo Shirt */}
-      <polygon points="54,54 82,50 80,92 52,92" fill={shirt} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
+      <polygon points="54,54 82,50 80,92 52,92" fill={shirt} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
       <polygon points="64,52 72,52 68,64" fill="#ffffff" />
 
       {/* Shorts */}
-      <polygon points="50,90 82,90 84,110 72,110 68,100 62,110 48,110" fill={shorts} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
+      <polygon points="50,90 82,90 84,110 72,110 68,100 62,110 48,110" fill={shorts} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
 
       {/* Legs */}
       <polyline points="54,110 46,130 40,140" fill="none" stroke={skin} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-      <polygon points="34,138 46,138 44,144 32,144" fill="#fff" stroke="#16140F" strokeWidth="1.5" />
+      <polygon points="34,138 46,138 44,144 32,144" fill="#fff" stroke="#0B2028" strokeWidth="1.5" />
 
       <polyline points="78,110 88,128 96,142" fill="none" stroke={skin} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-      <polygon points="92,140 104,140 102,146 90,146" fill="#fff" stroke="#16140F" strokeWidth="1.5" />
+      <polygon points="92,140 104,140 102,146 90,146" fill="#fff" stroke="#0B2028" strokeWidth="1.5" />
 
       {/* Head */}
       <circle cx="66" cy="36" r="11" fill={skin} />
-      <path d="M 58 32 Q 66 28 74 32" stroke="#E4372B" strokeWidth="4" fill="none" />
+      <path d="M 58 32 Q 66 28 74 32" stroke="#02F7FD" strokeWidth="4" fill="none" />
     </svg>
   )
 }
 
 /** MMA / UFC: Dynamic High Kick & Fighting Stance */
 function MMAPose({ shorts }: { shorts: string }) {
-  const skin = '#F6F2E9'
+  const skin = '#F5F7F7'
   return (
     <svg viewBox="0 0 170 160" className="h-full w-auto" aria-hidden="true">
       {/* Octagon grid lines in background */}
@@ -318,43 +318,43 @@ function MMAPose({ shorts }: { shorts: string }) {
 
       {/* Standing support leg */}
       <polyline points="62,92 52,120 48,146" fill="none" stroke={skin} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
-      <polygon points="40,144 54,144 52,150 38,150" fill={skin} stroke="#16140F" strokeWidth="1.5" />
+      <polygon points="40,144 54,144 52,150 38,150" fill={skin} stroke="#0B2028" strokeWidth="1.5" />
 
       {/* High Head Kick soaring horizontally */}
       <polyline points="72,86 102,70 138,45" fill="none" stroke={skin} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
-      <polygon points="136,41 146,37 144,49 134,47" fill={skin} stroke="#16140F" strokeWidth="1.5" />
-      <circle cx="146" cy="37" r="6" fill="#E4372B" opacity=".7" />
+      <polygon points="136,41 146,37 144,49 134,47" fill={skin} stroke="#0B2028" strokeWidth="1.5" />
+      <circle cx="146" cy="37" r="6" fill="#02F7FD" opacity=".7" />
 
       {/* Muscular Torso */}
-      <polygon points="48,44 80,42 76,88 50,88" fill={skin} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
+      <polygon points="48,44 80,42 76,88 50,88" fill={skin} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
       <line x1="58" y1="54" x2="70" y2="54" stroke="#D3CDBE" strokeWidth="2" />
       <line x1="64" y1="54" x2="64" y2="78" stroke="#D3CDBE" strokeWidth="2" />
 
       {/* Fight Shorts */}
-      <polygon points="46,84 80,82 84,106 68,106 63,94 58,106 44,106" fill={shorts} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
-      <rect x="46" y="82" width="34" height="4" fill="#16140F" />
+      <polygon points="46,84 80,82 84,106 68,106 63,94 58,106 44,106" fill={shorts} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
+      <rect x="46" y="82" width="34" height="4" fill="#0B2028" />
 
       {/* Guard Arms with 4oz MMA gloves */}
       <polyline points="52,50 42,38 54,30" fill="none" stroke={skin} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="54" cy="30" r="6" fill="#E4372B" stroke="#16140F" strokeWidth="1.5" />
+      <circle cx="54" cy="30" r="6" fill="#02F7FD" stroke="#0B2028" strokeWidth="1.5" />
 
       <polyline points="78,48 96,54 112,60" fill="none" stroke={skin} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="112" cy="60" r="6" fill="#E4372B" stroke="#16140F" strokeWidth="1.5" />
+      <circle cx="112" cy="60" r="6" fill="#02F7FD" stroke="#0B2028" strokeWidth="1.5" />
 
       {/* Head */}
-      <circle cx="64" cy="28" r="10" fill={skin} stroke="#16140F" strokeWidth="1.5" />
+      <circle cx="64" cy="28" r="10" fill={skin} stroke="#0B2028" strokeWidth="1.5" />
     </svg>
   )
 }
 
 /** American Football: Quarterback launching a spiral pass */
 function NFLPose({ jersey, pants }: { jersey: string; pants: string }) {
-  const skin = '#F6F2E9'
+  const skin = '#F5F7F7'
   return (
     <svg viewBox="0 0 170 160" className="h-full w-auto" aria-hidden="true">
       {/* Football in flight */}
       <g transform="translate(122, 22) rotate(-35)">
-        <ellipse cx="10" cy="6" rx="10" ry="6" fill="#8A4513" stroke="#16140F" strokeWidth="1.2" />
+        <ellipse cx="10" cy="6" rx="10" ry="6" fill="#8A4513" stroke="#0B2028" strokeWidth="1.2" />
         <line x1="4" y1="6" x2="16" y2="6" stroke="#fff" strokeWidth="1.2" />
         <line x1="8" y1="4" x2="8" y2="8" stroke="#fff" strokeWidth="1" />
         <line x1="12" y1="4" x2="12" y2="8" stroke="#fff" strokeWidth="1" />
@@ -362,58 +362,58 @@ function NFLPose({ jersey, pants }: { jersey: string; pants: string }) {
       {/* Throwing arm */}
       <polyline points="76,52 98,34 116,28" fill="none" stroke={skin} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
       {/* Padded Jersey */}
-      <polygon points="50,44 86,40 82,90 48,90" fill={jersey} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
+      <polygon points="50,44 86,40 82,90 48,90" fill={jersey} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
       {/* Helmet with Face mask */}
-      <circle cx="68" cy="28" r="12" fill={jersey} stroke="#16140F" strokeWidth="2" />
+      <circle cx="68" cy="28" r="12" fill={jersey} stroke="#0B2028" strokeWidth="2" />
       <rect x="74" y="26" width="10" height="8" rx="2" fill="none" stroke="#fff" strokeWidth="1.5" />
       {/* Pants & Cleats */}
-      <polygon points="46,88 84,88 86,122 72,122 66,104 60,122 44,122" fill={pants} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
+      <polygon points="46,88 84,88 86,122 72,122 66,104 60,122 44,122" fill={pants} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
       <polyline points="48,122 42,144" fill="none" stroke={skin} strokeWidth="6" />
-      <polygon points="36,142 48,142 46,148 34,148" fill="#16140F" />
+      <polygon points="36,142 48,142 46,148 34,148" fill="#0B2028" />
       <polyline points="80,122 88,144" fill="none" stroke={skin} strokeWidth="6" />
-      <polygon points="82,142 94,142 92,148 80,148" fill="#16140F" />
+      <polygon points="82,142 94,142 92,148 80,148" fill="#0B2028" />
     </svg>
   )
 }
 
 /** Baseball: Batter swinging for a home run */
 function BaseballPose({ jersey, pants }: { jersey: string; pants: string }) {
-  const skin = '#F6F2E9'
+  const skin = '#F5F7F7'
   return (
     <svg viewBox="0 0 170 160" className="h-full w-auto" aria-hidden="true">
       {/* Baseball */}
-      <circle cx="140" cy="30" r="6" fill="#fff" stroke="#16140F" strokeWidth="1.2" />
-      <path d="M 136 28 Q 140 30 144 28" stroke="#E4372B" strokeWidth="1" fill="none" />
+      <circle cx="140" cy="30" r="6" fill="#fff" stroke="#0B2028" strokeWidth="1.2" />
+      <path d="M 136 28 Q 140 30 144 28" stroke="#02F7FD" strokeWidth="1" fill="none" />
       {/* Baseball Bat */}
       <g transform="rotate(-40 100 45)">
-        <rect x="96" y="10" width="8" height="60" rx="3" fill="#E5B26E" stroke="#16140F" strokeWidth="1.5" />
-        <rect x="98" y="55" width="4" height="20" rx="1" fill="#fff" stroke="#16140F" strokeWidth="1.5" />
+        <rect x="96" y="10" width="8" height="60" rx="3" fill="#E5B26E" stroke="#0B2028" strokeWidth="1.5" />
+        <rect x="98" y="55" width="4" height="20" rx="1" fill="#fff" stroke="#0B2028" strokeWidth="1.5" />
       </g>
       {/* Torso & Helmet */}
-      <polygon points="56,48 84,46 80,92 54,92" fill={jersey} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
+      <polygon points="56,48 84,46 80,92 54,92" fill={jersey} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
       <polyline points="66,54 84,48 98,42" fill="none" stroke={skin} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="70" cy="32" r="11" fill={jersey} stroke="#16140F" strokeWidth="2" />
-      <path d="M 74 30 L 86 34 L 78 36 Z" fill={jersey} stroke="#16140F" strokeWidth="1" />
+      <circle cx="70" cy="32" r="11" fill={jersey} stroke="#0B2028" strokeWidth="2" />
+      <path d="M 74 30 L 86 34 L 78 36 Z" fill={jersey} stroke="#0B2028" strokeWidth="1" />
       {/* Pants & Legs */}
-      <polygon points="52,90 82,90 86,124 72,124 68,106 62,124 48,124" fill={pants} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
-      <polygon points="42,140 54,140 52,146 40,146" fill="#16140F" />
-      <polygon points="80,140 92,140 90,146 78,146" fill="#16140F" />
+      <polygon points="52,90 82,90 86,124 72,124 68,106 62,124 48,124" fill={pants} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
+      <polygon points="42,140 54,140 52,146 40,146" fill="#0B2028" />
+      <polygon points="80,140 92,140 90,146 78,146" fill="#0B2028" />
     </svg>
   )
 }
 
 /** Ice Hockey: Player with stick on skates */
 function HockeyPose({ jersey }: { jersey: string }) {
-  const skin = '#F6F2E9'
+  const skin = '#F5F7F7'
   return (
     <svg viewBox="0 0 170 160" className="h-full w-auto" aria-hidden="true">
       {/* Puck */}
-      <ellipse cx="140" cy="144" rx="8" ry="4" fill="#16140F" />
+      <ellipse cx="140" cy="144" rx="8" ry="4" fill="#0B2028" />
       {/* Hockey Stick */}
       <polyline points="94,54 120,118 144,142 152,142" fill="none" stroke="#E5B26E" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
       {/* Player body */}
-      <polygon points="52,46 86,42 80,92 50,92" fill={jersey} stroke="#16140F" strokeWidth="2" strokeLinejoin="round" />
-      <circle cx="68" cy="28" r="12" fill={jersey} stroke="#16140F" strokeWidth="2" />
+      <polygon points="52,46 86,42 80,92 50,92" fill={jersey} stroke="#0B2028" strokeWidth="2" strokeLinejoin="round" />
+      <circle cx="68" cy="28" r="12" fill={jersey} stroke="#0B2028" strokeWidth="2" />
       <rect x="74" y="26" width="8" height="6" fill="#222" />
       {/* Skates */}
       <polyline points="48,122 36,140" fill="none" stroke={skin} strokeWidth="6" />
@@ -574,7 +574,7 @@ export const BetCard = forwardRef<HTMLDivElement, { bet: Bet; sport?: CardSport 
 
         {/* Housebets wordmark & singles badge */}
         <div className="flex items-center justify-between pt-1">
-          <span className="text-[13px] font-black tracking-tight text-brand">{brand.wordmark}</span>
+          <img src={`${import.meta.env.BASE_URL}housebets-logo.svg`} alt="Housebets" className="h-[16px] w-auto" />
           <span className="text-[10px] font-medium text-muted">Single Bet · 18+ Play Responsibly</span>
         </div>
       </div>

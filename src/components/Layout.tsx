@@ -24,7 +24,7 @@ import { NavigationDrawer } from './NavigationDrawer'
 const tab = ({ isActive }: { isActive: boolean }) =>
   cx(
     'flex h-11 shrink-0 items-center gap-1.5 border-b-2 text-[13.5px] font-semibold transition-colors',
-    isActive ? 'border-accent text-ink' : 'border-transparent text-muted hover:text-ink',
+    isActive ? 'border-brand text-ink' : 'border-transparent text-muted hover:text-ink',
   )
 
 function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpenMenu: () => void }) {
@@ -46,7 +46,7 @@ function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpen
   }, [])
 
   return (
-    <header ref={ref} className="sticky top-0 z-40 border-b border-line bg-page/95 backdrop-blur-md">
+    <header ref={ref} className="sticky top-0 z-40 border-b border-line bg-card/95 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-[1520px] items-center justify-between gap-3 px-4 lg:px-6">
         <div className="flex min-w-0 items-center gap-6">
           <Link to="/" aria-label="Housebets home" className="shrink-0">
@@ -76,7 +76,7 @@ function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpen
             className="flex h-11 items-center gap-2 rounded-s border border-line bg-card px-3 text-[13px] font-semibold text-ink transition-colors hover:border-ink lg:h-10"
             aria-label={`Demo balance ${fmtUSDT(balance)} USDT. Open demo wallet`}
           >
-            <span className="hidden text-muted sm:inline">Demo</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand sm:text-muted">Demo</span>
             <span className="tnum font-extrabold">{fmtUSDT(balance)}</span>
             <span className="hidden text-[11px] font-bold text-muted sm:inline">USDT</span>
           </button>
@@ -129,7 +129,7 @@ function OfflineBanner() {
 export function Footer() {
   return (
     <footer className="mt-12 border-t border-line pt-6 pb-4 text-xs text-muted">
-      <p>Housebets Sportsbook prototype · sample data only, no real teams, players or money · 18+, play responsibly.</p>
+      <p>Demo mode · simulated fixtures, prices and wallet. No real money or wagers. · 18+, play responsibly.</p>
     </footer>
   )
 }

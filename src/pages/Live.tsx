@@ -2,7 +2,7 @@ import { Clock, Radio } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { compById, competitions, sportById, sports } from '../data/competitions'
 import { MatchRow } from '../components/MatchRow'
-import { EmptyState, LiveDot, SectionHeader } from '../components/ui'
+import { EmptyState, Freshness, LiveDot, SectionHeader } from '../components/ui'
 import { useStore } from '../engine/store'
 import { cx } from '../lib/format'
 
@@ -19,7 +19,7 @@ export function LivePage() {
   const compList = competitions.filter((c) => sport === 'all' || c.sport === sport)
   const label = comp !== 'all' ? compById[comp].name : sport !== 'all' ? sportById[sport as keyof typeof sportById].name : ''
 
-  const chip = (active: boolean) => cx('flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-[14px] font-semibold lg:h-9', active ? 'border-ink bg-ink text-white' : 'border-line bg-card hover:border-ink')
+  const chip = (active: boolean) => cx('flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-[14px] font-semibold lg:h-9', active ? 'border-accent bg-accent text-page' : 'border-line bg-card hover:border-ink')
 
   return (
     <div className="mx-auto max-w-[860px]">
@@ -27,6 +27,7 @@ export function LivePage() {
         <h1 className="flex items-center gap-2.5 text-[26px] font-extrabold tracking-tight"><LiveDot className="h-2.5 w-2.5" /> Live</h1>
         <span className="tnum rounded-full bg-sunk px-2.5 py-0.5 text-[13px] font-bold">{live.length} in play</span>
       </div>
+      <p className="mb-4"><Freshness /></p>
 
       <div className="mb-3">
         <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted">Sport</p>

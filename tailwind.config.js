@@ -14,7 +14,7 @@ export default {
       },
       fontFamily: { sans: ['var(--font-sans)'] },
       borderRadius: { s: '8px', m: '12px', l: '20px' },
-      boxShadow: { raised: '0 1px 0 rgb(22 20 15 / 0.04), 0 8px 24px -12px rgb(22 20 15 / 0.18)' },
+      boxShadow: { raised: '0 1px 0 rgb(0 26 31 / 0.05), 0 8px 24px -12px rgb(0 26 31 / 0.2)' },
       screens: { xs: '420px' },
     },
   },

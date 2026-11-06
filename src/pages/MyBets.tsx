@@ -35,7 +35,7 @@ function CashOut({ bet }: { bet: Bet }) {
         <div className="mt-2.5 grid grid-cols-2 gap-2">
           <button type="button" onClick={() => setConfirming(null)} className="h-11 rounded-s border border-line bg-card text-[14px] font-semibold hover:border-ink">Cancel</button>
           <button ref={confirmRef} type="button" onClick={() => (moved ? setConfirming(value) : actions.cashOut(bet.id, value))}
-            className="tnum h-11 rounded-s bg-accent text-[14px] font-bold text-white">
+            className="tnum h-11 rounded-s bg-accent text-[14px] font-bold text-page">
             {moved ? 'Review new amount' : `Confirm ${fmtUSDT(value)}`}
           </button>
         </div>

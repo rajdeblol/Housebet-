@@ -33,7 +33,7 @@ export function DemoPanel() {
             {live.map((m) => <option key={m.id} value={m.id}>{sportById[m.sport].name}: {teams[m.home].name} v {teams[m.away].name}</option>)}
           </select>
           <div className="space-y-1.5">
-            <button type="button" className="flex h-11 w-full items-center gap-2.5 rounded-s bg-accent px-3 text-left text-[14px] font-bold text-white disabled:opacity-40" disabled={!tm} onClick={() => actions.simulateGoal()}>
+            <button type="button" className="flex h-11 w-full items-center gap-2.5 rounded-s bg-accent px-3 text-left text-[14px] font-bold text-page disabled:opacity-40" disabled={!tm} onClick={() => actions.simulateGoal()}>
               <Goal size={16} aria-hidden="true" /> {!tm || tm.sport === 'football' ? 'Simulate goal' : `Simulate ${sportById[tm.sport].scoreWord.toLowerCase()}`}
             </button>
             {tm && (

@@ -17,12 +17,13 @@ export const SlipItemCard = forwardRef<HTMLInputElement, { item: SlipItem }>(fun
   const v = itemView(item, getState())
   const { m, mk, sel, kind, reason, stakeError } = v
   const stake = parseFloat(item.stake)
-  const ret = !isNaN(stake) && stake > 0 ? stake * (kind === 'changed' ? sel.odds : item.accepted) : 0
+  // Keep the card return aligned with the slip total while a new price awaits acceptance.
+  const ret = !isNaN(stake) && stake > 0 ? stake * item.accepted : 0
   const blocked = kind === 'closed' || kind === 'suspended'
   const inputId = `stake-${item.selId}`
 
   return (
-    <li className={cx('slide-in rounded-m border bg-card', kind === 'ok' ? 'border-line' : kind === 'changed' ? 'border-ink' : 'border-line')}>
+    <li className={cx('slide-in rounded-m border bg-sunk', kind === 'ok' ? 'border-line' : kind === 'changed' ? 'border-accent' : 'border-line')}>
       <div className="flex items-start gap-3 px-3.5 pt-3">
         <div className="min-w-0 flex-1">
           <p className="truncate text-[15px] font-bold leading-snug">{sel.label}</p>
@@ -59,7 +60,7 @@ export const SlipItemCard = forwardRef<HTMLInputElement, { item: SlipItem }>(fun
           role="status"
           className={cx(
             'mx-3.5 mt-2.5 flex items-start gap-2 rounded-s px-2.5 py-2 text-[13px] font-medium',
-            kind === 'changed' ? 'bg-sunk text-ink' : 'bg-warnBg text-warn',
+            kind === 'changed' ? 'bg-page text-ink' : 'bg-warnBg text-warn',
           )}
         >
           {kind === 'suspended' ? <Lock size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> : kind === 'closed' ? <Ban size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> : <AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />}
@@ -87,7 +88,7 @@ export const SlipItemCard = forwardRef<HTMLInputElement, { item: SlipItem }>(fun
             <span className="text-[12px] font-semibold text-muted">USDT</span>
           </div>
           <div className="flex min-w-[96px] flex-col justify-center text-right">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">Return</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">{kind === 'changed' ? `Return @ ${fmtOdds(item.accepted)}` : 'Return'}</span>
             <span className="tnum text-[15px] font-bold">{fmtUSDT(ret)}</span>
           </div>
         </div>

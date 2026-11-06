@@ -106,11 +106,11 @@ export function BetSlip({ inSheet = false }: { inSheet?: boolean }) {
   else if (overBalance) { disabled = true; hint = `Total stake is more than your demo balance (${fmtUSDT(balance)} USDT).` }
 
   return (
-    <div className={cx('flex h-full flex-col bg-page', inSheet && 'pb-[max(16px,env(safe-area-inset-bottom))]')}>
+    <div className={cx('flex h-full flex-col bg-card', inSheet && 'pb-[max(16px,env(safe-area-inset-bottom))]')}>
       <div className="flex items-center justify-between border-b border-line px-4 py-3">
         <h2 className="flex items-center gap-2 text-[16px] font-extrabold">
           Bet slip
-          {items.length > 0 && <span className="tnum rounded-full bg-accent px-2 text-[12px] font-bold text-white">{items.length}</span>}
+          {items.length > 0 && <span className="tnum rounded-full bg-accent px-2 text-[12px] font-bold text-page">{items.length}</span>}
         </h2>
         <span className="text-[12px] font-semibold text-muted">Singles only</span>
       </div>
@@ -178,7 +178,7 @@ export function BetSlip({ inSheet = false }: { inSheet?: boolean }) {
                 onClick={actions.placeBets}
                 disabled={disabled}
                 aria-describedby={hint ? 'slip-hint' : undefined}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-s bg-accent text-[15px] font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-s bg-accent text-[15px] font-bold text-page transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
               >
                 {placing ? <><Spinner /> Placing…</> : cta}
               </button>

@@ -126,7 +126,7 @@ export function Freshness({ className }: { className?: string }) {
   const ago = secs <= 1 ? 'just now' : secs < 60 ? `${secs}s ago` : `${Math.floor(secs / 60)}m ago`
   return (
     <span className={cx('tnum text-[12px] font-medium', offline ? 'text-warn' : 'text-muted', className)}>
-      {offline ? `Paused offline · last update ${ago}` : `Sample data · updated ${ago}`}
+      {offline ? `Demo prices paused · last update ${ago}` : `Demo · simulated prices · updated ${ago}`}
     </span>
   )
 }

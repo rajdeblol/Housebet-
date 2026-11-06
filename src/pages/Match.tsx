@@ -45,7 +45,7 @@ function GoalTicker({ m }: { m: Match }) {
   const team = teams[m.goal.side ? m.away : m.home]
   return (
     <div key={m.goal.at} className="slide-in flex items-center justify-center gap-2 rounded-s bg-ink px-3 py-1.5 text-[13px] font-semibold text-white" role="status">
-      <span className="rounded-[4px] bg-accent px-1.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-white">{m.goal.label}</span>
+      <span className="rounded-[4px] bg-accent px-1.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-page">{m.goal.label}</span>
       {m.goal.text || team.name}
     </div>
   )

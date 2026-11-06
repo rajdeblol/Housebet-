@@ -8,8 +8,8 @@ import { SportIcon } from '../lib/sportIcons'
 
 const item = (active: boolean) =>
   cx(
-    'flex h-10 items-center gap-2.5 rounded-s px-2.5 text-[13.5px] transition-colors',
-    active ? 'bg-sunk font-bold text-ink' : 'font-medium text-ink/85 hover:bg-sunk/70 hover:text-ink',
+    'flex h-10 items-center gap-2.5 rounded-s border-l-2 px-2 text-[13.5px] transition-colors',
+    active ? 'border-brand bg-brand/10 font-bold text-ink' : 'border-transparent font-medium text-ink/85 hover:bg-sunk/70 hover:text-ink',
   )
 
 function Count({ n, live }: { n: number; live?: boolean }) {
@@ -39,7 +39,7 @@ export function Sidebar() {
   return (
     <nav
       aria-label="Sports navigation"
-      className="sticky top-[var(--hdr,65px)] hidden h-[calc(100vh-var(--hdr,65px))] w-[216px] shrink-0 overflow-y-auto border-r border-line px-3 py-4 lg:block"
+      className="sticky top-[var(--hdr,65px)] hidden h-[calc(100vh-var(--hdr,65px))] w-[216px] shrink-0 overflow-y-auto border-r border-line bg-card px-3 py-4 lg:block"
     >
       <ul className="space-y-0.5">
         <Item to="/" end icon={<House size={16} aria-hidden="true" />} label="Home" />

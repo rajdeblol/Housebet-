@@ -4,19 +4,19 @@
 
 <br/>
 
-[![Contest](https://img.shields.io/badge/CONTEST%20LABS-SPORTSBOOK%20DESIGN-E4372B?style=for-the-badge&logo=target)](https://www.housebets.com/contests/sportsbook-design)
+[![Contest](https://img.shields.io/badge/CONTEST%20LABS-SPORTSBOOK%20DESIGN-00D5D5?style=for-the-badge&logo=target)](https://www.housebets.com/contests/sportsbook-design)
 [![Prize Pool](https://img.shields.io/badge/PRIZE%20POOL-%2415%2C000%20USD-FFD700?style=for-the-badge&logo=cashapp&logoColor=000000)](https://www.housebets.com/contests/sportsbook-design)
-[![Prototype](https://img.shields.io/badge/PROTOTYPE-CLICKABLE%20LIVE-00D26A?style=for-the-badge&logo=statuspage&logoColor=white)](https://rajdeblol.github.io/Housebet-/)
-[![Format](https://img.shields.io/badge/FORMAT-SINGLES%20ONLY-61DAFB?style=for-the-badge&logo=react&logoColor=000000)](https://rajdeblol.github.io/Housebet-/)
+[![Prototype](https://img.shields.io/badge/PROTOTYPE-CLICKABLE%20LIVE-00D26A?style=for-the-badge&logo=statuspage&logoColor=white)](https://housebet-steel.vercel.app/)
+[![Format](https://img.shields.io/badge/FORMAT-SINGLES%20ONLY-61DAFB?style=for-the-badge&logo=react&logoColor=000000)](https://housebet-steel.vercel.app/)
 [![License](https://img.shields.io/badge/LICENSE-MIT-38B2AC?style=for-the-badge)](./LICENSE)
 
 <br/>
 
-### 🎮 **[👉 Click Here to Launch Live Interactive Prototype](https://rajdeblol.github.io/Housebet-/)**
+### 🎮 **[👉 Click Here to Launch Live Interactive Prototype](https://housebet-steel.vercel.app/)**
 
 *Official submission for the [Housebets Contest Labs: Sportsbook Design Contest](https://www.housebets.com/contests/sportsbook-design).*
 
-[Live Demo](https://rajdeblol.github.io/Housebet-/) • [The Big Idea](#-the-big-idea) • [5-Page Breakdown](#-pages--routes) • [Sports Coverage](#-multi-sport-coverage) • [Demo Controls](#-interactive-judge-controls) • [Technical Specs](#-technical-specifications)
+[Live Demo](https://housebet-steel.vercel.app/) • [The Big Idea](#-the-big-idea) • [5-Page Breakdown](#-pages--routes) • [Sports Coverage](#-multi-sport-coverage) • [Demo Controls](#-interactive-judge-controls) • [Technical Specs](#-technical-specifications)
 
 </div>
 
@@ -29,7 +29,7 @@
 > One goal makes the whole screen react: the score flips like a stadium board, related markets are suspended for a few seconds, prices tick back in green and red, and your slip asks you to accept the new odds before anything is placed. Every bet ends as a shareable card.
 
 * **Singles only**: each pick is its own bet with its own stake, decimal odds and stakes in USDT.
-* **Two original looks**: warm "paper scoreboard" light mode and a charcoal dark mode, switchable in the header.
+* **Two original looks**: cool scoreboard light mode and a dark navy-teal mode, switchable in the header.
 * **Sample data only**: every team and player is fictional, the wallet is a demo balance and prices are simulated in the browser. No real money.
 
 ---
@@ -134,8 +134,8 @@ src/
 <summary><b>🎨 Brand Palette & Accessibility</b></summary>
 <br/>
 
-- **Palette**: Housebets crimson `#E4372B` and `#CF3428` (deepened for WCAG AA 5.0:1 contrast on white text).
-- **Odds Indicators**: `#19774C` (contrast-safe up-text) and `#1E8E5A` (up-flashes / arrows).
+- **Palette**: Housebets cyan `#02F7FD` on navy-teal surfaces (`#061316`, `#0B2028`, `#102831`); selected odds and primary actions use turquoise.
+- **Odds Indicators**: `#32C48D` (up) and `#FF7068` (down), with text labels alongside price movement.
 - **Accessible Interactions**: 44px minimum tap targets on mobile, visible focus rings, and aria-labels on icon controls.
 - **Tabular Numerics**: `tnum` typography throughout so changing odds never cause jitter or layout reflow.
 - **Reduced Motion**: Full support for `prefers-reduced-motion` to smoothly disable flips and shutters.
