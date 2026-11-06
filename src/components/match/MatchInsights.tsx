@@ -1,5 +1,5 @@
 import { Activity, Bell, BellRing, Check, CircleHelp, Clock3, ShieldCheck } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Market, Match } from '../../engine/types'
 import { cx, kickoffLabel } from '../../lib/format'
 import { statusShort } from '../../lib/sport'
@@ -52,6 +52,7 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
   const [hoverTime, setHoverTime] = useState<number | null>(null)
   const [touchPinned, setTouchPinned] = useState(false)
   const [range, setRange] = useState<ChartRange>('ALL')
+  const axisBounds = useRef<{ marketId: string; min: number; max: number } | null>(null)
   const now = useStore((s) => s.now)
   const selections = market?.selections ?? []
 
@@ -109,6 +110,12 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
       else axisMin = Math.max(0, axisMax - 24)
     }
   }
+  // Keep the vertical scale fixed while fresh simulated prices arrive. If it
+  // auto-fits on every tick, the whole graph jumps and looks like flicker.
+  const scaleKey = market?.id ?? match.id
+  if (axisBounds.current?.marketId !== scaleKey) axisBounds.current = { marketId: scaleKey, min: axisMin, max: axisMax }
+  const chartAxisMin = axisBounds.current.min
+  const chartAxisMax = axisBounds.current.max
   const currentImplied = selections.map((selection) => 1 / Math.max(1.01, selection.odds))
   const currentTotal = currentImplied.reduce((sum, value) => sum + value, 0) || 1
   const currentProbabilities = currentImplied.map((value) => value / currentTotal * 100)
@@ -190,20 +197,20 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
                 const next = Math.max(0, Math.min(times.length - 1, current + (event.key === 'ArrowRight' ? 1 : -1)))
                 if (times[next] !== undefined) setHoverTime(times[next])
               }}>
-              {[18, 55, 92, 129, 166].map((y, index) => <g key={y}><line x1="10" x2="610" y1={y} y2={y} stroke="rgb(var(--line))" strokeWidth="1" strokeDasharray="3 5" /><text x="634" y={y + 3} textAnchor="end" fill="rgb(var(--muted))" fontSize="9">{Math.round(axisMax - (axisMax - axisMin) * index / 4)}%</text></g>)}
+              {[18, 55, 92, 129, 166].map((y, index) => <g key={y}><line x1="10" x2="610" y1={y} y2={y} stroke="rgb(var(--line))" strokeWidth="1" strokeDasharray="3 5" /><text x="634" y={y + 3} textAnchor="end" fill="rgb(var(--muted))" fontSize="9">{Math.round(chartAxisMax - (chartAxisMax - chartAxisMin) * index / 4)}%</text></g>)}
               {probabilitySeries.map(({ selection, index: i, points }) => {
                 if (visible[selection.id] === false) return null
                 const lastPoint = points[points.length - 1]
                 return (
                   <g key={selection.id}>
-                    <path d={linePath(points, chartStart, tickEnd, axisMin, axisMax)} fill="none" stroke={seriesColors[i % seriesColors.length]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-                    <circle cx={timeToX(lastPoint.time)} cy={probabilityY(lastPoint.value, axisMin, axisMax)} r="4" fill={seriesColors[i % seriesColors.length]} stroke="rgb(var(--card))" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                    <path d={linePath(points, chartStart, tickEnd, chartAxisMin, chartAxisMax)} fill="none" stroke={seriesColors[i % seriesColors.length]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+                    <circle cx={timeToX(lastPoint.time)} cy={probabilityY(lastPoint.value, chartAxisMin, chartAxisMax)} r="4" fill={seriesColors[i % seriesColors.length]} stroke="rgb(var(--card))" strokeWidth="2" vectorEffect="non-scaling-stroke" />
                   </g>
                 )
               })}
               {hoverTime !== null && <line x1={timeToX(hoverTime)} x2={timeToX(hoverTime)} y1="18" y2="166" stroke="rgb(var(--ink))" strokeWidth="1.5" strokeDasharray="3 3" opacity=".8" pointerEvents="none" />}
               {hoverTime !== null && hoveredPrices.map(({ selection, point }, index) => point && visible[selection.id] !== false && (
-                <circle key={`hover-${selection.id}`} cx={timeToX(point.time)} cy={probabilityY(point.value, axisMin, axisMax)} r="5" fill={seriesColors[index % seriesColors.length]} stroke="rgb(var(--card))" strokeWidth="2" pointerEvents="none" />
+                <circle key={`hover-${selection.id}`} cx={timeToX(point.time)} cy={probabilityY(point.value, chartAxisMin, chartAxisMax)} r="5" fill={seriesColors[index % seriesColors.length]} stroke="rgb(var(--card))" strokeWidth="2" pointerEvents="none" />
               ))}
               {visibleEvents.map(({ event, key }) => {
                 const x = timeToX(event.at!)
