@@ -72,6 +72,11 @@
 .odds-selected { animation: odds-selected 260ms ease-out; }
 @keyframes settled-reveal { 0% { box-shadow: 0 0 0 0 rgb(var(--brand) / 0); } 30% { box-shadow: 0 0 0 3px rgb(var(--brand) / .24); } 100% { box-shadow: 0 0 0 0 rgb(var(--brand) / 0); } }
 .settled-reveal { animation: settled-reveal 1s ease-out; }
+.faceoff-enter { animation: faceoff-enter 280ms cubic-bezier(.2,.7,.2,1) both; }
+.faceoff-bar { transition: width 650ms cubic-bezier(.2,.7,.2,1); }
+.faceoff-portrait { transition: transform 220ms ease, box-shadow 220ms ease; }
+.faceoff-portrait:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgb(0 0 0 / .2); }
+@keyframes faceoff-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* Slip slide-in / collapse */
 @keyframes slide-in { from { transform: translateX(12px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -94,7 +99,8 @@
 .countdown { transform-origin: left; animation: countdown 5s linear forwards; }
 
 @media (prefers-reduced-motion: reduce) {
-  .live-dot, .shutter, .slide-in, .slip-value-change, .sheet-up, .reveal-down, .pop, .score-updated, .team-score-flash, .event-enter, .event-marker-active circle, .odds-selected, .settled-reveal { animation: none !important; }
+  .live-dot, .shutter, .slide-in, .slip-value-change, .sheet-up, .reveal-down, .pop, .score-updated, .team-score-flash, .event-enter, .event-marker-active circle, .odds-selected, .settled-reveal, .faceoff-enter { animation: none !important; }
+  .faceoff-bar, .faceoff-portrait { transition: none !important; }
   .flap-top, .flap-bottom { animation: none !important; display: none; }
   .tick-up, .tick-down { animation-duration: 1ms !important; }
   .countdown { animation: none; }

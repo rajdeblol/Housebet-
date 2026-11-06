@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, Play, Sparkles } from 'lucide-react'
+import { Activity, ChevronDown, ChevronLeft, Play, Sparkles, Ticket, Users } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { compById, sportById, sportPath } from '../data/competitions'
@@ -6,6 +6,7 @@ import { teams } from '../data/teams'
 import { FlipScore } from '../components/match/FlipScore'
 import { MatchPrediction } from '../components/match/MatchPrediction'
 import { MatchTimeline } from '../components/match/MatchTimeline'
+import { MatchupPanel } from '../components/match/MatchupPanel'
 import { MarketCard } from '../components/match/MarketCard'
 import { MarketPulse, MatchMarketInfo } from '../components/match/MatchInsights'
 import { Crest, FollowButton, LiveDot } from '../components/ui'
@@ -144,6 +145,7 @@ export function MatchPage() {
   const groups = sportById[m?.sport ?? 'football'].groups
   const [open, setOpen] = useState<Partial<Record<GroupId, boolean>>>({ popular: true })
   const [active, setActive] = useState<GroupId>('popular')
+  const [view, setView] = useState<'bet' | 'matchup' | 'insights'>('bet')
   const [activeEventKey, setActiveEventKey] = useState<string | null>(null)
   const sectionRefs = useRef<Partial<Record<GroupId, HTMLElement | null>>>({})
 
@@ -194,7 +196,7 @@ export function MatchPage() {
   }, [id])
 
   // new match: reset groups
-  useEffect(() => { setOpen({ popular: true }); setActive('popular'); setActiveEventKey(null) }, [id])
+  useEffect(() => { setOpen({ popular: true }); setActive('popular'); setActiveEventKey(null); setView('bet') }, [id])
 
   if (!m) return <NotFound />
 
@@ -202,36 +204,30 @@ export function MatchPage() {
     <div className="mx-auto max-w-[860px]">
       <div ref={stickyRef} className="sticky top-[var(--hdr,65px)] z-30 -mx-4 border-b border-line bg-page px-4 lg:-mx-6 lg:px-6">
         <Scoreboard m={m} compact={compact} />
-        <nav aria-label="Market groups" className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-3 pt-1">
-          {groups.map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              onClick={() => jump(g.id)}
-              aria-current={active === g.id ? 'true' : undefined}
-              className={cx(
-                'h-11 shrink-0 rounded-full border px-4 text-[14px] font-semibold lg:h-9',
-                active === g.id ? 'border-ink bg-ink text-white' : 'border-line bg-card text-ink hover:border-ink',
-              )}
-            >
-              {g.name}
+        <nav aria-label="Match sections" className="grid grid-cols-3 gap-1 rounded-xl border border-line bg-sunk/70 p-1">
+          {([
+            { id: 'bet', label: 'Bet', Icon: Ticket },
+            { id: 'matchup', label: 'Face-off', Icon: Users },
+            { id: 'insights', label: 'Insights', Icon: Activity },
+          ] as const).map(({ id: section, label, Icon }) => (
+            <button key={section} type="button" aria-pressed={view === section} onClick={() => setView(section)}
+              className={cx('flex h-10 items-center justify-center gap-1.5 rounded-lg px-2 text-[12px] font-bold transition-colors sm:text-[13px]', view === section ? 'bg-card text-ink shadow-raised' : 'text-muted hover:text-ink')}>
+              <Icon size={14} aria-hidden="true" />{label}
             </button>
           ))}
         </nav>
+        {view === 'bet' && <nav aria-label="Bet market groups" className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-3 pt-2">
+          {groups.map((g) => (
+            <button key={g.id} type="button" onClick={() => jump(g.id)} aria-current={active === g.id ? 'true' : undefined}
+              className={cx('h-10 shrink-0 rounded-full border px-4 text-[13px] font-semibold', active === g.id ? 'border-ink bg-ink text-white' : 'border-line bg-card text-ink hover:border-ink')}>
+              {g.name}
+            </button>
+          ))}
+        </nav>}
       </div>
 
-      <div className="mt-4 space-y-4">
-        {m.sport === 'football' && m.status === 'live' && <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[11.5px] text-muted">Live demo controls · simulated events</p>
-          <DemoMomentButton match={m} />
-        </div>}
-        <MatchPrediction match={m} market={markets[`${id}:${mainKey(m)}`]} />
-        <MatchTimeline match={m} activeEventKey={activeEventKey} onEventSelect={setActiveEventKey} />
-        <MarketPulse market={markets[`${id}:${mainKey(m)}`]} match={m} activeEventKey={activeEventKey} onEventSelect={setActiveEventKey} />
-        {m.status === 'ft' && (
-          <p className="rounded-m border border-line bg-card px-4 py-3 text-[14px]">This match has finished. Markets are closed and open bets have been settled in My bets.</p>
-        )}
-        {groups.map((g) => {
+      <div className="mt-4 space-y-4" key={view}>
+        {view === 'bet' && groups.map((g) => {
           const ids = byGroup[g.id] ?? []
           const isOpen = open[g.id]
           return (
@@ -256,7 +252,17 @@ export function MatchPage() {
             </section>
           )
         })}
-        <MatchMarketInfo match={m} />
+        {view === 'matchup' && <MatchupPanel match={m} market={markets[`${id}:${mainKey(m)}`]} />}
+        {view === 'insights' && <>
+          {m.sport === 'football' && m.status === 'live' && <div className="flex flex-wrap items-center justify-between gap-2 rounded-m border border-line bg-card px-3 py-2.5">
+            <p className="text-[11.5px] text-muted">Demo controls · simulated match events</p><DemoMomentButton match={m} />
+          </div>}
+          <MatchPrediction match={m} market={markets[`${id}:${mainKey(m)}`]} />
+          <MatchTimeline match={m} activeEventKey={activeEventKey} onEventSelect={setActiveEventKey} />
+          <MarketPulse market={markets[`${id}:${mainKey(m)}`]} match={m} activeEventKey={activeEventKey} onEventSelect={setActiveEventKey} />
+          {m.status === 'ft' && <p className="rounded-m border border-line bg-card px-4 py-3 text-[14px]">This match has finished. Markets are closed and open bets have been settled in My bets.</p>}
+          <MatchMarketInfo match={m} />
+        </>}
       </div>
     </div>
   )
