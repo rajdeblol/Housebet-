@@ -28,7 +28,7 @@ export function SportsNav() {
               )
             }
           >
-            <SportIcon id={sp.id} size={15} />
+            <SportIcon id={sp.id} size={19} />
             {sp.name}
             {liveN > 0 && (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-live">
@@ -238,7 +238,7 @@ export function HomePage() {
           {exploreSports.map((sp) => {
             const inPlay = live.filter((m) => m.sport === sp.id).length
             return <li key={sp.id}><Link to={sportPath(sp.id)} className="flex min-h-[62px] items-center gap-3 rounded-m border border-line bg-card px-3 transition-colors hover:border-brand/70">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-s bg-brand/10 text-brand"><SportIcon id={sp.id} size={18} /></span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-line bg-card shadow-sm"><SportIcon id={sp.id} size={23} /></span>
               <span className="min-w-0 flex-1"><span className="block truncate text-[13.5px] font-bold">{sp.name}</span><span className="block text-[11.5px] text-muted">{inPlay > 0 ? `${inPlay} in demo play` : 'View fixtures'}</span></span>
               <ArrowRight size={14} className="shrink-0 text-muted" aria-hidden="true" />
             </Link></li>
