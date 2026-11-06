@@ -464,9 +464,9 @@ export const BetCard = forwardRef<HTMLDivElement, { bet: Bet; sport?: CardSport 
   const pnlColor = profit < 0 ? '#FF7068' : '#2DE0C0'
 
   return (
-    <div ref={ref} className="w-[340px] overflow-hidden rounded-2xl border border-line bg-card text-ink shadow-xl" style={{ fontFamily: brand.fontFamily }}>
+    <div ref={ref} className="w-[min(380px,calc(100vw-48px))] overflow-hidden rounded-2xl border border-line bg-card text-ink shadow-xl" style={{ fontFamily: brand.fontFamily }}>
       {/* Sport artwork supplied for Housebets share cards. */}
-      <div className="relative h-[200px] overflow-hidden bg-cover bg-center" style={{ backgroundColor: theme.bg, backgroundImage: `url("${shareCardArt[sport]}")` }}>
+      <div className="relative h-[224px] overflow-hidden bg-cover bg-center" style={{ backgroundColor: theme.bg, backgroundImage: `url("${shareCardArt[sport]}")` }}>
         {!shareCardArt[sport] && <>
           <Markings sport={sport} />
           <div className="absolute inset-y-0 right-0 flex w-[170px] items-end justify-center pb-1">
@@ -483,7 +483,7 @@ export const BetCard = forwardRef<HTMLDivElement, { bet: Bet; sport?: CardSport 
         <div className="relative flex h-full items-end bg-gradient-to-t from-black/55 via-transparent to-transparent p-4 text-white">
           <div className="absolute left-4 top-[62px] z-10 max-w-[195px] drop-shadow-[0_2px_8px_rgba(0,0,0,.85)]">
             <p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-white/80">{pnlLabel}</p>
-            <p className="tnum truncate text-[26px] font-black leading-tight tracking-tight" style={{ color: pnlColor }}>
+            <p className="tnum truncate text-[28px] font-black leading-tight tracking-tight" style={{ color: pnlColor }}>
               {profit < 0 ? '−' : profit > 0 ? '+' : ''}{fmtUSDT(Math.abs(profit))} <span className="text-[14px]">USDT</span>
             </p>
           </div>

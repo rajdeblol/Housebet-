@@ -32,7 +32,7 @@ export function BetCardModal() {
   if (!id) return null
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center" onClick={() => actions.openCard(null)}>
-      <div role="dialog" aria-modal="true" aria-label="Bet card" className="sheet-up max-h-[92vh] w-full overflow-y-auto rounded-t-l border border-line bg-page p-5 sm:w-auto sm:rounded-l" onClick={(e) => e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-label="Bet card" className="sheet-up max-h-[92vh] w-full overflow-y-auto rounded-t-l border border-line bg-page p-3 sm:w-auto sm:rounded-l sm:p-5" onClick={(e) => e.stopPropagation()}>
         <div className="mb-3 flex items-center justify-between gap-6">
           <h2 className="text-[17px] font-extrabold">Bet card</h2>
           <button ref={closeRef} type="button" onClick={() => actions.openCard(null)} aria-label="Close bet card" className="flex h-11 w-11 items-center justify-center rounded-s hover:bg-sunk">
