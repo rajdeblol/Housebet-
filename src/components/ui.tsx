@@ -7,6 +7,13 @@ import { cx } from '../lib/format'
 /** Ultra-clean, modern circular sports crest with team gradients and bold monogram. */
 export function Crest({ id, size = 28, className }: { id: string; size?: number; className?: string }) {
   const t = teams[id]
+  // FotMob's public crest CDN; these clubs are real, but the fixtures and player names in this prototype are simulated.
+  const fotmobTeamIds: Record<string, number> = {
+    harrowgate: 9825, redfield: 8455, aurelia: 8633, torrenza: 8634, elbstadt: 9823,
+    dornbach: 9789, kingsmere: 8650, castellar: 8456, varena: 9906, montalbo: 8586,
+    ashcombe: 10261, blackwater: 10252, calanne: 8564, montefiore: 8636, rheinau: 9885,
+    kalberg: 9875, fenwick: 9847, albera: 9772, salvara: 9768, corvera: 9773,
+  }
   if (!t) {
     return (
       <div
@@ -18,7 +25,7 @@ export function Crest({ id, size = 28, className }: { id: string; size?: number;
     )
   }
 
-  if (t.logo) {
+  if (t.logo || fotmobTeamIds[id]) {
     return (
       <span
         style={{ width: size, height: size }}
@@ -27,7 +34,7 @@ export function Crest({ id, size = 28, className }: { id: string; size?: number;
         aria-label={`${t.name} crest`}
         title={t.name}
       >
-        <img src={`${import.meta.env.BASE_URL}${t.logo}`} alt="" width={size} height={size} loading="lazy" decoding="async" className={cx('h-full w-full object-contain', t.id === 'rheinau' && 'brightness-0')} />
+        <img src={t.logo ? `${import.meta.env.BASE_URL}${t.logo}` : `https://images.fotmob.com/image_resources/logo/teamlogo/${fotmobTeamIds[id]}.png`} alt="" width={size} height={size} loading="lazy" decoding="async" className={cx('h-full w-full object-contain', t.id === 'rheinau' && 'brightness-0')} />
       </span>
     )
   }
