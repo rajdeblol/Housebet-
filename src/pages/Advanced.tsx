@@ -46,9 +46,9 @@ function FeatureTile({ pick, selected, onToggle, teamsByMatch }: { pick: DemoPic
   const home = teamsByMatch ? teams[teamsByMatch.home] : undefined
   const away = teamsByMatch ? teams[teamsByMatch.away] : undefined
   return (
-    <button type="button" aria-pressed={selected} onClick={onToggle} className={cx('w-full rounded-xl border p-3 text-left transition-all hover:-translate-y-0.5', selected ? 'border-accent bg-accent/10 ring-1 ring-accent/30' : 'border-line bg-card hover:border-ink')}>
-      <span className="flex items-center justify-between gap-2 text-[10px] font-extrabold uppercase tracking-wider text-muted"><span>{pick.comp} · {pick.market}</span><span className="tnum text-brand">{pick.odds.toFixed(2)}</span></span>
-      {teamsByMatch ? <span className="mt-2 flex items-center gap-2 text-[12.5px] font-bold"><Crest id={teamsByMatch.home} size={21} /><span className="truncate">{home?.name}</span><span className="text-muted">v</span><span className="truncate">{away?.name}</span><Crest id={teamsByMatch.away} size={21} /><span className="ml-auto truncate text-brand">{pick.label}</span></span> : <span className="mt-2 block text-[14px] font-extrabold">{pick.label}</span>}
+    <button type="button" aria-pressed={selected} onClick={onToggle} className={cx('min-w-0 w-full rounded-xl border p-3 text-left transition-all hover:-translate-y-0.5', selected ? 'border-accent bg-accent/10 ring-1 ring-accent/30' : 'border-line bg-card hover:border-ink')}>
+      <span className="flex min-w-0 items-center justify-between gap-2 text-[10px] font-extrabold uppercase tracking-wider text-muted"><span className="min-w-0 truncate">{pick.comp} · {pick.market}</span><span className="tnum shrink-0 text-brand">{pick.odds.toFixed(2)}</span></span>
+      {teamsByMatch ? <span className="mt-2 flex min-w-0 items-center gap-2 text-[12.5px] font-bold"><Crest id={teamsByMatch.home} size={21} /><span className="min-w-0 truncate">{home?.name}</span><span className="shrink-0 text-muted">v</span><span className="min-w-0 truncate">{away?.name}</span><Crest id={teamsByMatch.away} size={21} /><span className="ml-auto min-w-0 truncate text-brand">{pick.label}</span></span> : <span className="mt-2 block truncate text-[14px] font-extrabold">{pick.label}</span>}
     </button>
   )
 }
@@ -105,7 +105,7 @@ export function AdvancedPage() {
     : available.filter((pick) => pick.group === 'popular').slice(0, 18)
 
   return (
-    <div className="mx-auto max-w-[940px]">
+    <div className="mx-auto min-w-0 max-w-[940px]">
       <div className="mb-5 rounded-[22px] border border-[#24434E] bg-[radial-gradient(ellipse_at_85%_0%,rgba(0,214,218,.16),transparent_42%),linear-gradient(135deg,#0C1825,#10152B_65%,#122332)] p-5 text-white sm:p-7">
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#02F7FD]/25 bg-[#02F7FD]/10 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[.15em] text-[#02F7FD]"><Sparkles size={13} /> Housebets play lab</div>
         <h1 className="text-[30px] font-black tracking-tight sm:text-[38px]">More ways to read the game.</h1>
@@ -145,8 +145,8 @@ export function AdvancedPage() {
           </div>
         </section>
       ) : (
-        <div className="grid items-start gap-4 lg:grid-cols-[1fr_320px]">
-          <section className="rounded-2xl border border-line bg-card p-4 sm:p-5" aria-labelledby="picks-title">
+        <div className="grid min-w-0 grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <section className="min-w-0 rounded-2xl border border-line bg-card p-4 sm:p-5" aria-labelledby="picks-title">
             <div className="mb-1 flex items-center justify-between gap-2"><h2 id="picks-title" className="text-[18px] font-extrabold">{tab === 'builder' ? 'Build a same-game multi' : 'Choose your legs'}</h2><span className="rounded-full bg-sunk px-2.5 py-1 text-[10px] font-bold uppercase text-muted">{tab === 'builder' ? 'One match' : 'Multiple matches'}</span></div>
             <p className="mb-4 text-[12.5px] text-muted">{tab === 'builder' ? 'Combine different markets from one event. Select a match outcome and another market for that same match.' : 'Pick outcomes from different events to build one accumulator.'}</p>
             <ul className="space-y-2">{focusPicks.map((pick) => <li key={pick.id}><FeatureTile pick={pick} selected={selected.includes(pick.id)} onToggle={() => toggle(pick)} teamsByMatch={matches[pick.matchId!]} /></li>)}</ul>

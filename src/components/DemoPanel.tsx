@@ -19,9 +19,9 @@ export function DemoPanel() {
   const toggle = (on: boolean) => on ? 'flex h-11 w-full items-center gap-2.5 rounded-s border border-ink bg-ink px-3 text-left text-[14px] font-semibold text-white' : btn
 
   return (
-    <div className={cx('fixed right-3 z-50 mobile-demo-control xl:bottom-4 xl:left-4 xl:right-auto', barVisible ? 'mobile-demo-above-slip' : '')}>
+    <div className={cx('z-50 mb-4 flex justify-end px-4 lg:fixed lg:bottom-4 lg:left-4 lg:mb-0 lg:block lg:px-0', barVisible ? 'mobile-demo-panel-above-slip' : '')}>
       {open ? (
-        <div role="dialog" aria-label="Demo controls" className="slide-in w-[288px] rounded-m border border-line bg-page p-3 shadow-raised">
+        <div role="dialog" aria-label="Demo controls" className="slide-in mobile-demo-panel fixed right-3 z-50 w-[min(288px,calc(100vw-24px))] rounded-m border border-line bg-page p-3 shadow-raised lg:static lg:w-[288px]">
           <div className="mb-2 flex items-center justify-between">
             <p className="flex items-center gap-2 text-[14px] font-extrabold"><FlaskConical size={16} aria-hidden="true" /> Demo controls</p>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close demo controls" className="flex h-11 w-11 items-center justify-center rounded-s hover:bg-sunk lg:h-8 lg:w-8"><X size={16} aria-hidden="true" /></button>
