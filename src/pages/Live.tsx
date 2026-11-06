@@ -1,6 +1,6 @@
 import { Clock, Radio } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { compById, competitions, sports } from '../data/competitions'
+import { compById, competitions, sportById, sports } from '../data/competitions'
 import { MatchRow } from '../components/MatchRow'
 import { EmptyState, LiveDot, SectionHeader } from '../components/ui'
 import { useStore } from '../engine/store'
@@ -8,11 +8,16 @@ import { cx } from '../lib/format'
 
 export function LivePage() {
   const matches = useStore((s) => s.matches)
+  const [sport, setSport] = useState<string>('all')
   const [comp, setComp] = useState<string>('all')
   const all = useMemo(() => Object.values(matches), [matches])
   const live = all.filter((m) => m.status === 'live')
-  const shown = live.filter((m) => comp === 'all' || m.compId === comp).sort((a, b) => b.clockSec - a.clockSec)
-  const soon = all.filter((m) => m.status === 'upcoming' && (comp === 'all' || m.compId === comp)).sort((a, b) => a.kickoff - b.kickoff).slice(0, 4)
+  const inSport = (m: { sport: string }) => sport === 'all' || m.sport === sport
+  const shown = live.filter((m) => inSport(m) && (comp === 'all' || m.compId === comp))
+    .sort((a, b) => sports.findIndex((x) => x.id === a.sport) - sports.findIndex((x) => x.id === b.sport))
+  const soon = all.filter((m) => m.status === 'upcoming' && inSport(m) && (comp === 'all' || m.compId === comp)).sort((a, b) => a.kickoff - b.kickoff).slice(0, 4)
+  const compList = competitions.filter((c) => sport === 'all' || c.sport === sport)
+  const label = comp !== 'all' ? compById[comp].name : sport !== 'all' ? sportById[sport as keyof typeof sportById].name : ''
 
   const chip = (active: boolean) => cx('flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-[14px] font-semibold lg:h-9', active ? 'border-ink bg-ink text-white' : 'border-line bg-card hover:border-ink')
 
@@ -26,18 +31,22 @@ export function LivePage() {
       <div className="mb-3">
         <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted">Sport</p>
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4" role="group" aria-label="Filter by sport">
-          {sports.map((s) => s.enabled ? (
-            <button key={s.id} type="button" aria-pressed="true" className={chip(true)}>{s.name} <span className="tnum text-white/75">{live.length}</span></button>
-          ) : (
-            <button key={s.id} type="button" disabled aria-label={`${s.name}, coming soon`} className="flex h-11 shrink-0 cursor-not-allowed items-center gap-2 rounded-full border border-line px-4 text-[14px] text-muted lg:h-9">{s.name} <span className="text-[11px] font-semibold">Coming soon</span></button>
-          ))}
+          <button type="button" aria-pressed={sport === 'all'} onClick={() => { setSport('all'); setComp('all') }} className={chip(sport === 'all')}>All sports <span className="tnum opacity-70">{live.length}</span></button>
+          {sports.map((sp) => {
+            const n = live.filter((m) => m.sport === sp.id).length
+            return (
+              <button key={sp.id} type="button" aria-pressed={sport === sp.id} onClick={() => { setSport(sp.id); setComp('all') }} className={chip(sport === sp.id)}>
+                {sp.name} <span className="tnum opacity-70">{n}</span>
+              </button>
+            )
+          })}
         </div>
       </div>
       <div className="mb-6">
         <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted">Competition</p>
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4" role="group" aria-label="Filter by competition">
-          <button type="button" aria-pressed={comp === 'all'} onClick={() => setComp('all')} className={chip(comp === 'all')}>All <span className="tnum opacity-70">{live.length}</span></button>
-          {competitions.map((c) => {
+          <button type="button" aria-pressed={comp === 'all'} onClick={() => setComp('all')} className={chip(comp === 'all')}>All <span className="tnum opacity-70">{live.filter(inSport).length}</span></button>
+          {compList.map((c) => {
             const n = live.filter((m) => m.compId === c.id).length
             return (
               <button key={c.id} type="button" aria-pressed={comp === c.id} onClick={() => setComp(c.id)} className={chip(comp === c.id)}>
@@ -56,7 +65,7 @@ export function LivePage() {
         <>
           <EmptyState
             icon={<Radio size={18} aria-hidden="true" />}
-            title={comp === 'all' ? 'Nothing is live right now' : `Nothing live in ${compById[comp].name} right now`}
+            title={label ? `Nothing live in ${label} right now` : 'Nothing is live right now'}
             body="Live matches appear here the moment they kick off. Here's what starts next."
           />
           {soon.length > 0 && (

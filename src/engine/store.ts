@@ -3,7 +3,9 @@ import { useSyncExternalStore } from 'react'
 import { matchSeeds } from '../data/matches'
 import { teams } from '../data/teams'
 import { compById } from '../data/competitions'
-import { buildMarkets, GOAL_GROUPS, ladder, price, settles } from './pricing'
+import { otherSeeds } from '../data/otherMatches'
+import { buildMarkets, GOAL_GROUPS, ladder, priceMarket, settleSel } from './pricing'
+import { forceScore, simStep, type SimResult } from './multisport'
 import type { Bet, Market, Match, SlipItem, State } from './types'
 
 export const MIN_STAKE = 1
@@ -27,6 +29,13 @@ function loadFollows(): State['follows'] {
   return { teams: ['aurelia'], comps: ['ucl'] }
 }
 
+function sportState(sport: string, seed?: { cricket?: Match['cricket']; tennis?: Match['tennis'] }): Partial<Match> {
+  if (sport === 'cricket') return { cricket: seed?.cricket ?? { inn: 0, wk: [0, 0], balls: [0, 0] } }
+  if (sport === 'tennis') return { tennis: seed?.tennis ?? { sets: [0, 0], games: [0, 0], done: [], server: 0 } }
+  if (sport === 'mma') return { mma: { finish: null } }
+  return {}
+}
+
 function init(): State {
   const now = Date.now()
   const matches: Record<string, Match> = {}
@@ -35,7 +44,7 @@ function init(): State {
   for (const s of matchSeeds) {
     const live = s.kickoffIn <= 0
     const m: Match = {
-      id: s.id, compId: s.compId, home: s.home, away: s.away,
+      id: s.id, sport: 'football', totalSec: 90 * 60, compId: s.compId, home: s.home, away: s.away,
       kickoff: now + s.kickoffIn * 60_000,
       status: live ? 'live' : 'upcoming',
       clockSec: s.clockSec ?? 0,
@@ -52,6 +61,23 @@ function init(): State {
       const ht: [number, number] = [0, 0]
       for (const e of m.events) if (e.type === 'goal' && e.minute <= 45) ht[e.side]++
       m.htScore = ht
+    }
+    matches[m.id] = m
+    const mks = buildMarkets(m, now)
+    marketIds[m.id] = mks.map((x) => x.id)
+    for (const x of mks) markets[x.id] = x
+  }
+  const totals: Record<string, number> = { basketball: 2880, americanfootball: 3600, baseball: 54, icehockey: 3600, cricket: 240, mma: 900, tennis: 1 }
+  for (const s of otherSeeds) {
+    const live = s.kickoffIn <= 0
+    const m: Match = {
+      id: s.id, sport: s.sport, compId: s.compId, home: s.home, away: s.away,
+      kickoff: now + s.kickoffIn * 60_000,
+      status: live ? 'live' : 'upcoming',
+      clockSec: s.clockSec ?? 0, endSec: totals[s.sport], totalSec: totals[s.sport],
+      score: s.score ?? [0, 0], htScore: null, corners: [0, 0], events: [],
+      xg: s.rate, drift: 0, goal: null,
+      ...sportState(s.sport, s),
     }
     matches[m.id] = m
     const mks = buildMarkets(m, now)
@@ -112,7 +138,7 @@ export const isOffline = (s: State) => s.demo.offline || s.netOffline
 
 function repriceMarket(mk: Market, m: Match, now: number, force = false): Market {
   if (mk.suspendedUntil && !force) return mk
-  const pr = price(m, mk.key)
+  const pr = priceMarket(m, mk)
   let changed = false
   const selections = mk.selections.map((s, i) => {
     const o = pr.odds[i]
@@ -157,40 +183,55 @@ function tick() {
   for (const id of Object.keys(matches)) {
     let m = matches[id]
     if (m.status === 'upcoming' && m.kickoff <= now) {
-      m = { ...m, status: 'live', clockSec: Math.floor((now - m.kickoff) / 1000) }
+      m = { ...m, status: 'live', clockSec: m.sport === 'football' ? Math.floor((now - m.kickoff) / 1000) : 0 }
     }
     if (m.status !== 'live') { matches[id] = m; continue }
 
-    m = { ...m, clockSec: m.clockSec + 1 }
-    if (!m.htScore && m.clockSec >= 45 * 60) m.htScore = [...m.score] as [number, number]
-
-    if (!offline) {
-      const minute = Math.min(90, Math.floor(m.clockSec / 60) + 1)
-      const goalRate = (m.xg[0] + m.xg[1]) / 5400
-      if (Math.random() < goalRate * 0.8 && m.clockSec < m.endSec - 30) {
-        // natural goal: same scene as the demo button
-        matches[id] = m
-        s = { ...s, matches, markets }
-        const res = goalPatch(s, id, Math.random() < m.xg[0] / (m.xg[0] + m.xg[1]) ? 0 : 1, now)
-        m = res.matches[id]; markets = res.markets
-      } else if (Math.random() < 10.4 / 5400) {
-        const side = Math.random() < 0.5 ? 0 : 1
-        const c = [...m.corners] as [number, number]; c[side]++
-        m = { ...m, corners: c }
-      } else if (Math.random() < 4.2 / 5400) {
-        const side = Math.random() < 0.5 ? 0 : 1
-        m = { ...m, events: [...m.events, { minute, type: 'yellow', side, player: pick(teams[side ? m.away : m.home].players) }] }
+    let ended = false
+    if (m.sport !== 'football') {
+      if (!offline) {
+        const r = simStep(m)
+        m = r.m
+        if (r.scored) {
+          matches[id] = m
+          const p = applyScore({ ...s, matches, markets }, id, r, now)
+          m = p.matches[id]; markets = p.markets
+        }
+        ended = !!r.ended
       }
+    } else {
+      m = { ...m, clockSec: m.clockSec + 1 }
+      if (!m.htScore && m.clockSec >= 45 * 60) m.htScore = [...m.score] as [number, number]
+
+      if (!offline) {
+        const minute = Math.min(90, Math.floor(m.clockSec / 60) + 1)
+        const goalRate = (m.xg[0] + m.xg[1]) / 5400
+        if (Math.random() < goalRate * 0.8 && m.clockSec < m.endSec - 30) {
+          // natural goal: same scene as the demo button
+          matches[id] = m
+          s = { ...s, matches, markets }
+          const res = goalPatch(s, id, Math.random() < m.xg[0] / (m.xg[0] + m.xg[1]) ? 0 : 1, now)
+          m = res.matches[id]; markets = res.markets
+        } else if (Math.random() < 10.4 / 5400) {
+          const side = Math.random() < 0.5 ? 0 : 1
+          const c = [...m.corners] as [number, number]; c[side]++
+          m = { ...m, corners: c }
+        } else if (Math.random() < 4.2 / 5400) {
+          const side = Math.random() < 0.5 ? 0 : 1
+          m = { ...m, events: [...m.events, { minute, type: 'yellow', side, player: pick(teams[side ? m.away : m.home].players) }] }
+        }
+      }
+      ended = m.clockSec >= m.endSec
     }
 
-    if (m.clockSec >= m.endSec) {
+    if (ended) {
       m = { ...m, status: 'ft' }
       // settle open bets on this match
       bets = bets.map((b) => {
         if (b.status !== 'open' || b.matchId !== id || !b.marketId || !b.selId) return b
         const mk = markets[b.marketId]
         const idx = mk.selections.findIndex((x) => x.id === b.selId)
-        const won = settles(m, mk.key, idx)
+        const won = settleSel(m, mk, idx)
         if (won) balance = round2(balance + b.stake * b.odds)
         return { ...b, status: won ? 'won' : 'lost', returned: won ? round2(b.stake * b.odds) : 0, settledAt: now, finalScore: m.score }
       })
@@ -230,7 +271,7 @@ function tick() {
         const live = Object.values(s.matches).filter((m) => m.status === 'live')
         if (live.length) {
           const m = pick(live)
-          const candidates = s.marketIds[m.id].map((id) => s.markets[id]).filter((x) => !x.closed && !x.suspendedUntil && ['corners', 'handicaps', 'goals'].includes(x.group))
+          const candidates = s.marketIds[m.id].map((id) => s.markets[id]).filter((x) => !x.closed && !x.suspendedUntil && ['corners', 'handicaps', 'goals', 'halves', 'lines', 'props'].includes(x.group))
           if (candidates.length) {
             const mk = pick(candidates)
             s = { ...s, markets: { ...s.markets, [mk.id]: { ...mk, suspendedUntil: now + rand(3500, 6000) } } }
@@ -278,11 +319,24 @@ function goalPatch(s: State, matchId: string, side: 0 | 1, now: number) {
   const player = r < 0.45 ? team.players[0] : r < 0.75 ? team.players[1] : team.players[2]
   const score = [...m0.score] as [number, number]
   score[side]++
-  const m: Match = { ...m0, score, events: [...m0.events, { minute, type: 'goal', side, player }], goal: { side, at: now, player, minute } }
+  const m: Match = { ...m0, score, events: [...m0.events, { minute, type: 'goal', side, player }], goal: { side, at: now, player, minute, label: 'Goal', text: `${team.name} · ${player} ${minute}'` } }
   const markets = { ...s.markets }
   for (const id of s.marketIds[matchId]) {
     const mk = markets[id]
     if (GOAL_GROUPS.includes(mk.group) && !mk.closed) markets[id] = { ...mk, suspendedUntil: now + SUSPEND_MS }
+  }
+  return { matches: { ...s.matches, [matchId]: m }, markets }
+}
+
+function applyScore(s: State, matchId: string, r: SimResult, now: number) {
+  const sc = r.scored!
+  const m: Match = { ...s.matches[matchId], goal: { side: sc.side, at: now, player: '', minute: 0, label: sc.label, text: sc.text } }
+  const markets = { ...s.markets }
+  if (sc.suspend) {
+    for (const id of s.marketIds[matchId]) {
+      const mk = markets[id]
+      if (GOAL_GROUPS.includes(mk.group) && !mk.closed) markets[id] = { ...mk, suspendedUntil: now + SUSPEND_MS }
+    }
   }
   return { matches: { ...s.matches, [matchId]: m }, markets }
 }
@@ -303,8 +357,15 @@ export const actions = {
     const id = demoTarget()
     if (!id) return actions.toast('No live match to score in right now.')
     const m = state.matches[id]
+    const now = Date.now()
+    if (m.sport !== 'football') {
+      const sd = side ?? (Math.random() < 0.5 ? 0 : 1)
+      const r = forceScore(m, sd)
+      set((s) => applyScore({ ...s, matches: { ...s.matches, [id]: r.m } }, id, { ...r, scored: r.scored && { ...r.scored, suspend: true } }, now))
+      return
+    }
     const sd = side ?? (Math.random() < m.xg[0] / (m.xg[0] + m.xg[1]) ? 0 : 1)
-    set((s) => goalPatch(s, id, sd, Date.now()))
+    set((s) => goalPatch(s, id, sd, now))
   },
 
   shiftOdds() {
@@ -427,7 +488,7 @@ export const actions = {
         const mk = s.markets[i.marketId]
         const sel = mk.selections.find((x) => x.id === i.selId)!
         return {
-          id: betId(), placedAt: now, matchId: m.id, marketId: mk.id, selId: sel.id, sport: 'football',
+          id: betId(), placedAt: now, matchId: m.id, marketId: mk.id, selId: sel.id, sport: m.sport,
           compName: compById[m.compId].name, home: teams[m.home].name, away: teams[m.away].name, homeId: m.home, awayId: m.away,
           marketName: mk.name, pick: sel.label, odds: i.accepted, stake: round2(parseFloat(i.stake)), status: 'open',
         }

@@ -1,17 +1,17 @@
 import { ChevronDown, ChevronLeft } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { compById } from '../data/competitions'
+import { compById, sportById, sportPath } from '../data/competitions'
 import { teams } from '../data/teams'
 import { FlipScore } from '../components/match/FlipScore'
 import { MarketCard } from '../components/match/MarketCard'
 import { Timeline } from '../components/match/Timeline'
 import { Crest, FollowButton, LiveDot } from '../components/ui'
 import { NotFound } from './NotFound'
-import { groups } from '../engine/pricing'
-import { useStore } from '../engine/store'
+import { getState, useStore } from '../engine/store'
 import type { GroupId, Match } from '../engine/types'
-import { clockFull, clockLabel, cx, kickoffLabel } from '../lib/format'
+import { cx, kickoffLabel } from '../lib/format'
+import { detailLine, periodBar, scoreText, statusLong, statusShort } from '../lib/sport'
 
 function useCompact() {
   const [compact, setCompact] = useState(false)
@@ -32,11 +32,11 @@ function StatusLine({ m, compact }: { m: Match; compact: boolean }) {
   if (m.status === 'live')
     return (
       <span className="inline-flex items-center gap-2 font-semibold text-live">
-        <LiveDot /> <span className="tnum">{compact ? clockLabel(m) : clockFull(m)}</span>
-        {!compact && <span className="font-medium text-muted">{m.clockSec >= 45 * 60 ? '2nd half' : '1st half'}</span>}
+        <LiveDot /> <span className="tnum">{compact ? statusShort(m) : statusLong(m)}</span>
+        {!compact && m.sport === 'football' && <span className="font-medium text-muted">{m.clockSec >= 45 * 60 ? '2nd half' : '1st half'}</span>}
       </span>
     )
-  if (m.status === 'ft') return <span className="font-semibold">Full time</span>
+  if (m.status === 'ft') return <span className="font-semibold">{m.sport === 'football' ? 'Full time' : `Final · ${statusShort(m)}`}</span>
   return <span className="font-semibold">Kick-off {kickoffLabel(m.kickoff, now)}</span>
 }
 
@@ -46,8 +46,29 @@ function GoalTicker({ m }: { m: Match }) {
   const team = teams[m.goal.side ? m.away : m.home]
   return (
     <div key={m.goal.at} className="slide-in flex items-center justify-center gap-2 rounded-s bg-ink px-3 py-1.5 text-[13px] font-semibold text-white" role="status">
-      <span className="rounded-[4px] bg-accent px-1.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider">Goal</span>
-      {team.name} · {m.goal.player} {m.goal.minute}'
+      <span className="rounded-[4px] bg-accent px-1.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-white">{m.goal.label}</span>
+      {m.goal.text || team.name}
+    </div>
+  )
+}
+
+function PeriodStrip({ m }: { m: Match }) {
+  const { progress, ticks } = periodBar(m)
+  const detail = detailLine(m)
+  return (
+    <div className="mt-1 px-1">
+      {detail && <p className="mb-2 text-center text-[13px] font-semibold">{detail}</p>}
+      <div className="relative h-6" aria-hidden="true">
+        <div className="absolute inset-x-0 top-1.5 h-1.5 rounded-full bg-sunk" />
+        <div className="absolute left-0 top-1.5 h-1.5 rounded-full bg-ink transition-[width] duration-1000 ease-linear" style={{ width: `${progress * 100}%` }} />
+        {ticks.map((t) => (
+          <span key={t.label} className="absolute top-0 text-[10px] font-semibold text-muted" style={{ left: `${t.at * 100}%` }}>
+            <span className="block h-4 w-px bg-muted/60" />
+            <span className="-ml-px block pt-0.5">{t.label}</span>
+          </span>
+        ))}
+      </div>
+      <div className="h-3" />
     </div>
   )
 }
@@ -55,7 +76,7 @@ function GoalTicker({ m }: { m: Match }) {
 function Scoreboard({ m, compact }: { m: Match; compact: boolean }) {
   const comp = compById[m.compId]
   const H = teams[m.home], A = teams[m.away]
-  const showScore = m.status !== 'upcoming'
+  const st = m.status === 'upcoming' ? null : scoreText(m)
   if (compact)
     return (
       <div className="flex items-center gap-3 py-2">
@@ -63,7 +84,7 @@ function Scoreboard({ m, compact }: { m: Match; compact: boolean }) {
           <span className="truncate text-[14px] font-bold"><span className="hidden sm:inline">{H.name}</span><span className="sm:hidden">{H.short}</span></span>
           <Crest id={H.id} size={20} />
         </div>
-        {showScore ? <FlipScore score={m.score} compact /> : <span className="px-2 text-[14px] font-bold text-muted">v</span>}
+        {st ? <FlipScore score={st} compact /> : <span className="px-2 text-[14px] font-bold text-muted">v</span>}
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <Crest id={A.id} size={20} />
           <span className="truncate text-[14px] font-bold"><span className="hidden sm:inline">{A.name}</span><span className="sm:hidden">{A.short}</span></span>
@@ -74,7 +95,7 @@ function Scoreboard({ m, compact }: { m: Match; compact: boolean }) {
   return (
     <div className="pb-3 pt-4">
       <div className="mb-3 flex items-center justify-between gap-2 text-[13px]">
-        <Link to={`/football#${comp.id}`} className="inline-flex items-center gap-1 font-semibold text-muted hover:text-ink">
+        <Link to={`${sportPath(m.sport)}#${comp.id}`} className="inline-flex items-center gap-1 font-semibold text-muted hover:text-ink">
           <ChevronLeft size={15} aria-hidden="true" /> {comp.name}
         </Link>
         <StatusLine m={m} compact={false} />
@@ -88,7 +109,12 @@ function Scoreboard({ m, compact }: { m: Match; compact: boolean }) {
           </div>
         ))}
         <div className="order-2 flex flex-col items-center">
-          {showScore ? <FlipScore score={m.score} /> : (
+          {st ? <FlipScore score={st} /> : m.sport === 'mma' && m.status !== 'upcoming' ? (
+            <div className="rounded-m bg-ink px-5 py-3 text-center text-page">
+              <p className="text-[11px] font-semibold uppercase tracking-wider opacity-70">{m.status === 'ft' ? 'Result' : 'Round'}</p>
+              <p className="tnum text-[30px] font-extrabold leading-none">{m.status === 'ft' ? (m.mma?.finish?.method ?? 'Final') : Math.min(3, Math.floor(m.clockSec / 300) + 1)}</p>
+            </div>
+          ) : (
             <div className="rounded-m border border-line bg-sunk px-4 py-3 text-center">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Kick-off</p>
               <p className="tnum text-[22px] font-extrabold">{new Date(m.kickoff).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</p>
@@ -97,7 +123,7 @@ function Scoreboard({ m, compact }: { m: Match; compact: boolean }) {
         </div>
       </div>
       <div className="mt-3 min-h-[34px]"><GoalTicker m={m} /></div>
-      {m.status !== 'upcoming' && <div className="mt-1 px-1"><Timeline m={m} /></div>}
+      {m.status !== 'upcoming' && (m.sport === 'football' ? <div className="mt-1 px-1"><Timeline m={m} /></div> : <PeriodStrip m={m} />)}
     </div>
   )
 }
@@ -110,7 +136,8 @@ export function MatchPage() {
   const markets = useStore((s) => s.markets)
   const compact = useCompact()
   const stickyRef = useRef<HTMLDivElement>(null)
-  const [open, setOpen] = useState<Record<GroupId, boolean>>({ popular: true, goals: false, handicaps: false, scorers: false, corners: false })
+  const groups = sportById[m?.sport ?? 'football'].groups
+  const [open, setOpen] = useState<Partial<Record<GroupId, boolean>>>({ popular: true })
   const [active, setActive] = useState<GroupId>('popular')
   const sectionRefs = useRef<Partial<Record<GroupId, HTMLElement | null>>>({})
 
@@ -150,7 +177,7 @@ export function MatchPage() {
     const on = () => {
       const line = (stickyRef.current?.getBoundingClientRect().bottom ?? 0) + 24
       let cur: GroupId = 'popular'
-      for (const g of groups) {
+      for (const g of sportById[getState().matches[id]?.sport ?? 'football'].groups) {
         const el = sectionRefs.current[g.id]
         if (el && el.getBoundingClientRect().top <= line) cur = g.id
       }
@@ -158,7 +185,10 @@ export function MatchPage() {
     }
     window.addEventListener('scroll', on, { passive: true })
     return () => window.removeEventListener('scroll', on)
-  }, [])
+  }, [id])
+
+  // new match: reset groups
+  useEffect(() => { setOpen({ popular: true }); setActive('popular') }, [id])
 
   if (!m) return <NotFound />
 

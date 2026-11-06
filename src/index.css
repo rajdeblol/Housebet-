@@ -13,6 +13,13 @@
   input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; }
 }
 
+/* Dark mode: white text on ink surfaces flips with the ink colour */
+.dark .bg-ink[class*='text-white']:not(.bg-accent):not(.bg-live):not(.bg-up),
+.dark .bg-ink [class*='text-white']:not(.bg-accent):not(.bg-live):not(.bg-up):not(.bg-accent *) {
+  color: rgb(var(--onink));
+}
+.dark .bg-ink .border-ink { border-color: rgb(var(--onink)); }
+
 @layer utilities {
   .tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1, 'cv11'; }
   .no-scrollbar::-webkit-scrollbar { display: none; }

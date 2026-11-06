@@ -1,7 +1,11 @@
 // Coherent in-play pricing from a simple Poisson model.
 // Every market derives from the same expected-goals picture, so a goal moves them all sensibly.
 import { teams } from '../data/teams'
-import type { GroupId, Market, MarketKey, Match } from './types'
+import type { FootballKey, GroupId, Market, Match } from './types'
+import { ladder, toOdds } from './odds'
+import { buildOtherMarkets, priceOther, settleOther } from './multisport'
+
+export { ladder }
 
 const MAXG = 10
 const CORNERS_PER_90 = 10.4
@@ -28,19 +32,7 @@ function pOver(current: number, lambda: number, line: number) {
   return Math.max(0, 1 - below)
 }
 
-/** Decimal odds ladder */
-export function ladder(o: number) {
-  if (o < 1.01) return 1.01
-  if (o < 3) return Math.round(o * 100) / 100
-  if (o < 5) return Math.round(o * 20) / 20
-  if (o < 10) return Math.round(o * 10) / 10
-  if (o < 20) return Math.round(o * 2) / 2
-  return Math.min(51, Math.round(o))
-}
-
-const toOdds = (p: number, margin: number) => ladder(1 / Math.min(0.995, Math.max(0.0195, p * margin)))
-
-export interface MarketDef { key: MarketKey; group: GroupId; name: string; labels: (m: Match) => string[] }
+export interface MarketDef { key: FootballKey; group: GroupId; name: string; labels: (m: Match) => string[] }
 
 const H = (m: Match) => teams[m.home].name
 const A = (m: Match) => teams[m.away].name
@@ -51,7 +43,8 @@ export const marketDefs: MarketDef[] = [
   { key: 'btts', group: 'popular', name: 'Both teams to score', labels: () => ['Yes', 'No'] },
   { key: 'ou15', group: 'goals', name: 'Total goals 1.5', labels: () => ['Over 1.5', 'Under 1.5'] },
   { key: 'ou35', group: 'goals', name: 'Total goals 3.5', labels: () => ['Over 3.5', 'Under 3.5'] },
-  { key: 'ht', group: 'goals', name: '1st half result', labels: (m) => [H(m), 'Draw', A(m)] },
+  { key: 'ht', group: 'halves', name: '1st half result', labels: (m) => [H(m), 'Draw', A(m)] },
+  { key: 'h1ou', group: 'halves', name: '1st half total goals 1.5', labels: () => ['Over 1.5', 'Under 1.5'] },
   { key: 'hcpA', group: 'handicaps', name: 'Handicap −1.5 / +1.5', labels: (m) => [`${H(m)} −1.5`, `${A(m)} +1.5`] },
   { key: 'hcpB', group: 'handicaps', name: 'Handicap +1.5 / −1.5', labels: (m) => [`${H(m)} +1.5`, `${A(m)} −1.5`] },
   { key: 'ags', group: 'scorers', name: 'Anytime goalscorer', labels: (m) => [...teams[m.home].players, ...teams[m.away].players] },
@@ -61,21 +54,13 @@ export const marketDefs: MarketDef[] = [
   { key: 'crd45', group: 'corners', name: 'Total cards 4.5', labels: () => ['Over 4.5', 'Under 4.5'] },
 ]
 
-export const groups: { id: GroupId; name: string }[] = [
-  { id: 'popular', name: 'Popular' },
-  { id: 'goals', name: 'Goals & halves' },
-  { id: 'handicaps', name: 'Handicaps' },
-  { id: 'scorers', name: 'Goalscorers' },
-  { id: 'corners', name: 'Corners & cards' },
-]
-
 /** Markets a goal affects (they suspend during the goal scene). */
-export const GOAL_GROUPS: GroupId[] = ['popular', 'goals', 'handicaps', 'scorers']
+export const GOAL_GROUPS: GroupId[] = ['popular', 'goals', 'handicaps', 'scorers', 'lines', 'props']
 
 export const cardsOf = (m: Match) => m.events.filter((e) => e.type !== 'goal').length
 
 /** Returns probabilities for each selection of a market, or null when the market is closed. */
-export function price(m: Match, key: MarketKey): { odds: number[]; closed?: string; selClosed?: boolean[] } {
+export function price(m: Match, key: FootballKey): { odds: number[]; closed?: string; selClosed?: boolean[] } {
   const elapsed = m.status === 'live' ? m.clockSec : m.status === 'ft' ? 90 * 60 : 0
   const rem = Math.max(0, 90 * 60 - elapsed) / (90 * 60)
   const lh = m.xg[0] * Math.exp(m.drift) * rem
@@ -118,6 +103,14 @@ export function price(m: Match, key: MarketKey): { odds: number[]; closed?: stri
       }
       return { odds: ps.map((p) => toOdds(p, 1.07)) }
     }
+    case 'h1ou': {
+      if (elapsed >= 45 * 60) return { odds: [1.01, 51], closed: 'Closed at half-time' }
+      const cur = sh + sa
+      if (cur > 1.5) return { odds: [1.01, 51], closed: 'Settled: 1.5 goals passed in the 1st half' }
+      const r1 = (45 * 60 - elapsed) / (90 * 60)
+      const p = pOver(cur, (m.xg[0] * Math.exp(m.drift) + m.xg[1] * Math.exp(-m.drift)) * r1, 1.5)
+      return { odds: [toOdds(p, 1.06), toOdds(1 - p, 1.06)] }
+    }
     case 'hcpA': case 'hcpB': {
       const hcp = key === 'hcpA' ? -1.5 : 1.5
       const p = joint((h, a) => h + hcp > a)
@@ -149,7 +142,7 @@ export function price(m: Match, key: MarketKey): { odds: number[]; closed?: stri
   }
 }
 
-export function buildMarkets(m: Match, now: number): Market[] {
+function buildFootballMarkets(m: Match, now: number): Market[] {
   return marketDefs.map((d) => {
     const pr = price(m, d.key)
     const labels = d.labels(m)
@@ -176,12 +169,13 @@ export function buildMarkets(m: Match, now: number): Market[] {
 }
 
 /** Settle a selection for a finished match. */
-export function settles(m: Match, key: MarketKey, idx: number): boolean {
+function settles(m: Match, key: FootballKey, idx: number): boolean {
   const [h, a] = m.score
   const ht = m.htScore ?? m.score
   switch (key) {
     case 'mr': return [h > a, h === a, h < a][idx]
     case 'ht': return [ht[0] > ht[1], ht[0] === ht[1], ht[0] < ht[1]][idx]
+    case 'h1ou': return idx === 0 ? ht[0] + ht[1] > 1.5 : ht[0] + ht[1] < 1.5
     case 'ou15': return idx === 0 ? h + a > 1.5 : h + a < 1.5
     case 'ou25': return idx === 0 ? h + a > 2.5 : h + a < 2.5
     case 'ou35': return idx === 0 ? h + a > 3.5 : h + a < 3.5
@@ -197,4 +191,18 @@ export function settles(m: Match, key: MarketKey, idx: number): boolean {
     case 'crd35': return idx === 0 ? cardsOf(m) > 3.5 : cardsOf(m) < 3.5
     case 'crd45': return idx === 0 ? cardsOf(m) > 4.5 : cardsOf(m) < 4.5
   }
+}
+
+// ---------------------------------------------------------------- sport dispatch
+
+export function buildMarkets(m: Match, now: number): Market[] {
+  return m.sport === 'football' ? buildFootballMarkets(m, now) : buildOtherMarkets(m, now)
+}
+
+export function priceMarket(m: Match, mk: Market): { odds: number[]; closed?: string; selClosed?: boolean[] } {
+  return m.sport === 'football' ? price(m, mk.key as FootballKey) : priceOther(m, mk)
+}
+
+export function settleSel(m: Match, mk: Market, idx: number): boolean {
+  return m.sport === 'football' ? settles(m, mk.key as FootballKey, idx) : settleOther(m, mk, idx)
 }

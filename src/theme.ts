@@ -1,5 +1,5 @@
 /**
- * Housebets theme — the ONE file to swap brand values.
+ * Housebets theme — the ONE file to swap brand values (light + dark palettes).
  *
  * Replace `brand` with the values from the Housebets starter brand pack
  * (logo colour, main colour hex, font names). Everything in the UI reads from here:
@@ -35,19 +35,57 @@ export const colors = {
   warnBg: '#FBF0D9',
 }
 
+/** Dark mode: same structure, warm charcoal paper. Text pairs checked for AA on page and card. */
+export const darkColors: typeof colors = {
+  page: '#141311',
+  card: '#1D1B18',
+  sunk: '#272420',
+  ink: '#F2EEE4',
+  muted: '#A39B8C',
+  line: '#38342D',
+  accent: '#CF3428',
+  brand: brand.logoColor,
+  up: '#3DAE78',
+  upText: '#4CC38A',
+  down: '#FF6B5E',
+  live: '#FF6B5E',
+  warn: '#F2C46B',
+  warnBg: '#2E2614',
+}
+
 export const radius = { s: 8, m: 12, l: 20 }
+
+export type ThemeMode = 'light' | 'dark'
+const THEME_KEY = 'hb.theme'
+
+export function initialMode(): ThemeMode {
+  try {
+    const saved = localStorage.getItem(THEME_KEY)
+    if (saved === 'light' || saved === 'dark') return saved
+  } catch { /* storage unavailable */ }
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+export function saveMode(mode: ThemeMode) {
+  try { localStorage.setItem(THEME_KEY, mode) } catch { /* ignore */ }
+}
 
 const hexToChannels = (hex: string) => {
   const h = hex.replace('#', '')
   return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)).join(' ')
 }
 
-export function applyTheme() {
+export function applyTheme(mode: ThemeMode = 'light') {
   const root = document.documentElement
+  const c = mode === 'dark' ? darkColors : colors
+  root.classList.toggle('dark', mode === 'dark')
+  root.style.colorScheme = mode
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', c.page)
   const map: Record<string, string> = {
-    page: colors.page, card: colors.card, sunk: colors.sunk, ink: colors.ink, muted: colors.muted,
-    line: colors.line, accent: colors.accent, brand: colors.brand, up: colors.up, 'up-text': colors.upText,
-    down: colors.down, live: colors.live, warn: colors.warn, 'warn-bg': colors.warnBg,
+    onink: mode === 'dark' ? c.page : '#FFFFFF',
+    page: c.page, card: c.card, sunk: c.sunk, ink: c.ink, muted: c.muted,
+    line: c.line, accent: c.accent, brand: c.brand, up: c.up, 'up-text': c.upText,
+    down: c.down, live: c.live, warn: c.warn, 'warn-bg': c.warnBg,
   }
   for (const [k, v] of Object.entries(map)) root.style.setProperty(`--${k}`, hexToChannels(v))
   root.style.setProperty('--font-sans', brand.fontFamily)

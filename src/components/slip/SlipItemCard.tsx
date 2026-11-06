@@ -5,6 +5,7 @@ import { teams } from '../../data/teams'
 import { actions, getState, itemView, MAX_STAKE, useStore } from '../../engine/store'
 import type { SlipItem } from '../../engine/types'
 import { cx, fmtOdds, fmtUSDT } from '../../lib/format'
+import { scoreText } from '../../lib/sport'
 
 const CHIPS = [5, 10, 25, 50]
 
@@ -27,7 +28,7 @@ export const SlipItemCard = forwardRef<HTMLInputElement, { item: SlipItem }>(fun
           <p className="truncate text-[15px] font-bold leading-snug">{sel.label}</p>
           <p className="truncate text-[12.5px] text-muted">{mk.name}</p>
           <Link to={`/match/${m.id}`} className="mt-0.5 block truncate text-[12.5px] text-muted underline-offset-2 hover:text-ink hover:underline">
-            {teams[m.home].name} v {teams[m.away].name}{m.status === 'live' && ` · ${m.score[0]}–${m.score[1]}`}
+            {teams[m.home].name} v {teams[m.away].name}{m.status === 'live' && scoreText(m) && ` · ${scoreText(m)!.join('–')}`}
           </Link>
         </div>
         <div className="text-right">

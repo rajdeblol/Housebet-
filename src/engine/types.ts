@@ -1,14 +1,24 @@
 import type { MatchEvent } from '../data/matches'
 
 export type MatchStatus = 'upcoming' | 'live' | 'ft'
-export type GroupId = 'popular' | 'goals' | 'handicaps' | 'scorers' | 'corners'
+export type GroupId = 'popular' | 'goals' | 'halves' | 'handicaps' | 'scorers' | 'corners' | 'lines' | 'props'
 
-export type MarketKey =
-  | 'mr' | 'ou15' | 'ou25' | 'ou35' | 'btts' | 'ht'
+export type SportId = 'football' | 'basketball' | 'americanfootball' | 'baseball' | 'icehockey' | 'cricket' | 'mma' | 'tennis'
+
+export type FootballKey =
+  | 'mr' | 'ou15' | 'ou25' | 'ou35' | 'btts' | 'ht' | 'h1ou'
   | 'hcpA' | 'hcpB' | 'ags' | 'cor95' | 'cor105' | 'crd35' | 'crd45'
+/** Keys for the other sports */
+export type OtherKey = 'ml' | 'spread' | 'altspread' | 'total' | 'alttotal' | 'inn1' | 'wkts' | 'rounds' | 'method' | 'set1' | 'games' | 'altgames'
+export type MarketKey = FootballKey | OtherKey
+
+export interface CricketState { inn: 0 | 1; wk: [number, number]; balls: [number, number] }
+export interface TennisState { sets: [number, number]; games: [number, number]; done: [number, number][]; server: 0 | 1 }
+export interface MmaState { finish: { method: 'KO/TKO' | 'Submission' | 'Decision'; round: number; winner: 0 | 1 } | null }
 
 export interface Match {
   id: string
+  sport: SportId
   compId: string
   home: string
   away: string
@@ -20,10 +30,16 @@ export interface Match {
   htScore: [number, number] | null
   corners: [number, number]
   events: MatchEvent[]
+  /** scoring rate per full game for home / away (xG for football) */
   xg: [number, number]
   drift: number
-  /** last goal, for the goal scene */
-  goal: { side: 0 | 1; at: number; player: string; minute: number } | null
+  /** last scoring moment, for the goal scene */
+  goal: { side: 0 | 1; at: number; player: string; minute: number; label: string; text: string } | null
+  /** regulation length in sport units (seconds; outs for baseball; balls for cricket) */
+  totalSec: number
+  cricket?: CricketState
+  tennis?: TennisState
+  mma?: MmaState
 }
 
 export interface Selection {
@@ -48,6 +64,8 @@ export interface Market {
   suspendedUntil: number | null
   closed: boolean
   closedReason?: string
+  /** handicap or total line where relevant */
+  line?: number
 }
 
 export interface SlipItem {
@@ -68,7 +86,7 @@ export interface Bet {
   matchId: string | null
   marketId: string | null
   selId: string | null
-  sport: 'football'
+  sport: SportId
   compName: string
   home: string
   away: string

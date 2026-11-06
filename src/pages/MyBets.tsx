@@ -3,9 +3,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { teams } from '../data/teams'
 import { EmptyState, LiveDot } from '../components/ui'
+import { BetSlip } from '../components/slip/BetSlip'
 import { actions, cashOutValue, useStore } from '../engine/store'
 import type { Bet } from '../engine/types'
-import { clockLabel, cx, dateTime, fmtOdds, fmtUSDT, kickoffLabel } from '../lib/format'
+import { cx, dateTime, fmtOdds, fmtUSDT, kickoffLabel } from '../lib/format'
+import { scoreText, statusShort } from '../lib/sport'
 
 function CashOut({ bet }: { bet: Bet }) {
   const value = useStore((s) => cashOutValue(bet, s).value)
@@ -74,7 +76,7 @@ function BetRow({ bet }: { bet: Bet }) {
           )}
           <p className="mt-0.5 text-[12.5px] text-muted">
             {m?.status === 'live' ? (
-              <span className="inline-flex items-center gap-1.5 font-semibold text-live"><LiveDot /> {clockLabel(m)} · <span className="tnum">{m.score[0]}–{m.score[1]}</span></span>
+              <span className="inline-flex items-center gap-1.5 font-semibold text-live"><LiveDot /> {statusShort(m)}{scoreText(m) && <> · <span className="tnum">{scoreText(m)!.join('–')}</span></>}</span>
             ) : m?.status === 'upcoming' ? `Kick-off ${kickoffLabel(m.kickoff, now)}`
               : bet.finalScore ? <span className="tnum">Final score {bet.finalScore[0]}–{bet.finalScore[1]}</span> : null}
           </p>
@@ -112,7 +114,6 @@ function BetRow({ bet }: { bet: Bet }) {
 
 export function MyBetsPage() {
   const bets = useStore((s) => s.bets)
-  const items = useStore((s) => s.slip.items.length)
   const [tab, setTab] = useState<'open' | 'settled'>('open')
   const open = bets.filter((b) => b.status === 'open')
   const settled = bets.filter((b) => b.status !== 'open').sort((a, b) => (b.settledAt ?? 0) - (a.settledAt ?? 0))
@@ -121,14 +122,12 @@ export function MyBetsPage() {
   return (
     <div className="mx-auto max-w-[720px]">
       <h1 className="text-[26px] font-extrabold tracking-tight">Bet slip & My bets</h1>
-      <p className="mb-5 text-[14px] text-muted">
-        Your slip is on the right on desktop and in the bar at the bottom on mobile.
-        {items > 0 && (
-          <button type="button" onClick={() => actions.openSheet(true, true)} className="ml-1 font-semibold text-ink underline underline-offset-2 lg:hidden">
-            Open slip ({items})
-          </button>
-        )}
-      </p>
+      <p className="mb-5 text-[14px] text-muted">Your selections and every bet you've placed, in one place.</p>
+
+      <section aria-label="Bet slip" className="mb-8 overflow-hidden rounded-m border border-line bg-page lg:hidden">
+        <BetSlip />
+      </section>
+      <h2 className="mb-3 text-[18px] font-extrabold tracking-tight">My bets</h2>
 
       <div role="tablist" aria-label="My bets" className="mb-4 inline-flex rounded-m border border-line bg-sunk p-1">
         {(['open', 'settled'] as const).map((t) => (

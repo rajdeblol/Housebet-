@@ -1,25 +1,28 @@
 import { ArrowRight, Clock, Star, Trophy } from 'lucide-react'
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import { compById, competitions, sports } from '../data/competitions'
+import { Link, NavLink } from 'react-router-dom'
+import { compById, competitions, sportById, sportPath, sports } from '../data/competitions'
 import { teams } from '../data/teams'
 import { MatchRow } from '../components/MatchRow'
 import { Crest, FollowButton, LiveDot, SectionHeader } from '../components/ui'
 import { useStore } from '../engine/store'
-import { clockLabel, cx, kickoffLabel } from '../lib/format'
+import { cx, kickoffLabel } from '../lib/format'
+import { scoreText, statusShort } from '../lib/sport'
 
 export function SportsNav() {
+  const matches = useStore((s) => s.matches)
   return (
     <nav aria-label="Sports" className="no-scrollbar -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 xl:hidden">
-      {sports.map((s) =>
-        s.enabled ? (
-          <Link key={s.id} to="/football" className="flex h-11 shrink-0 items-center rounded-full bg-ink px-4 text-[14px] font-semibold text-white" aria-current="page">{s.name}</Link>
-        ) : (
-          <span key={s.id} aria-disabled="true" className="flex h-11 shrink-0 items-center gap-2 rounded-full border border-line px-4 text-[14px] text-muted">
-            {s.name} <span className="text-[11px] font-semibold">Coming soon</span>
-          </span>
-        ),
-      )}
+      {sports.map((sp) => {
+        const liveN = Object.values(matches).filter((m) => m.sport === sp.id && m.status === 'live').length
+        return (
+          <NavLink key={sp.id} to={sportPath(sp.id)}
+            className={({ isActive }) => cx('flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-[14px] font-semibold', isActive ? 'border-ink bg-ink text-white' : 'border-line bg-card')}>
+            {sp.name}
+            {liveN > 0 && <span className="inline-flex items-center gap-1 text-[12px]"><LiveDot /> <span className="tnum">{liveN}</span></span>}
+          </NavLink>
+        )
+      })}
     </nav>
   )
 }
@@ -51,12 +54,12 @@ function FollowedShelf() {
               {m ? (
                 <Link to={`/match/${m.id}`} className="mt-3 block rounded-s bg-sunk px-3 py-2.5 hover:bg-line/60">
                   <p className="flex items-center justify-between text-[12px] font-semibold">
-                    {m.status === 'live' ? <span className="inline-flex items-center gap-1.5 text-live"><LiveDot /> Live {clockLabel(m)}</span> : <span className="text-muted">{kickoffLabel(m.kickoff, now)}</span>}
+                    {m.status === 'live' ? <span className="inline-flex items-center gap-1.5 text-live"><LiveDot /> {statusShort(m)}</span> : <span className="text-muted">{kickoffLabel(m.kickoff, now)}</span>}
                     <span className="text-muted">{compById[m.compId].name}</span>
                   </p>
                   <p className="mt-1 flex items-center justify-between text-[14px] font-semibold">
                     <span className="truncate">{teams[m.home].short} v {teams[m.away].short}</span>
-                    {m.status === 'live' && <span className="tnum text-[17px] font-extrabold">{m.score[0]}–{m.score[1]}</span>}
+                    {m.status === 'live' && scoreText(m) && <span className="tnum text-[17px] font-extrabold">{scoreText(m)!.join('–')}</span>}
                   </p>
                 </Link>
               ) : <p className="mt-3 text-[13px] text-muted">No fixtures in the next few days.</p>}
@@ -74,7 +77,7 @@ function FollowedShelf() {
                 <p className="min-w-0 flex-1 truncate font-bold">{c.name}</p>
                 <FollowButton kind="comps" id={cid} label={c.name} />
               </div>
-              <Link to={`/football#${cid}`} className="mt-3 flex items-center justify-between rounded-s bg-sunk px-3 py-2.5 text-[14px] font-semibold hover:bg-line/60">
+              <Link to={`${sportPath(c.sport)}#${cid}`} className="mt-3 flex items-center justify-between rounded-s bg-sunk px-3 py-2.5 text-[14px] font-semibold hover:bg-line/60">
                 <span>{n.length} {n.length === 1 ? 'match' : 'matches'}{liveN > 0 && <span className="text-live"> · {liveN} live</span>}</span>
                 <ArrowRight size={15} aria-hidden="true" />
               </Link>
@@ -91,8 +94,8 @@ export function HomePage() {
   const { live, soon } = useMemo(() => {
     const all = Object.values(matches)
     return {
-      live: all.filter((m) => m.status === 'live').sort((a, b) => b.clockSec - a.clockSec),
-      soon: all.filter((m) => m.status === 'upcoming').sort((a, b) => a.kickoff - b.kickoff).slice(0, 4),
+      live: all.filter((m) => m.status === 'live').sort((a, b) => sports.findIndex((x) => x.id === a.sport) - sports.findIndex((x) => x.id === b.sport)),
+      soon: all.filter((m) => m.status === 'upcoming').sort((a, b) => a.kickoff - b.kickoff).slice(0, 6),
     }
   }, [matches])
 
@@ -106,11 +109,11 @@ export function HomePage() {
         <SectionHeader
           title={<span id="live-h">Live now</span>}
           icon={<LiveDot />}
-          right={<Link to="/live" className="inline-flex h-11 items-center gap-1 text-[13.5px] font-semibold lg:h-8">All live <ArrowRight size={14} aria-hidden="true" /></Link>}
+          right={<Link to="/live" className="inline-flex h-11 items-center gap-1 text-[13.5px] font-semibold lg:h-8">All {live.length} live <ArrowRight size={14} aria-hidden="true" /></Link>}
         />
         {live.length ? (
           <ul className="overflow-hidden rounded-m border border-line bg-card">
-            {live.map((m) => <MatchRow key={m.id} id={m.id} showComp={compById[m.compId].short} />)}
+            {live.slice(0, 8).map((m) => <MatchRow key={m.id} id={m.id} showComp={compById[m.compId].short} />)}
           </ul>
         ) : (
           <p className="rounded-m border border-dashed border-line bg-card px-4 py-5 text-[14px] text-muted">Nothing is live right now. The next matches are below.</p>
@@ -119,7 +122,7 @@ export function HomePage() {
 
       <section className="mb-8" aria-labelledby="soon-h">
         <SectionHeader title={<span id="soon-h">Starting soon</span>} icon={<Clock size={17} aria-hidden="true" />}
-          right={<Link to="/football" className="inline-flex h-11 items-center gap-1 text-[13.5px] font-semibold lg:h-8">All football <ArrowRight size={14} aria-hidden="true" /></Link>} />
+          right={<Link to="/football" className="inline-flex h-11 items-center gap-1 text-[13.5px] font-semibold lg:h-8">Football <ArrowRight size={14} aria-hidden="true" /></Link>} />
         <ul className="overflow-hidden rounded-m border border-line bg-card">
           {soon.map((m) => <MatchRow key={m.id} id={m.id} showComp={compById[m.compId].short} />)}
         </ul>
@@ -133,9 +136,9 @@ export function HomePage() {
             const liveN = ms.filter((m) => m.status === 'live').length
             return (
               <li key={c.id} className="flex items-center gap-2 rounded-m border border-line bg-card p-2 pl-4">
-                <Link to={`/football#${c.id}`} className="min-w-0 flex-1 py-1.5">
+                <Link to={`${sportPath(c.sport)}#${c.id}`} className="min-w-0 flex-1 py-1.5">
                   <p className="truncate font-bold">{c.name}</p>
-                  <p className="text-[12.5px] text-muted">{c.region} · {ms.length} {ms.length === 1 ? 'match' : 'matches'}{liveN > 0 && <span className={cx('font-semibold text-live')}> · {liveN} live</span>}</p>
+                  <p className="text-[12.5px] text-muted">{sportById[c.sport].name} · {ms.length} {ms.length === 1 ? 'match' : 'matches'}{liveN > 0 && <span className={cx('font-semibold text-live')}> · {liveN} live</span>}</p>
                 </Link>
                 <FollowButton kind="comps" id={c.id} label={c.name} />
               </li>

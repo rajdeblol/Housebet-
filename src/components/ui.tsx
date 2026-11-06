@@ -2,7 +2,6 @@ import { Star } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { teams } from '../data/teams'
 import { actions, useStore } from '../engine/store'
-import { colors } from '../theme'
 import { cx } from '../lib/format'
 
 /** Original geometric crest for a fictional club. */
@@ -22,7 +21,7 @@ export function Crest({ id, size = 24, className }: { id: string; size?: number;
         {t.pattern === 'chevron' && <path d="M0 8 12 17 24 8v6L12 23 0 14z" fill={t.secondary} />}
         {t.pattern === 'plain' && <circle cx="12" cy="13" r="4" fill={t.secondary} />}
       </g>
-      <path d={shield} fill="none" stroke={colors.ink} strokeOpacity=".85" strokeWidth="1.2" />
+      <path d={shield} fill="none" stroke="rgb(var(--ink))" strokeOpacity=".85" strokeWidth="1.2" />
     </svg>
   )
 }
@@ -82,10 +81,10 @@ export function Sparkline({ values, label }: { values: number[]; label: string }
   const span = max - min || 1
   const pts = v.map((y, i) => [p + (i * (w - 2 * p)) / Math.max(1, v.length - 1), h - p - ((y - min) / span) * (h - 2 * p)])
   const last = v[v.length - 1], prev = v[v.length - 2] ?? last
-  const c = last > prev ? colors.up : last < prev ? colors.down : colors.muted
+  const c = last > prev ? 'rgb(var(--up))' : last < prev ? 'rgb(var(--down))' : 'rgb(var(--muted))'
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`${label}: last ${v.length} prices ${v.map((x) => x.toFixed(2)).join(', ')}`} className="shrink-0">
-      <polyline points={pts.map((q) => q.join(',')).join(' ')} fill="none" stroke={colors.muted} strokeWidth="1.25" strokeLinejoin="round" strokeLinecap="round" />
+      <polyline points={pts.map((q) => q.join(',')).join(' ')} fill="none" stroke="rgb(var(--muted))" strokeWidth="1.25" strokeLinejoin="round" strokeLinecap="round" />
       <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="2.2" fill={c} />
     </svg>
   )

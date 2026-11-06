@@ -1,6 +1,7 @@
 import { FlaskConical, Goal, Lock, Shuffle, WifiOff, X, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { teams } from '../data/teams'
+import { sportById } from '../data/competitions'
 import { actions, demoTarget, useStore } from '../engine/store'
 import { cx } from '../lib/format'
 
@@ -29,16 +30,16 @@ export function DemoPanel() {
           <select id="demo-target" value={demo.target} onChange={(e) => actions.setTarget(e.target.value)}
             className="mb-3 mt-1 h-11 w-full rounded-s border border-line bg-card px-2 text-[14px] font-semibold lg:h-9">
             <option value="">Auto (match in your slip){tm ? ` · ${teams[tm.home].short} v ${teams[tm.away].short}` : ''}</option>
-            {live.map((m) => <option key={m.id} value={m.id}>{teams[m.home].name} v {teams[m.away].name}</option>)}
+            {live.map((m) => <option key={m.id} value={m.id}>{sportById[m.sport].name}: {teams[m.home].name} v {teams[m.away].name}</option>)}
           </select>
           <div className="space-y-1.5">
             <button type="button" className="flex h-11 w-full items-center gap-2.5 rounded-s bg-accent px-3 text-left text-[14px] font-bold text-white disabled:opacity-40" disabled={!tm} onClick={() => actions.simulateGoal()}>
-              <Goal size={16} aria-hidden="true" /> Simulate goal
+              <Goal size={16} aria-hidden="true" /> {!tm || tm.sport === 'football' ? 'Simulate goal' : `Simulate ${sportById[tm.sport].scoreWord.toLowerCase()}`}
             </button>
             {tm && (
               <div className="grid grid-cols-2 gap-1.5">
-                <button type="button" className={cx(btn, 'h-9 text-[12.5px]')} onClick={() => actions.simulateGoal(0)}>Goal {teams[tm.home].short}</button>
-                <button type="button" className={cx(btn, 'h-9 text-[12.5px]')} onClick={() => actions.simulateGoal(1)}>Goal {teams[tm.away].short}</button>
+                <button type="button" className={cx(btn, 'h-9 text-[12.5px]')} onClick={() => actions.simulateGoal(0)}>{teams[tm.home].short}</button>
+                <button type="button" className={cx(btn, 'h-9 text-[12.5px]')} onClick={() => actions.simulateGoal(1)}>{teams[tm.away].short}</button>
               </div>
             )}
             <button type="button" className={btn} onClick={actions.shiftOdds}><Shuffle size={16} aria-hidden="true" /> Shift odds</button>

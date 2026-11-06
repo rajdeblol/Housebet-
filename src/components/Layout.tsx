@@ -1,12 +1,13 @@
 import { Activity, CircleDot, Home, Receipt, Search as SearchIcon, Star, WifiOff, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { competitions, sports } from '../data/competitions'
+import { competitions, sportPath, sports } from '../data/competitions'
 import { isOffline, useStore } from '../engine/store'
 import { cx, fmtUSDT } from '../lib/format'
 import { BetSlip } from './slip/BetSlip'
 import { MobileSlip } from './slip/MobileSlip'
 import { Logo } from './Logo'
+import { ThemeToggle } from './ThemeToggle'
 import { Search } from './Search'
 import { Toasts } from './Toasts'
 import { DemoPanel } from './DemoPanel'
@@ -82,21 +83,22 @@ function Header() {
 
   return (
     <header ref={ref} className="sticky top-0 z-40 border-b border-line bg-page">
-      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 lg:px-6">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-2 px-4 sm:gap-4 lg:px-6">
         <Link to="/" aria-label="Housebets home" className="shrink-0 rounded-s"><Logo /></Link>
         <MainNav className="ml-2 hidden lg:block" />
-        <div className="ml-auto hidden w-[300px] lg:block"><Search /></div>
+        <div className="ml-auto hidden w-[280px] lg:block"><Search /></div>
         <button
           type="button"
-          className="ml-auto flex h-11 w-11 items-center justify-center rounded-s border border-line bg-card lg:hidden"
+          className="ml-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-s border border-line bg-card lg:hidden"
           aria-label={searchOpen ? 'Close search' : 'Open search'}
           aria-expanded={searchOpen}
           onClick={() => setSearchOpen((v) => !v)}
         >
           {searchOpen ? <X size={18} aria-hidden="true" /> : <SearchIcon size={18} aria-hidden="true" />}
         </button>
-        <div className="flex h-11 shrink-0 flex-col justify-center rounded-s border border-line bg-card px-3 leading-tight lg:h-10" aria-label={`Demo balance ${fmtUSDT(balance)} USDT`}>
-          <span className="text-[10.5px] font-semibold uppercase tracking-wider text-muted">Demo balance</span>
+        <ThemeToggle />
+        <div className="flex h-11 shrink-0 flex-col justify-center rounded-s border border-line bg-card px-2.5 leading-tight sm:px-3 lg:h-10" aria-label={`Demo balance ${fmtUSDT(balance)} USDT`}>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted sm:text-[10.5px]">Balance</span>
           <span className="tnum text-[14px] font-bold">{fmtUSDT(balance)} <span className="text-[11px] font-semibold text-muted">USDT</span></span>
         </div>
       </div>
@@ -120,32 +122,31 @@ function OfflineBanner() {
 
 function Sidebar() {
   const matches = useStore((s) => s.matches)
-  const count = (id: string) => Object.values(matches).filter((m) => m.compId === id && m.status !== 'ft').length
+  const count = (pred: (m: { compId: string; sport: string; status: string }) => boolean) => Object.values(matches).filter((m) => m.status !== 'ft' && pred(m)).length
+  const liveIn = (id: string) => Object.values(matches).filter((m) => m.sport === id && m.status === 'live').length
   return (
     <aside className="sticky top-[var(--hdr,65px)] hidden h-[calc(100vh-var(--hdr,65px))] w-[232px] shrink-0 overflow-y-auto border-r border-line px-3 py-5 xl:block" aria-label="Sports and competitions">
       <h2 className="px-2 text-[11px] font-bold uppercase tracking-wider text-muted">Sports</h2>
       <ul className="mt-2 space-y-0.5">
-        {sports.map((s) => (
-          <li key={s.id}>
-            {s.enabled ? (
-              <NavLink to="/football" className={({ isActive }) => cx('flex h-10 items-center justify-between rounded-s px-2 text-[14px] font-semibold', isActive ? 'bg-card shadow-raised' : 'hover:bg-sunk')}>
-                {s.name} <span className="tnum text-[12px] text-muted">{Object.values(matches).filter((m) => m.status !== 'ft').length}</span>
-              </NavLink>
-            ) : (
-              <span aria-disabled="true" className="flex h-10 items-center justify-between rounded-s px-2 text-[14px] text-muted">
-                {s.name} <span className="rounded-full border border-line px-2 py-0.5 text-[10.5px] font-semibold">Coming soon</span>
+        {sports.map((sp) => (
+          <li key={sp.id}>
+            <NavLink to={sportPath(sp.id)} className={({ isActive }) => cx('flex h-10 items-center justify-between rounded-s px-2 text-[14px] font-semibold', isActive ? 'bg-card shadow-raised' : 'hover:bg-sunk')}>
+              {sp.name}
+              <span className="flex items-center gap-2 text-[12px] font-medium text-muted">
+                {liveIn(sp.id) > 0 && <span className="inline-flex items-center gap-1 text-live"><LiveDot /> <span className="tnum">{liveIn(sp.id)}</span></span>}
+                <span className="tnum">{count((m) => m.sport === sp.id)}</span>
               </span>
-            )}
+            </NavLink>
           </li>
         ))}
       </ul>
-      <h2 className="mt-6 px-2 text-[11px] font-bold uppercase tracking-wider text-muted">Football competitions</h2>
+      <h2 className="mt-6 px-2 text-[11px] font-bold uppercase tracking-wider text-muted">Competitions</h2>
       <ul className="mt-2 space-y-0.5">
         {competitions.map((c) => (
           <li key={c.id}>
-            <Link to={`/football#${c.id}`} className="flex h-10 items-center justify-between rounded-s px-2 text-[14px] hover:bg-sunk">
-              <span><span className="font-semibold">{c.name}</span> <span className="text-muted">· {c.region}</span></span>
-              <span className="tnum text-[12px] text-muted">{count(c.id)}</span>
+            <Link to={`${sportPath(c.sport)}#${c.id}`} className="flex h-10 items-center justify-between rounded-s px-2 text-[14px] hover:bg-sunk">
+              <span className="truncate"><span className="font-semibold">{c.name}</span> <span className="text-muted">· {c.region}</span></span>
+              <span className="tnum text-[12px] text-muted">{count((m) => m.compId === c.id)}</span>
             </Link>
           </li>
         ))}

@@ -3,26 +3,24 @@ import { useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
 import { actions } from '../../engine/store'
 import type { Bet } from '../../engine/types'
-import { colors } from '../../theme'
 import { cx, fmtOdds } from '../../lib/format'
 import { BetCard, type CardSport } from './BetCard'
 
-const styles: { id: CardSport; label: string }[] = [
-  { id: 'football', label: 'Football' },
-  { id: 'basketball', label: 'Basketball' },
-  { id: 'tennis', label: 'Tennis' },
-]
+const labels: Record<CardSport, string> = {
+  football: 'Football', basketball: 'Basketball', tennis: 'Tennis', americanfootball: 'NFL', baseball: 'Baseball', icehockey: 'Hockey', cricket: 'Cricket', mma: 'MMA',
+}
 
 export function BetCardPanel({ bet, reveal = false }: { bet: Bet; reveal?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   const [sport, setSport] = useState<CardSport>(bet.sport)
+  const styles = Array.from(new Set<CardSport>([bet.sport, 'football', 'basketball', 'tennis'])).map((id) => ({ id, label: labels[id] }))
   const [saving, setSaving] = useState(false)
 
   const save = async () => {
     if (!ref.current) return
     setSaving(true)
     try {
-      const url = await toPng(ref.current, { pixelRatio: 3, cacheBust: true, backgroundColor: colors.page })
+      const url = await toPng(ref.current, { pixelRatio: 3, cacheBust: true, backgroundColor: `rgb(${getComputedStyle(document.documentElement).getPropertyValue('--page').trim()})` })
       const a = document.createElement('a')
       a.href = url
       a.download = `housebets-${bet.id}.png`
