@@ -45,6 +45,18 @@ function chartTime(time: number) {
   return new Date(time).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
 }
 
+function phaseFor(id: string) {
+  const hash = [...id].reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 2166136261)
+  return (hash % 10000) / 10000 * Math.PI * 2
+}
+
+function demoWave(id: string, progress: number) {
+  const phase = phaseFor(id)
+  return Math.sin(progress * Math.PI * 2 * 2.7 + phase) * 5.8
+    + Math.sin(progress * Math.PI * 2 * 7.6 + phase * 1.7) * 3
+    + Math.sin(progress * Math.PI * 2 * 16.2 + phase * 0.6) * 1.5
+}
+
 /** Price-history view powered by the simulated odds ticks in the store. */
 export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { market?: Market; match: Match; activeEventKey?: string | null; onEventSelect?: (key: string) => void }) {
   const [visible, setVisible] = useState<Record<string, boolean>>({})
@@ -93,7 +105,15 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
     const currentPrices = series.map((points, index) => [...points].reverse().find((point) => point.time <= time)?.value ?? points[0]?.value ?? selections[index]?.odds ?? 1)
     const implied = currentPrices.map((odds) => 1 / Math.max(1.01, odds))
     const total = implied.reduce((sum, value) => sum + value, 0) || 1
-    probabilitySeries.forEach((item, index) => item.points.push({ time, value: implied[index] / total * 100 }))
+    const progress = (time - chartStart) / Math.max(1, tickEnd - chartStart)
+    // Demo-only motion keeps every sport and market visibly alive even after
+    // the store's rolling price history has evicted its original seed points.
+    // Fade the illustrative wave into the real current price at the endpoint.
+    const waveEnvelope = Math.min(1, Math.max(0, (1 - progress) * 10))
+    const illustrative = implied.map((value, index) => Math.max(0.25,
+      value / total * 100 + demoWave(selections[index]?.id ?? String(index), progress) * waveEnvelope))
+    const illustrativeTotal = illustrative.reduce((sum, value) => sum + value, 0) || 1
+    probabilitySeries.forEach((item, index) => item.points.push({ time, value: illustrative[index] / illustrativeTotal * 100 }))
   }
   const plottedValues = probabilitySeries.flatMap((item) => item.points.map((point) => point.value))
   const observedMin = plottedValues.length ? Math.min(...plottedValues) : 0
@@ -138,7 +158,7 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
         <div>
           <p className="mb-1 flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[.16em] text-brand"><Activity size={13} /> Market movement</p>
           <h3 id="market-pulse-title" className="text-[17px] font-extrabold tracking-tight">{market?.name ?? 'Price history'}</h3>
-          <p className="mt-0.5 text-[12px] text-muted">Implied probability · demo market history</p>
+          <p className="mt-0.5 text-[12px] text-muted">Implied probability · illustrative demo movement</p>
         </div>
         <div className="flex items-center gap-2">
           <span className={cx('rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider', currentState === 'Open' ? 'bg-up/10 text-upText' : currentState === 'Paused' ? 'bg-warnBg text-warn' : 'bg-sunk text-muted')}>
@@ -252,7 +272,7 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
             }).join(' · ')
             return <p className="mt-2 rounded-lg border border-brand/20 bg-brand/5 px-3 py-2 text-[11.5px] text-muted" role="status">At {event.minute}&apos; · {event.type === 'goal' ? 'Goal' : `${event.type} card`} · nearest simulated prices before → after: {beforeAfter}</p>
           })()}
-          <p className="mt-2 text-[11px] text-muted">Hover or focus the chart to inspect dated probabilities · based on available simulated odds history, not live market data.</p>
+          <p className="mt-2 text-[11px] text-muted">Hover or focus for dated probabilities · illustrative simulated movement, not live market data.</p>
         </div>
       ) : (
         <div className="p-5 text-[13px] text-muted">No price history is available for this match yet.</div>
