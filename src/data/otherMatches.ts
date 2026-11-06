@@ -1,4 +1,4 @@
-// Seed events for the other sports. All participants are fictional.
+// Seed events for the other sports. Franchise identities are real; fixtures, scores, and individual participants are simulated.
 import type { CricketState, SportId, TennisState } from '../engine/types'
 
 export interface OtherSeed {

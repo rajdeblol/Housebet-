@@ -14,6 +14,20 @@ export function Crest({ id, size = 28, className }: { id: string; size?: number;
     ashcombe: 10261, blackwater: 10252, calanne: 8564, montefiore: 8636, rheinau: 9885,
     kalberg: 9875, fenwick: 9847, albera: 9772, salvara: 9768, corvera: 9773,
   }
+  const espnLogos: Record<string, { league: string; slug: string }> = {
+    // NBA
+    calder: { league: 'nba', slug: 'bos' }, ironvale: { league: 'nba', slug: 'lal' }, sunmere: { league: 'nba', slug: 'gs' }, portwell: { league: 'nba', slug: 'chi' },
+    granite: { league: 'nba', slug: 'mia' }, lakeshore: { league: 'nba', slug: 'ny' }, brightwater: { league: 'nba', slug: 'dal' }, corran: { league: 'nba', slug: 'mil' },
+    // NFL
+    kestrel: { league: 'nfl', slug: 'atl' }, ironbridge: { league: 'nfl', slug: 'gb' }, delmont: { league: 'nfl', slug: 'dal' }, cascade: { league: 'nfl', slug: 'kc' },
+    northgate: { league: 'nfl', slug: 'bal' }, riverbend: { league: 'nfl', slug: 'sf' }, saltmarsh: { league: 'nfl', slug: 'buf' }, coldwater: { league: 'nfl', slug: 'phi' },
+    // MLB
+    pinecrest: { league: 'mlb', slug: 'atl' }, marlowe: { league: 'mlb', slug: 'tb' }, eastport: { league: 'mlb', slug: 'lad' }, sandcastle: { league: 'mlb', slug: 'nyy' },
+    redstone: { league: 'mlb', slug: 'chc' }, bluewater: { league: 'mlb', slug: 'bos' }, fairhaven: { league: 'mlb', slug: 'tor' }, ironwood: { league: 'mlb', slug: 'sea' },
+    // NHL
+    frostholm: { league: 'nhl', slug: 'bos' }, glacier: { league: 'nhl', slug: 'tor' }, northshire: { league: 'nhl', slug: 'mtl' }, baymouth: { league: 'nhl', slug: 'nyr' },
+    halden: { league: 'nhl', slug: 'edm' }, copperfield: { league: 'nhl', slug: 'col' }, ashgrove: { league: 'nhl', slug: 'vgk' }, lakeport: { league: 'nhl', slug: 'pit' },
+  }
   if (!t) {
     return (
       <div
@@ -25,7 +39,7 @@ export function Crest({ id, size = 28, className }: { id: string; size?: number;
     )
   }
 
-  if (t.logo || fotmobTeamIds[id]) {
+  if (t.logo || fotmobTeamIds[id] || espnLogos[id]) {
     return (
       <span
         style={{ width: size, height: size }}
@@ -34,7 +48,7 @@ export function Crest({ id, size = 28, className }: { id: string; size?: number;
         aria-label={`${t.name} crest`}
         title={t.name}
       >
-        <img src={fotmobTeamIds[id] ? `https://images.fotmob.com/image_resources/logo/teamlogo/${fotmobTeamIds[id]}.png` : `${import.meta.env.BASE_URL}${t.logo}`} alt="" width={size} height={size} loading="lazy" decoding="async" className={cx('h-full w-full object-contain', t.id === 'rheinau' && 'brightness-0')} />
+        <img src={fotmobTeamIds[id] ? `https://images.fotmob.com/image_resources/logo/teamlogo/${fotmobTeamIds[id]}.png` : espnLogos[id] ? `https://a.espncdn.com/i/teamlogos/${espnLogos[id].league}/500/${espnLogos[id].slug}.png` : `${import.meta.env.BASE_URL}${t.logo}`} alt="" width={size} height={size} loading="lazy" decoding="async" className={cx('h-full w-full object-contain', t.id === 'rheinau' && 'brightness-0')} />
       </span>
     )
   }

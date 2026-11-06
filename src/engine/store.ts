@@ -106,8 +106,8 @@ function init(): State {
     },
     {
       id: 'HB-3BB6KD', placedAt: now - 12 * 3600_000, matchId: null, marketId: null, selId: null, sport: 'basketball',
-      compName: 'NBA', home: 'Calder Bay Comets', away: 'Ironvale Forge', homeId: 'calder', awayId: 'ironvale',
-      marketName: 'Moneyline', pick: 'Calder Bay Comets', odds: 1.95, stake: 40, status: 'cashed', returned: 68.20,
+      compName: 'NBA', home: 'Boston Celtics', away: 'Los Angeles Lakers', homeId: 'calder', awayId: 'ironvale',
+      marketName: 'Moneyline', pick: 'Boston Celtics', odds: 1.95, stake: 40, status: 'cashed', returned: 68.20,
       settledAt: now - 10 * 3600_000, finalScore: [108, 102],
     },
     {

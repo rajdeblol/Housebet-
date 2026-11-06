@@ -78,6 +78,16 @@
 .faceoff-portrait:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgb(0 0 0 / .2); }
 @keyframes faceoff-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
+/* Demo pick: soft swipe-in, a short lock seal, and a calm final reveal. */
+@keyframes pick-swipe-in { from { opacity: 0; transform: translateX(10px) scale(.99); } to { opacity: 1; transform: none; } }
+.pick-swipe-in { animation: pick-swipe-in 280ms cubic-bezier(.18,.82,.3,1) both; }
+@keyframes pick-card-spring { 0% { transform: scale(.97); } 62% { transform: scale(1.025); } 100% { transform: scale(1); } }
+.pick-card-spring { animation: pick-card-spring 330ms cubic-bezier(.2,.9,.3,1); }
+@keyframes pick-lock-seal { 0% { transform: scale(.985); box-shadow: 0 0 0 0 rgb(var(--brand) / 0); } 48% { transform: scale(1.008); box-shadow: 0 0 0 3px rgb(var(--brand) / .18); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgb(var(--brand) / 0); } }
+.pick-lock-seal { animation: pick-lock-seal 620ms cubic-bezier(.2,.75,.25,1) both; }
+@keyframes pick-result-reveal { from { opacity: 0; clip-path: inset(0 0 35% 0 round 10px); transform: translateY(5px); } to { opacity: 1; clip-path: inset(0 0 0 0 round 10px); transform: none; } }
+.pick-result-reveal { animation: pick-result-reveal 420ms cubic-bezier(.2,.7,.2,1) both; }
+
 /* Slip slide-in / collapse */
 @keyframes slide-in { from { transform: translateX(12px); opacity: 0; } to { transform: none; opacity: 1; } }
 .slide-in { animation: slide-in 220ms cubic-bezier(.2,.7,.2,1); }
@@ -101,6 +111,7 @@
 @media (prefers-reduced-motion: reduce) {
   .live-dot, .shutter, .slide-in, .slip-value-change, .sheet-up, .reveal-down, .pop, .score-updated, .team-score-flash, .event-enter, .event-marker-active circle, .odds-selected, .settled-reveal, .faceoff-enter { animation: none !important; }
   .faceoff-bar, .faceoff-portrait { transition: none !important; }
+  .pick-swipe-in, .pick-card-spring, .pick-lock-seal, .pick-result-reveal { animation: none !important; }
   .flap-top, .flap-bottom { animation: none !important; display: none; }
   .tick-up, .tick-down { animation-duration: 1ms !important; }
   .countdown { animation: none; }

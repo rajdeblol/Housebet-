@@ -16,6 +16,7 @@ function readPicks(): Record<string, SavedPick> {
 export function MatchPrediction({ match, market }: { match: Match; market?: Market }) {
   const [picks, setPicks] = useState<Record<string, SavedPick>>(readPicks)
   const [selectedId, setSelectedId] = useState('')
+  const [locking, setLocking] = useState(false)
   if (!market || !['mr', 'ml'].includes(market.key)) return null
   const saved = picks[match.id]
   const selected = market.selections.find((selection) => selection.id === selectedId)
@@ -23,6 +24,8 @@ export function MatchPrediction({ match, market }: { match: Match; market?: Mark
   const save = () => {
     if (!selected) return
     const next = { ...picks, [match.id]: { selectionId: selected.id, label: selected.label, odds: selected.odds, createdAt: Date.now() } }
+    setLocking(true)
+    window.setTimeout(() => setLocking(false), 700)
     setPicks(next)
     try { localStorage.setItem(storageKey, JSON.stringify(next)) } catch { /* local demo can continue without persistence */ }
   }
@@ -48,20 +51,20 @@ export function MatchPrediction({ match, market }: { match: Match; market?: Mark
       </header>
 
       {saved ? (
-        <div className="flex flex-wrap items-center gap-3 p-4 sm:px-5">
-          <div className="min-w-0 flex-1">
+        <div className={`flex flex-wrap items-center gap-3 p-4 sm:px-5 ${match.status === 'ft' ? 'pick-result-reveal' : 'pick-swipe-in'} ${locking ? 'pick-lock-seal' : ''}`}>
+          <div className="min-w-0 flex-1" aria-live="polite">
             <p className="truncate text-[14px] font-extrabold">You picked {saved.label} <span className="tnum text-muted">@ {fmtOdds(saved.odds)}</span></p>
             <p className="mt-0.5 text-[11.5px] text-muted">Saved price implies {((1 / saved.odds) * 100).toFixed(1)}% · simple inverse, not normalized</p>
             {match.status === 'ft' ? (
-              <p className={`mt-2 inline-flex items-center gap-1.5 text-[12px] font-bold ${isCorrect ? 'text-upText' : 'text-down'}`}><Check size={14} /> {isCorrect ? 'Correct demo pick' : 'Not this time'} · final {match.score[0]}–{match.score[1]}</p>
+              <p className={`mt-2 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-bold ${isCorrect ? 'bg-up/10 text-upText' : 'bg-down/10 text-down'}`}><Check size={14} /> {isCorrect ? 'Correct demo pick' : 'Not this time'} · final {match.score[0]}–{match.score[1]}</p>
             ) : match.status === 'live' ? <p className="mt-2 text-[12px] font-semibold text-live">In play · {match.score[0]}–{match.score[1]} · result will be shown at full time</p> : null}
           </div>
-          {match.status === 'upcoming' && <button type="button" onClick={clear} className="h-10 rounded-lg border border-line px-3 text-[12px] font-semibold text-muted hover:border-ink hover:text-ink">Change pick</button>}
+          {match.status === 'upcoming' && <><span className={`inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1.5 text-[10px] font-bold text-brand ${locking ? 'pick-lock-seal' : ''}`}><Lock size={11} /> Pick locked</span><button type="button" onClick={clear} className="h-10 rounded-lg border border-line px-3 text-[12px] font-semibold text-muted hover:border-ink hover:text-ink">Change pick</button></>}
         </div>
       ) : match.status === 'upcoming' ? (
         <div className="p-4 sm:px-5">
           <div className={`grid gap-2 ${market.selections.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
-            {market.selections.map((selection) => <button key={selection.id} type="button" aria-pressed={selectedId === selection.id} onClick={() => setSelectedId(selection.id)} className={`min-h-12 rounded-lg border px-2 text-center transition-colors ${selectedId === selection.id ? 'border-brand bg-brand/10 ring-1 ring-brand text-ink' : 'border-line bg-page text-ink hover:border-brand/50'}`}>
+            {market.selections.map((selection) => <button key={selection.id} type="button" aria-pressed={selectedId === selection.id} onClick={() => setSelectedId(selection.id)} className={`min-h-12 rounded-lg border px-2 text-center transition-colors ${selectedId === selection.id ? 'pick-card-spring border-brand bg-brand/10 ring-1 ring-brand text-ink' : 'border-line bg-page text-ink hover:border-brand/50'}`}>
               <span className="block truncate text-[11px] text-muted">{selection.label}</span><span className="tnum text-[14px] font-extrabold">{fmtOdds(selection.odds)}</span>
             </button>)}
           </div>
