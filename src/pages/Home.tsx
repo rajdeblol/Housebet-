@@ -7,7 +7,7 @@ import { MatchRow } from '../components/MatchRow'
 import { Crest, EmptyState, Freshness, LiveDot, SectionHeader } from '../components/ui'
 import { useStore } from '../engine/store'
 import { cx, fmtUSDT } from '../lib/format'
-import { SportIcon } from '../lib/sportIcons'
+import { SportIcon, sportAccent } from '../lib/sportIcons'
 import { scoreText, statusShort } from '../lib/sport'
 
 /** Horizontal sport chips (phones and tablets; desktop has the left nav). */
@@ -21,6 +21,7 @@ export function SportsNav() {
           <NavLink
             key={sp.id}
             to={sportPath(sp.id)}
+            style={({ isActive }) => isActive ? undefined : { borderColor: `${sportAccent[sp.id]}55`, backgroundColor: `${sportAccent[sp.id]}12` }}
             className={({ isActive }) =>
               cx(
                 'flex h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 text-[13px] font-semibold transition-colors',
@@ -184,22 +185,22 @@ export function HomePage() {
       )}
 
       <section aria-label="Demo dashboard summary" className="mb-7 grid grid-cols-2 gap-2.5 xl:grid-cols-4">
-        <Link to="/live" className="group rounded-m border border-line bg-card p-3.5 shadow-raised transition-colors hover:border-brand/60 sm:p-4">
+        <Link to="/live" style={{ borderColor: '#FB718566', background: 'linear-gradient(135deg, #FB71851A, rgb(var(--card)) 68%)' }} className="group rounded-m border bg-card p-3.5 shadow-raised transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-4">
           <span className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted"><span>Live events</span><Activity size={15} className="text-live" aria-hidden="true" /></span>
-          <span className="mt-2 block text-[25px] font-black leading-none tracking-tight">{live.length}</span>
+          <span className="mt-2 block text-[25px] font-black leading-none tracking-tight text-live">{live.length}</span>
           <span className="mt-1 block text-[11px] text-muted">Across {sports.length} sports</span>
         </Link>
-        <Link to="/football" className="group rounded-m border border-line bg-card p-3.5 shadow-raised transition-colors hover:border-brand/60 sm:p-4">
-          <span className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted"><span>Coming up</span><Clock size={15} className="text-brand" aria-hidden="true" /></span>
-          <span className="mt-2 block text-[25px] font-black leading-none tracking-tight">{soon.length}</span>
+        <Link to="/football" style={{ borderColor: '#60A5FA66', background: 'linear-gradient(135deg, #60A5FA1A, rgb(var(--card)) 68%)' }} className="group rounded-m border bg-card p-3.5 shadow-raised transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-4">
+          <span className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted"><span>Coming up</span><Clock size={15} className="text-[#60A5FA]" aria-hidden="true" /></span>
+          <span className="mt-2 block text-[25px] font-black leading-none tracking-tight text-[#60A5FA]">{soon.length}</span>
           <span className="mt-1 block text-[11px] text-muted">Scheduled fixtures</span>
         </Link>
-        <Link to="/bets" className="group rounded-m border border-line bg-card p-3.5 shadow-raised transition-colors hover:border-brand/60 sm:p-4">
-          <span className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted"><span>Open singles</span><Ticket size={15} className="text-brand" aria-hidden="true" /></span>
-          <span className="mt-2 block text-[25px] font-black leading-none tracking-tight">{openBets}</span>
+        <Link to="/bets" style={{ borderColor: '#A78BFA66', background: 'linear-gradient(135deg, #A78BFA1A, rgb(var(--card)) 68%)' }} className="group rounded-m border bg-card p-3.5 shadow-raised transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-4">
+          <span className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted"><span>Open singles</span><Ticket size={15} className="text-[#A78BFA]" aria-hidden="true" /></span>
+          <span className="mt-2 block text-[25px] font-black leading-none tracking-tight text-[#A78BFA]">{openBets}</span>
           <span className="mt-1 block text-[11px] text-muted">In your demo wallet</span>
         </Link>
-        <Link to="/bets" className="group rounded-m border border-line bg-card p-3.5 shadow-raised transition-colors hover:border-brand/60 sm:p-4">
+        <Link to="/bets" style={{ borderColor: `${demoNet >= 0 ? '#34D399' : '#FB7185'}66`, background: `linear-gradient(135deg, ${demoNet >= 0 ? '#34D399' : '#FB7185'}1A, rgb(var(--card)) 68%)` }} className="group rounded-m border bg-card p-3.5 shadow-raised transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-4">
           <span className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted"><span>Settled demo net</span><TrendingUp size={15} className={demoNet >= 0 ? 'text-upText' : 'text-down'} aria-hidden="true" /></span>
           <span className={`mt-2 block text-[25px] font-black leading-none tracking-tight tnum ${demoNet >= 0 ? 'text-upText' : 'text-down'}`}>{demoNet >= 0 ? '+' : '−'}{fmtUSDT(Math.abs(demoNet))}</span>
           <span className="mt-1 block text-[11px] text-muted">{settledBets.length} settled · {demoRoi >= 0 ? '+' : ''}{demoRoi.toFixed(1)}% demo ROI</span>
@@ -215,7 +216,7 @@ export function HomePage() {
           <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
             {live.slice(0, 6).map((m) => {
               const h = teams[m.home], a = teams[m.away], score = scoreText(m)
-              return <Link key={m.id} to={`/match/${m.id}`} className="min-w-[205px] rounded-m border border-line bg-card px-3 py-2.5 transition-colors hover:border-brand/70">
+              return <Link key={m.id} to={`/match/${m.id}`} style={{ borderColor: `${sportAccent[m.sport]}66`, background: `linear-gradient(135deg, ${sportAccent[m.sport]}12, rgb(var(--card)) 72%)` }} className="min-w-[205px] rounded-m border px-3 py-2.5 transition-all hover:-translate-y-0.5 hover:shadow-raised">
                 <span className="flex items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wide text-muted"><span className="truncate">{compById[m.compId]?.short ?? sportById[m.sport].name}</span><span className="tnum shrink-0 text-live">{statusShort(m)}</span></span>
                 <span className="mt-1.5 flex items-center gap-2 text-[12.5px] font-bold"><span className="min-w-0 flex-1 truncate">{h.name}</span><span className="tnum rounded bg-sunk px-1.5 py-0.5 text-brand">{score ? `${score[0]}–${score[1]}` : 'In play'}</span></span>
                 <span className="mt-1 flex items-center gap-2 text-[12.5px] font-bold"><span className="min-w-0 flex-1 truncate">{a.name}</span><span className="w-[34px]" /></span>
@@ -237,8 +238,8 @@ export function HomePage() {
         <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {exploreSports.map((sp) => {
             const inPlay = live.filter((m) => m.sport === sp.id).length
-            return <li key={sp.id}><Link to={sportPath(sp.id)} className="flex min-h-[62px] items-center gap-3 rounded-m border border-line bg-card px-3 transition-colors hover:border-brand/70">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-line bg-card shadow-sm"><SportIcon id={sp.id} size={23} /></span>
+            return <li key={sp.id}><Link to={sportPath(sp.id)} style={{ borderColor: `${sportAccent[sp.id]}55`, background: `linear-gradient(115deg, ${sportAccent[sp.id]}14, rgb(var(--card)) 54%)` }} className="flex min-h-[62px] items-center gap-3 rounded-m border px-3 transition-all hover:-translate-y-0.5 hover:shadow-raised">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border bg-page/70 shadow-sm" style={{ borderColor: `${sportAccent[sp.id]}66` }}><SportIcon id={sp.id} size={23} /></span>
               <span className="min-w-0 flex-1"><span className="block truncate text-[13.5px] font-bold">{sp.name}</span><span className="block text-[11.5px] text-muted">{inPlay > 0 ? `${inPlay} in demo play` : 'View fixtures'}</span></span>
               <ArrowRight size={14} className="shrink-0 text-muted" aria-hidden="true" />
             </Link></li>

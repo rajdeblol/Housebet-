@@ -144,7 +144,10 @@ export function Layout() {
   }, [pathname, hash])
 
   return (
-    <div className="min-h-screen bg-page text-ink antialiased">
+    <div
+      className="min-h-screen bg-page text-ink antialiased"
+      style={{ backgroundImage: 'radial-gradient(ellipse at 14% 0%, rgb(var(--brand) / .07), transparent 34%), radial-gradient(ellipse at 92% 8%, rgba(124, 92, 255, .055), transparent 30%)', backgroundAttachment: 'fixed' }}
+    >
       <TopBar
         onOpenWallet={() => setWalletOpen(true)}
         onOpenMenu={() => setMenuOpen(true)}

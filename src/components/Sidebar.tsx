@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom'
 import { competitions, sportPath, sports } from '../data/competitions'
 import { useStore } from '../engine/store'
 import { cx } from '../lib/format'
-import { SportIcon } from '../lib/sportIcons'
+import { SportIcon, sportAccent } from '../lib/sportIcons'
 
 const item = (active: boolean) =>
   cx(
@@ -51,7 +51,7 @@ export function Sidebar() {
       <ul className="space-y-0.5">
         {sports.map((sp) => (
           <li key={sp.id}>
-            <NavLink to={sportPath(sp.id)} className={({ isActive }) => item(isActive)}>
+            <NavLink to={sportPath(sp.id)} style={({ isActive }) => isActive ? undefined : { backgroundColor: `${sportAccent[sp.id]}0A` }} className={({ isActive }) => item(isActive)}>
               <SportIcon id={sp.id} />
               <span className="truncate">{sp.name}</span>
               <Count n={count(sp.id)} />

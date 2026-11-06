@@ -36,12 +36,12 @@ export const colors = {
 
 /** Dark navy-teal palette from the Housebets upgrade brief. */
 export const darkColors: typeof colors = {
-  page: '#061316',
-  card: '#0B2028',
-  sunk: '#102831',
-  ink: '#F5F7F7',
-  muted: '#9CB0B4',
-  line: '#24434C',
+  page: '#080D1D',
+  card: '#10172B',
+  sunk: '#171F37',
+  ink: '#F5F7FF',
+  muted: '#A4B0C8',
+  line: '#293553',
   accent: '#00D5D5',
   brand: brand.logoColor,
   up: '#32C48D',

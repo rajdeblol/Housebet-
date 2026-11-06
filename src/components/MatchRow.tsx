@@ -5,6 +5,7 @@ import { teams } from '../data/teams'
 import { useStore } from '../engine/store'
 import { cx, kickoffLabel } from '../lib/format'
 import { mainKey, scoreText, statusShort } from '../lib/sport'
+import { sportAccent } from '../lib/sportIcons'
 import type { Match } from '../engine/types'
 import { OddsButton } from './OddsButton'
 import { Crest, FollowButton, LiveDot } from './ui'
@@ -60,7 +61,7 @@ export function MatchRow({ id, showComp, followable }: { id: string; followable?
 
   if (followable) {
     return (
-      <li className="list-none border-b border-line px-3.5 py-3 last:border-b-0 sm:px-4">
+      <li style={{ borderLeftColor: sportAccent[m.sport] }} className="list-none border-b border-l-[3px] border-line px-3.5 py-3 last:border-b-0 sm:px-4">
         <div className="grid grid-cols-1 gap-2.5 md:grid-cols-[minmax(0,1fr)_288px] md:items-center md:gap-4">
           <div className="min-w-0">
             <div className="mb-1.5 flex items-center gap-2 text-[12.5px]">
@@ -89,7 +90,7 @@ export function MatchRow({ id, showComp, followable }: { id: string; followable?
 
   return (
     <li className="mb-3 list-none">
-      <article aria-label={`${H.name} v ${A.name}`} className="rounded-m border border-line bg-card p-3.5 shadow-raised sm:p-4">
+      <article aria-label={`${H.name} v ${A.name}`} style={{ borderLeftColor: sportAccent[m.sport] }} className="rounded-m border border-l-[3px] border-line bg-card p-3.5 shadow-raised sm:p-4">
         <div className="mb-3 flex items-center justify-between gap-3 text-[12.5px]">
           <div className="flex min-w-0 items-center gap-2">
             <Status m={m} now={now} />

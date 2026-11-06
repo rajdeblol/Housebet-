@@ -2,6 +2,7 @@ import { ArrowDown, ArrowUp, Check, Lock } from 'lucide-react'
 import { useRef } from 'react'
 import { actions, useStore } from '../engine/store'
 import { cx, fmtOdds } from '../lib/format'
+import { sportAccent } from '../lib/sportIcons'
 
 interface Props {
   selId: string
@@ -41,6 +42,7 @@ export function OddsButton({ selId, tag, label, className }: Props) {
       disabled={disabled}
       aria-pressed={selected}
       aria-label={aria}
+      style={!selected && !disabled ? { borderColor: `${sportAccent[m.sport]}55`, background: `linear-gradient(135deg, ${sportAccent[m.sport]}12, rgb(var(--sunk)) 70%)` } : undefined}
       className={cx(
         'group relative flex min-h-[44px] min-w-0 items-center overflow-hidden rounded-s border text-left transition-colors',
         label ? 'flex-col items-stretch justify-center gap-0.5 px-3 py-2 lg:min-h-[56px]' : 'justify-between gap-1 px-2.5 lg:min-h-[44px]',

@@ -1,5 +1,17 @@
 import type { SportId } from '../engine/types'
 
+/** Housebets-friendly sport accents for navigation and match panels. */
+export const sportAccent: Record<SportId, string> = {
+  football: '#20D4C8',
+  basketball: '#F59E0B',
+  americanfootball: '#60A5FA',
+  baseball: '#38BDF8',
+  icehockey: '#A78BFA',
+  cricket: '#34D399',
+  mma: '#FB7185',
+  tennis: '#C4E438',
+}
+
 /** Compact full-colour sport marks inspired by clean sportsbook league navigation. */
 export function SportIcon({ id, size = 22, className }: { id: SportId; size?: number; className?: string }) {
   return (
