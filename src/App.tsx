@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { HomePage } from './pages/Home'
 import { LivePage } from './pages/Live'
@@ -6,7 +6,6 @@ import { FootballPage } from './pages/Football'
 import { MatchPage } from './pages/Match'
 import { SportPage } from './pages/Sport'
 import { MyBetsPage } from './pages/MyBets'
-import { AdvancedPage } from './pages/Advanced'
 import { NotFound } from './pages/NotFound'
 
 export default function App() {
@@ -20,7 +19,7 @@ export default function App() {
           <Route path="sport/:sportId" element={<SportPage />} />
           <Route path="match/:id" element={<MatchPage />} />
           <Route path="bets" element={<MyBetsPage />} />
-          <Route path="features" element={<AdvancedPage />} />
+          <Route path="features" element={<Navigate to="/" replace />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

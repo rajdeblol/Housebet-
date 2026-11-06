@@ -1,4 +1,4 @@
-import { Activity, ChevronDown, ChevronLeft, Play, Sparkles, Ticket, Users } from 'lucide-react'
+import { Activity, AlertTriangle, ChevronDown, ChevronLeft, FlaskConical, LockKeyhole, Play, RefreshCw, Shuffle, Sparkles, Ticket, Users } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { compById, sportById, sportPath } from '../data/competitions'
@@ -134,6 +134,66 @@ function DemoMomentButton({ match }: { match: Match }) {
   )
 }
 
+function JudgeDemoScenarios({ match }: { match: Match }) {
+  const [message, setMessage] = useState('Simulated states only · no real wagers.')
+
+  const preparePick = () => {
+    actions.setTarget(match.id)
+    const state = getState()
+    const candidates = [state.markets[`${match.id}:${mainKey(match)}`], ...(state.marketIds[match.id] ?? []).map((marketId) => state.markets[marketId])]
+    const market = candidates.find((candidate) => candidate && !candidate.closed && candidate.selections.some((selection) => !selection.closed))
+    const selection = market?.selections.find((candidate) => !candidate.closed)
+    if (!market || !selection) {
+      setMessage('There are no available selections for this match right now.')
+      return false
+    }
+    if (!getState().slip.items.some((item) => item.selId === selection.id)) actions.toggleSelection(selection.id)
+    actions.setStake(selection.id, '10')
+    actions.openSheet(true, true)
+    return true
+  }
+
+  const run = (scenario: 'normal' | 'changed' | 'suspended' | 'failed') => {
+    actions.resetDemoScenario(match.id)
+    if (scenario === 'normal') {
+      if (!preparePick()) return
+      actions.acceptOdds()
+      setMessage('Normal flow ready: place the $10 single, then open it in My bets.')
+      return
+    }
+    if (!preparePick()) return
+    if (scenario === 'changed') {
+      actions.shiftOdds()
+      setMessage('Odds changed: review the new price in the slip and accept it to continue.')
+    } else if (scenario === 'suspended') {
+      actions.suspendMarket(60_000)
+      setMessage('Selection suspended for 60 seconds: remove it from the slip to continue.')
+    } else {
+      actions.setFailNext(true)
+      setMessage('Failure armed: place the $10 single to see the failed state, then retry.')
+    }
+  }
+
+  return (
+    <details className="mt-4 overflow-hidden rounded-m border border-brand/25 bg-brand/[0.035]">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
+        <span className="flex min-w-0 items-center gap-2 text-[13px] font-bold"><FlaskConical size={15} className="shrink-0 text-brand" aria-hidden="true" /><span>Judge demo · try bet states</span><span className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-brand">Simulated</span></span>
+        <ChevronDown size={16} className="shrink-0 text-muted" aria-hidden="true" />
+      </summary>
+      <div className="border-t border-brand/15 px-3 pb-3 pt-2.5">
+        <p className="mb-2.5 text-[12px] leading-relaxed text-muted">Each option adds a $10 single from this match to your slip. Try one state, then use the slip action it reveals.</p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <button type="button" onClick={() => run('normal')} className="flex min-h-10 items-center justify-center gap-1.5 rounded-s border border-line bg-card px-2 text-[11.5px] font-bold hover:border-ink"><RefreshCw size={13} aria-hidden="true" /> Normal bet flow</button>
+          <button type="button" onClick={() => run('changed')} className="flex min-h-10 items-center justify-center gap-1.5 rounded-s border border-line bg-card px-2 text-[11.5px] font-bold hover:border-ink"><Shuffle size={13} aria-hidden="true" /> Odds changed</button>
+          <button type="button" onClick={() => run('suspended')} className="flex min-h-10 items-center justify-center gap-1.5 rounded-s border border-line bg-card px-2 text-[11.5px] font-bold hover:border-ink"><LockKeyhole size={13} aria-hidden="true" /> Suspend pick</button>
+          <button type="button" onClick={() => run('failed')} className="flex min-h-10 items-center justify-center gap-1.5 rounded-s border border-line bg-card px-2 text-[11.5px] font-bold hover:border-ink"><AlertTriangle size={13} aria-hidden="true" /> Fail placement</button>
+        </div>
+        <p role="status" aria-live="polite" className="mt-2 text-[11.5px] text-muted">{message}</p>
+      </div>
+    </details>
+  )
+}
+
 export function MatchPage() {
   const { id = '' } = useParams()
   const [params, setParams] = useSearchParams()
@@ -222,6 +282,7 @@ export function MatchPage() {
       </div>
 
       {view === 'bet' && <>
+        <JudgeDemoScenarios match={m} />
         <div className="mt-4">
           <MarketPulse market={markets[`${id}:${mainKey(m)}`]} match={m} activeEventKey={activeEventKey} onEventSelect={setActiveEventKey} />
         </div>

@@ -1,7 +1,6 @@
 import {
   Menu,
   Radio,
-  Sparkles,
   Search as SearchIcon,
   WifiOff,
   X,
@@ -110,7 +109,6 @@ function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpen
           </NavLink>
           <NavLink to="/football" className={tab}>Football</NavLink>
           <NavLink to="/bets" className={tab}>My bets</NavLink>
-          <NavLink to="/features" className={tab}><Sparkles size={14} className="text-brand" aria-hidden="true" /> Labs</NavLink>
         </div>
       </nav>
     </header>

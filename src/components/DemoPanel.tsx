@@ -43,7 +43,7 @@ export function DemoPanel() {
               </div>
             )}
             <button type="button" className={btn} onClick={actions.shiftOdds}><Shuffle size={16} aria-hidden="true" /> Shift odds</button>
-            <button type="button" className={btn} onClick={actions.suspendMarket}><Lock size={16} aria-hidden="true" /> Suspend market</button>
+            <button type="button" className={btn} onClick={() => actions.suspendMarket()}><Lock size={16} aria-hidden="true" /> Suspend market</button>
             <button type="button" aria-pressed={demo.failNext} className={toggle(demo.failNext)} onClick={() => actions.setFailNext(!demo.failNext)}>
               <XCircle size={16} aria-hidden="true" /> {demo.failNext ? 'Next bet will fail' : 'Fail next bet'}
             </button>

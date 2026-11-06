@@ -1,5 +1,6 @@
 import { ChevronRight, Lock } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { type KeyboardEvent, type MouseEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { compById } from '../data/competitions'
 import { teams } from '../data/teams'
 import { useStore } from '../engine/store'
@@ -35,6 +36,7 @@ export function MatchRow({ id, showComp, followable }: { id: string; followable?
   const m = useStore((s) => s.matches[id])
   const now = useStore((s) => s.now)
   const main = useStore((s) => (m ? s.markets[`${id}:${mainKey(m)}`] : undefined))
+  const navigate = useNavigate()
 
   if (!m || !main) return null
 
@@ -44,6 +46,17 @@ export function MatchRow({ id, showComp, followable }: { id: string; followable?
   const tags = threeWay ? ['1', 'X', '2'] : [H.short || '1', A.short || '2']
   const comp = showComp ?? compById[m.compId]?.short
   const suspended = !!main.suspendedUntil && !main.closed
+  const matchPath = `/match/${m.id}`
+  const onCardClick = (event: MouseEvent<HTMLElement>) => {
+    const target = event.target
+    if (target instanceof Element && target.closest('a, button, input, select, textarea, [role="button"]')) return
+    navigate(matchPath)
+  }
+  const onCardKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) return
+    event.preventDefault()
+    navigate(matchPath)
+  }
 
   const odds = (
     <div className={cx('grid gap-1.5', threeWay ? 'grid-cols-3' : 'grid-cols-2')} role="group" aria-label={`Match result, ${H.name} v ${A.name}`}>
@@ -61,7 +74,15 @@ export function MatchRow({ id, showComp, followable }: { id: string; followable?
 
   if (followable) {
     return (
-      <li style={{ borderLeftColor: sportAccent[m.sport] }} className="list-none border-b border-l-[3px] border-line px-3.5 py-3 last:border-b-0 sm:px-4">
+      <li
+        role="group"
+        aria-label={`Open ${H.name} v ${A.name} match markets`}
+        tabIndex={0}
+        onClick={onCardClick}
+        onKeyDown={onCardKeyDown}
+        style={{ borderLeftColor: sportAccent[m.sport] }}
+        className="list-none cursor-pointer border-b border-l-[3px] border-line px-3.5 py-3 transition-colors hover:bg-sunk/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand last:border-b-0 sm:px-4"
+      >
         <div className="grid grid-cols-1 gap-2.5 md:grid-cols-[minmax(0,1fr)_288px] md:items-center md:gap-4">
           <div className="min-w-0">
             <div className="mb-1.5 flex items-center gap-2 text-[12.5px]">
@@ -90,7 +111,14 @@ export function MatchRow({ id, showComp, followable }: { id: string; followable?
 
   return (
     <li className="mb-3 list-none">
-      <article aria-label={`${H.name} v ${A.name}`} style={{ borderLeftColor: sportAccent[m.sport] }} className="rounded-m border border-l-[3px] border-line bg-card p-3.5 shadow-raised sm:p-4">
+      <article
+        aria-label={`${H.name} v ${A.name}. Click a blank area to open match markets.`}
+        tabIndex={0}
+        onClick={onCardClick}
+        onKeyDown={onCardKeyDown}
+        style={{ borderLeftColor: sportAccent[m.sport] }}
+        className="cursor-pointer rounded-m border border-l-[3px] border-line bg-card p-3.5 shadow-raised transition-colors hover:bg-sunk/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand sm:p-4"
+      >
         <div className="mb-3 flex items-center justify-between gap-3 text-[12.5px]">
           <div className="flex min-w-0 items-center gap-2">
             <Status m={m} now={now} />

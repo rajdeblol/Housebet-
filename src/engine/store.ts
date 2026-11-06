@@ -408,14 +408,14 @@ export const actions = {
     })
   },
 
-  suspendMarket() {
+  suspendMarket(durationMs = 8000) {
     const now = Date.now()
     set((s) => {
       const markets = { ...s.markets }
       const targets = new Set<string>(s.slip.items.map((i) => i.marketId))
       const id = demoTarget(s)
       if (id) targets.add(`${id}:mr`)
-      for (const t of targets) if (!markets[t].closed) markets[t] = { ...markets[t], suspendedUntil: now + 8000 }
+      for (const t of targets) if (markets[t] && !markets[t].closed) markets[t] = { ...markets[t], suspendedUntil: now + durationMs }
       return { markets }
     })
   },
@@ -423,6 +423,20 @@ export const actions = {
   setFailNext: (v: boolean) => set((s) => ({ demo: { ...s.demo, failNext: v } })),
   setOffline: (v: boolean) => set((s) => ({ demo: { ...s.demo, offline: v } })),
   setTarget: (v: string) => set((s) => ({ demo: { ...s.demo, target: v } })),
+
+  resetDemoScenario(matchId?: string) {
+    const now = Date.now()
+    set((s) => {
+      const marketIds = new Set(s.slip.items.map((item) => item.marketId))
+      if (matchId) for (const marketId of s.marketIds[matchId] ?? []) marketIds.add(marketId)
+      const markets = { ...s.markets }
+      for (const marketId of marketIds) {
+        const market = markets[marketId]
+        if (market?.suspendedUntil && !market.closed) markets[marketId] = repriceMarket({ ...market, suspendedUntil: null }, s.matches[market.matchId], now, true)
+      }
+      return { markets, demo: { ...s.demo, failNext: false, offline: false, ...(matchId ? { target: matchId } : {}) } }
+    })
+  },
 
   // ---- slip
   toggleSelection(selId: string) {
