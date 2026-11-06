@@ -52,6 +52,17 @@ function CashOut({ bet }: { bet: Bet }) {
 }
 
 function BetRow({ bet }: { bet: Bet }) {
+  const previousStatus = useRef(bet.status)
+  const [justSettled, setJustSettled] = useState(false)
+  useEffect(() => {
+    if (previousStatus.current === 'open' && bet.status !== 'open') {
+      setJustSettled(true)
+      const timer = window.setTimeout(() => setJustSettled(false), 1100)
+      previousStatus.current = bet.status
+      return () => window.clearTimeout(timer)
+    }
+    previousStatus.current = bet.status
+  }, [bet.status])
   const m = useStore((s) => (bet.matchId ? s.matches[bet.matchId] : undefined))
   const now = useStore((s) => s.now)
   const badge = {
@@ -63,7 +74,7 @@ function BetRow({ bet }: { bet: Bet }) {
   const ret = bet.status === 'open' ? bet.stake * bet.odds : bet.returned ?? 0
 
   return (
-    <li className="rounded-m border border-line bg-card p-4">
+    <li className={`rounded-m border border-line bg-card p-4 ${justSettled ? 'settled-reveal' : ''}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[12px] font-semibold text-muted">{bet.compName}</p>

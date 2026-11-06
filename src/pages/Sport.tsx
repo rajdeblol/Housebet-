@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { competitions, sportById } from '../data/competitions'
 import { MatchRow } from '../components/MatchRow'
+import { CompetitionForm } from '../components/CompetitionForm'
 import { FollowButton, LiveDot } from '../components/ui'
 import { useStore } from '../engine/store'
 import type { SportId } from '../engine/types'
@@ -72,6 +73,7 @@ export function SportPage({ sport: fixed }: { sport?: SportId }) {
                 </div>
                 <ul>{ids.map((id) => <MatchRow key={id} id={id} followable />)}</ul>
               </div>
+              {sportId === 'football' && <CompetitionForm competitionId={c.id} matches={matches} />}
             </section>
           )
         })}

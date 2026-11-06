@@ -4,6 +4,17 @@ import { useStore } from '../../engine/store'
 import { cx } from '../../lib/format'
 import { OddsButton } from '../OddsButton'
 
+function settlementCopy(key: string, name: string) {
+  if (key === 'mr') return 'Match result follows the final score: home win, draw or away win.'
+  if (key === 'ml') return 'The winner is determined by the final match state. This market has no draw outcome.'
+  if (key === 'btts') return 'Yes wins if both teams score at least once; No wins otherwise.'
+  if (key.startsWith('ou') || key === 'total' || key === 'alttotal') return `${name} is decided by the combined score and the displayed line.`
+  if (key.startsWith('hcp') || key === 'spread' || key === 'altspread') return `${name} is decided by applying the displayed handicap to the final score.`
+  if (key === 'ags') return 'The named player must score during the match for that selection to win.'
+  if (key.includes('cor') || key.includes('crd') || key === 'wkts' || key === 'inn1') return `${name} is decided by the final match statistics shown in this demo.`
+  return `${name} is decided by the final match state shown in this demo.`
+}
+
 export function MarketCard({ marketId }: { marketId: string }) {
   const mk = useStore((s) => s.markets[marketId])
   const m = useStore((s) => s.matches[mk.matchId])
@@ -53,6 +64,11 @@ export function MarketCard({ marketId }: { marketId: string }) {
         {closed && !suspended && mk.closedReason && (
           <p className="mt-2 px-1 text-[12.5px] text-muted">{mk.closedReason}.</p>
         )}
+
+        <details className="mt-3 border-t border-line px-1 pt-2.5">
+          <summary className="min-h-9 cursor-pointer text-[12px] font-semibold text-muted marker:text-brand hover:text-ink">How this market resolves</summary>
+          <p className="pb-1 text-[11.5px] leading-relaxed text-muted">{settlementCopy(mk.key, mk.name)} Resolution source: Housebets simulated match state. This is a demo explanation; no real-world data or wagers are used.</p>
+        </details>
       </div>
     </section>
   )

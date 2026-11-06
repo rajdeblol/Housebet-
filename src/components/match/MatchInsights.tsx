@@ -1,10 +1,12 @@
-import { Activity, Check, CircleHelp, Clock3, ShieldCheck } from 'lucide-react'
+import { Activity, Bell, BellRing, Check, CircleHelp, Clock3, ShieldCheck } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Market, Match } from '../../engine/types'
 import { cx, kickoffLabel } from '../../lib/format'
 import { statusShort } from '../../lib/sport'
-import { useStore } from '../../engine/store'
+import { actions, useStore } from '../../engine/store'
 import { LiveDot } from '../ui'
+import { matchEventKey } from './MatchTimeline'
+import { readPriceAlerts, togglePriceAlert } from '../../lib/priceAlerts'
 
 const seriesColors = ['#00AEB7', '#8C62FF', '#E89536']
 
@@ -20,14 +22,21 @@ function linePath(values: number[], min: number, max: number) {
 }
 
 /** Small price-history view powered by the actual simulated odds ticks in the store. */
-export function MarketPulse({ market, match }: { market?: Market; match: Match }) {
+export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { market?: Market; match: Match; activeEventKey?: string | null; onEventSelect?: (key: string) => void }) {
   const [visible, setVisible] = useState<Record<string, boolean>>({})
+  const [alertIds, setAlertIds] = useState<string[]>(() => Object.keys(readPriceAlerts()))
   const now = useStore((s) => s.now)
   const selections = market?.selections ?? []
 
   useEffect(() => {
     setVisible(Object.fromEntries(selections.map((selection) => [selection.id, true])))
   }, [market?.id])
+
+  useEffect(() => {
+    const sync = () => setAlertIds(Object.keys(readPriceAlerts()))
+    window.addEventListener('hb-price-alerts-change', sync)
+    return () => window.removeEventListener('hb-price-alerts-change', sync)
+  }, [])
 
   const bounds = useMemo(() => {
     const vals = selections.flatMap((selection) => selection.history.slice(-5))
@@ -40,6 +49,12 @@ export function MarketPulse({ market, match }: { market?: Market; match: Match }
   const openCount = selections.filter((selection) => !selection.closed).length
   const suspended = !!market?.suspendedUntil && market.suspendedUntil > now
   const currentState = match.status === 'ft' ? 'Settled' : suspended ? 'Paused' : 'Open'
+  const sortedEvents = [...match.events].sort((a, b) => a.minute - b.minute)
+  const tickTimes = selections[0]?.historyAt ?? []
+  const tickStart = tickTimes[0] ?? match.kickoff
+  const tickEnd = tickTimes[tickTimes.length - 1] ?? now
+  const visibleEvents = sortedEvents.map((event, index) => ({ event, key: matchEventKey(event, index) }))
+    .filter(({ event }) => !!event.at && event.at >= tickStart && event.at <= tickEnd)
 
   return (
     <section aria-labelledby="market-pulse-title" className="overflow-hidden rounded-[18px] border border-line bg-card shadow-raised">
@@ -61,22 +76,27 @@ export function MarketPulse({ market, match }: { market?: Market; match: Match }
         <div className="p-4 sm:px-5 sm:py-4">
           <div className="mb-3 flex flex-wrap gap-2" aria-label="Chart overlays">
             {selections.map((selection, i) => (
-              <button
-                key={selection.id}
-                type="button"
-                aria-pressed={visible[selection.id] !== false}
-                onClick={() => setVisible((current) => ({ ...current, [selection.id]: current[selection.id] === false }))}
-                className={cx('inline-flex min-h-8 items-center gap-2 rounded-full border px-2.5 text-[11px] font-semibold transition-colors', visible[selection.id] !== false ? 'border-line bg-page text-ink' : 'border-line bg-card text-muted opacity-65')}
-              >
-                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: seriesColors[i % seriesColors.length] }} />
-                <span className="max-w-[130px] truncate">{selection.label}</span>
-                <span className="tnum font-extrabold">{selection.odds.toFixed(2)}</span>
-              </button>
+              <div key={selection.id} className="inline-flex min-h-8 items-center overflow-hidden rounded-full border border-line bg-page">
+                <button type="button" aria-pressed={visible[selection.id] !== false} onClick={() => setVisible((current) => ({ ...current, [selection.id]: current[selection.id] === false }))}
+                  className={cx('inline-flex min-h-8 items-center gap-2 px-2.5 text-[11px] font-semibold transition-colors', visible[selection.id] !== false ? 'text-ink' : 'text-muted opacity-65')}>
+                  <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: seriesColors[i % seriesColors.length] }} />
+                  <span className="max-w-[115px] truncate">{selection.label}</span>
+                  <span className="tnum font-extrabold">{selection.odds.toFixed(2)}</span>
+                </button>
+                <button type="button" onClick={() => {
+                  const enabled = togglePriceAlert(selection.id, { matchId: match.id, selectionLabel: selection.label, baseline: selection.odds })
+                  setAlertIds(Object.keys(readPriceAlerts()))
+                  actions.toast(enabled ? `Watching ${selection.label} for its next demo price move.` : `Stopped watching ${selection.label}.`)
+                }} aria-pressed={alertIds.includes(selection.id)} aria-label={alertIds.includes(selection.id) ? `Remove price alert for ${selection.label}` : `Watch ${selection.label} price`}
+                  className="grid h-8 w-8 shrink-0 place-items-center border-l border-line text-muted hover:bg-sunk hover:text-brand">
+                  {alertIds.includes(selection.id) ? <BellRing size={13} aria-hidden="true" /> : <Bell size={13} aria-hidden="true" />}
+                </button>
+              </div>
             ))}
           </div>
 
           <div className="rounded-[12px] border border-line bg-page/70 px-2 pt-2">
-            <svg viewBox="0 0 640 176" className="h-[152px] w-full sm:h-[180px]" role="img" aria-label={`${market.name} simulated odds movement over recent price ticks`} preserveAspectRatio="none">
+            <svg viewBox="0 0 640 176" className="h-[152px] w-full sm:h-[180px]" role="group" aria-label={`${market.name} simulated odds movement with match event markers`} preserveAspectRatio="none">
               {[24, 66, 108, 150].map((y) => <line key={y} x1="10" x2="630" y1={y} y2={y} stroke="rgb(var(--line))" strokeWidth="1" strokeDasharray="3 5" />)}
               {selections.map((selection, i) => {
                 if (visible[selection.id] === false) return null
@@ -88,10 +108,36 @@ export function MarketPulse({ market, match }: { market?: Market; match: Match }
                   </g>
                 )
               })}
+              {visibleEvents.map(({ event, key }) => {
+                const x = 12 + ((event.at! - tickStart) / Math.max(1, tickEnd - tickStart)) * 616
+                const active = activeEventKey === key
+                return (
+                  <g key={key} role="button" tabIndex={0} aria-label={`${event.type === 'goal' ? 'Goal' : `${event.type} card`} at ${event.minute} minutes. Select event.`} onClick={() => onEventSelect?.(key)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEventSelect?.(key) } }} className={cx('cursor-pointer', active && 'event-marker-active')}>
+                    <line x1={x} x2={x} y1="18" y2="150" stroke={active ? 'rgb(var(--brand))' : 'rgb(var(--muted))'} strokeWidth={active ? 2 : 1} strokeDasharray="4 4" opacity={active ? 0.9 : 0.45} />
+                    <circle cx={x} cy="18" r={active ? 7 : 5} fill={event.type === 'goal' ? 'rgb(var(--up))' : 'rgb(var(--warn))'} stroke="rgb(var(--card))" strokeWidth="2" />
+                    <rect x={x - 10} y="10" width="20" height="145" fill="transparent" />
+                  </g>
+                )
+              })}
               <text x="12" y="170" fill="rgb(var(--muted))" fontSize="10">Earlier</text>
               <text x="603" y="170" fill="rgb(var(--muted))" fontSize="10">Now</text>
             </svg>
           </div>
+          {activeEventKey && (() => {
+            const picked = visibleEvents.find((item) => item.key === activeEventKey)
+            if (!picked) return null
+            const { event } = picked
+            const beforeAfter = selections.map((selection) => {
+              const eventAt = event.at ?? 0
+              const before = selection.historyAt.reduce<number | null>((best, time, index) => time <= eventAt && (best === null || time > selection.historyAt[best]) ? index : best, null)
+              const after = selection.historyAt.reduce<number | null>((best, time, index) => time >= eventAt && (best === null || time < selection.historyAt[best]) ? index : best, null)
+              const fallback = selection.historyAt.reduce((best, time, index) => Math.abs(time - eventAt) < Math.abs(selection.historyAt[best] - eventAt) ? index : best, 0)
+              const from = selection.history[before ?? fallback]
+              const to = selection.history[after ?? fallback]
+              return `${selection.label} ${from?.toFixed(2) ?? '—'} → ${to?.toFixed(2) ?? selection.odds.toFixed(2)}`
+            }).join(' · ')
+            return <p className="mt-2 rounded-lg border border-brand/20 bg-brand/5 px-3 py-2 text-[11.5px] text-muted" role="status">At {event.minute}&apos; · {event.type === 'goal' ? 'Goal' : `${event.type} card`} · nearest simulated prices before → after: {beforeAfter}</p>
+          })()}
           <p className="mt-2 text-[11px] text-muted">Values reflect the prototype’s last five simulated updates. This chart is illustrative, not live market data.</p>
         </div>
       ) : (

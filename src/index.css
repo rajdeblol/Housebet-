@@ -62,6 +62,16 @@
 .flap-bottom { transform-origin: top; transform: rotateX(90deg); animation: flap-bottom 280ms ease-out 280ms forwards; }
 @keyframes score-highlight { 0% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0); } 28% { box-shadow: 0 0 0 3px rgb(var(--accent) / .5), 0 0 18px rgb(var(--accent) / .45); } 100% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0); } }
 .score-updated { border-radius: 7px; animation: score-highlight 760ms ease-out; }
+@keyframes team-celebrate { 0%, 100% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0); } 35% { box-shadow: 0 0 0 5px rgb(var(--accent) / .18), 0 0 22px rgb(var(--accent) / .3); } }
+.team-score-flash { animation: team-celebrate 1.4s ease-out; }
+@keyframes event-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.event-enter { animation: event-enter 280ms ease-out both; }
+.event-marker-active circle { animation: marker-pulse 900ms ease-out; transform-box: fill-box; transform-origin: center; }
+@keyframes marker-pulse { 0% { r: 4px; } 45% { r: 9px; } 100% { r: 6px; } }
+@keyframes odds-selected { 0% { transform: scale(.97); } 70% { transform: scale(1.025); } 100% { transform: scale(1); } }
+.odds-selected { animation: odds-selected 260ms ease-out; }
+@keyframes settled-reveal { 0% { box-shadow: 0 0 0 0 rgb(var(--brand) / 0); } 30% { box-shadow: 0 0 0 3px rgb(var(--brand) / .24); } 100% { box-shadow: 0 0 0 0 rgb(var(--brand) / 0); } }
+.settled-reveal { animation: settled-reveal 1s ease-out; }
 
 /* Slip slide-in / collapse */
 @keyframes slide-in { from { transform: translateX(12px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -82,7 +92,7 @@
 .countdown { transform-origin: left; animation: countdown 5s linear forwards; }
 
 @media (prefers-reduced-motion: reduce) {
-  .live-dot, .shutter, .slide-in, .sheet-up, .reveal-down, .pop, .score-updated { animation: none !important; }
+  .live-dot, .shutter, .slide-in, .sheet-up, .reveal-down, .pop, .score-updated, .team-score-flash, .event-enter, .event-marker-active circle, .odds-selected, .settled-reveal { animation: none !important; }
   .flap-top, .flap-bottom { animation: none !important; display: none; }
   .tick-up, .tick-down { animation-duration: 1ms !important; }
   .countdown { animation: none; }

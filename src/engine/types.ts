@@ -50,6 +50,7 @@ export interface Selection {
   move: 'up' | 'down' | null
   movedAt: number
   history: number[] // last 5 prices
+  historyAt: number[] // matching simulated tick times
   closed: boolean // e.g. player already scored
   note?: string
 }

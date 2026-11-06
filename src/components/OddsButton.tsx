@@ -51,6 +51,7 @@ export function OddsButton({ selId, tag, label, className }: Props) {
           : disabled
             ? 'cursor-not-allowed border-line bg-sunk/60 text-muted'
             : 'border-line bg-sunk text-ink hover:border-ink',
+        selected && 'odds-selected',
         className,
       )}
     >

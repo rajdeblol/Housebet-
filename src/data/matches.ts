@@ -1,7 +1,7 @@
 // Seed fixtures. Live matches start mid-game; upcoming kick-offs are relative to page load.
 
 export type EventType = 'goal' | 'yellow' | 'red'
-export interface MatchEvent { minute: number; type: EventType; side: 0 | 1; player: string }
+export interface MatchEvent { minute: number; type: EventType; side: 0 | 1; player: string; at?: number }
 
 export interface MatchSeed {
   id: string

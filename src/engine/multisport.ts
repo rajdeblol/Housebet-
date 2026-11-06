@@ -241,14 +241,17 @@ export function buildOtherMarkets(m: Match, now: number): Market[] {
       id: `${m.id}:${d.key}`, matchId: m.id, key: d.key, group: d.group, name: d.name, line: d.line,
       suspendedUntil: null, closed: false, selections: [],
     }
-    mk.selections = d.labels.map((label, i) => ({ id: `${m.id}:${d.key}:${i}`, label, odds: 2, prev: null, move: null, movedAt: now - 10000, history: [], closed: false }))
+    const tickTimes = Array.from({ length: 5 }, (_, index) => m.status === 'live'
+      ? m.kickoff + (m.clockSec * 1000 * index) / 4
+      : now - (4 - index) * 60_000)
+    mk.selections = d.labels.map((label, i) => ({ id: `${m.id}:${d.key}:${i}`, label, odds: 2, prev: null, move: null, movedAt: now - 10000, history: [], historyAt: tickTimes, closed: false }))
     const pr = priceOther(m, mk)
     mk.closed = !!pr.closed
     mk.closedReason = pr.closed
     mk.selections = mk.selections.map((s, i) => {
       const o = pr.odds[i]
       const hist = [0, 0, 0, 0].map(() => ladder(o * (1 + (Math.random() - 0.5) * 0.1)))
-      return { ...s, odds: o, history: [...hist, o] }
+      return { ...s, odds: o, history: [...hist, o], historyAt: [...s.historyAt, now].slice(-5) }
     })
     return mk
   })

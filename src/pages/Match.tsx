@@ -1,15 +1,16 @@
-import { ChevronDown, ChevronLeft } from 'lucide-react'
+import { ChevronDown, ChevronLeft, Play, Sparkles } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { compById, sportById, sportPath } from '../data/competitions'
 import { teams } from '../data/teams'
 import { FlipScore } from '../components/match/FlipScore'
+import { MatchPrediction } from '../components/match/MatchPrediction'
 import { MatchTimeline } from '../components/match/MatchTimeline'
 import { MarketCard } from '../components/match/MarketCard'
 import { MarketPulse, MatchMarketInfo } from '../components/match/MatchInsights'
 import { Crest, FollowButton, LiveDot } from '../components/ui'
 import { NotFound } from './NotFound'
-import { getState, useStore } from '../engine/store'
+import { actions, getState, useStore } from '../engine/store'
 import type { GroupId, Match } from '../engine/types'
 import { cx, kickoffLabel } from '../lib/format'
 import { detailLine, mainKey, scoreText, statusLong, statusShort } from '../lib/sport'
@@ -63,6 +64,8 @@ function DetailLine({ m }: { m: Match }) {
 function Scoreboard({ m, compact }: { m: Match; compact: boolean }) {
   const comp = compById[m.compId]
   const H = teams[m.home], A = teams[m.away]
+  const now = useStore((s) => s.now)
+  const scoredSide = m.goal && now - m.goal.at < 3500 ? m.goal.side : null
   const st = m.status === 'upcoming' ? null : scoreText(m)
   if (compact)
     return (
@@ -89,7 +92,7 @@ function Scoreboard({ m, compact }: { m: Match; compact: boolean }) {
       </div>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 lg:gap-6">
         {[H, A].map((t, i) => (
-          <div key={t.id} className={cx('flex min-w-0 flex-col items-center gap-2 text-center', i === 1 ? 'order-3' : 'order-1')}>
+          <div key={t.id} className={cx('flex min-w-0 flex-col items-center gap-2 rounded-xl text-center', i === 1 ? 'order-3' : 'order-1', scoredSide === i && 'team-score-flash')}>
             <Crest id={t.id} size={44} />
             <h2 className="text-[15px] font-extrabold leading-tight tracking-tight lg:text-[20px]">{t.name}</h2>
             <FollowButton kind="teams" id={t.id} label={t.name} />
@@ -115,6 +118,21 @@ function Scoreboard({ m, compact }: { m: Match; compact: boolean }) {
   )
 }
 
+function DemoMomentButton({ match }: { match: Match }) {
+  const now = useStore((s) => s.now)
+  if (match.sport !== 'football' || match.status !== 'live') return null
+  const coolingDown = !!match.goal && now - match.goal.at < 5500
+  return (
+    <button type="button" disabled={coolingDown} onClick={() => {
+      actions.setTarget(match.id)
+      actions.simulateGoal()
+    }} className="inline-flex h-10 items-center gap-2 rounded-lg border border-brand/30 bg-brand/5 px-3 text-[12px] font-bold text-brand transition-colors hover:bg-brand/10 disabled:cursor-wait disabled:opacity-55">
+      {coolingDown ? <Sparkles size={14} className="animate-pulse" aria-hidden="true" /> : <Play size={14} fill="currentColor" aria-hidden="true" />}
+      {coolingDown ? 'Playing match moment…' : 'Play demo goal moment'}
+    </button>
+  )
+}
+
 export function MatchPage() {
   const { id = '' } = useParams()
   const [params, setParams] = useSearchParams()
@@ -126,6 +144,7 @@ export function MatchPage() {
   const groups = sportById[m?.sport ?? 'football'].groups
   const [open, setOpen] = useState<Partial<Record<GroupId, boolean>>>({ popular: true })
   const [active, setActive] = useState<GroupId>('popular')
+  const [activeEventKey, setActiveEventKey] = useState<string | null>(null)
   const sectionRefs = useRef<Partial<Record<GroupId, HTMLElement | null>>>({})
 
   const byGroup = useMemo(() => {
@@ -175,7 +194,7 @@ export function MatchPage() {
   }, [id])
 
   // new match: reset groups
-  useEffect(() => { setOpen({ popular: true }); setActive('popular') }, [id])
+  useEffect(() => { setOpen({ popular: true }); setActive('popular'); setActiveEventKey(null) }, [id])
 
   if (!m) return <NotFound />
 
@@ -202,8 +221,13 @@ export function MatchPage() {
       </div>
 
       <div className="mt-4 space-y-4">
-        <MatchTimeline match={m} />
-        <MarketPulse market={markets[`${id}:${mainKey(m)}`]} match={m} />
+        {m.sport === 'football' && m.status === 'live' && <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-[11.5px] text-muted">Live demo controls · simulated events</p>
+          <DemoMomentButton match={m} />
+        </div>}
+        <MatchPrediction match={m} market={markets[`${id}:${mainKey(m)}`]} />
+        <MatchTimeline match={m} activeEventKey={activeEventKey} onEventSelect={setActiveEventKey} />
+        <MarketPulse market={markets[`${id}:${mainKey(m)}`]} match={m} activeEventKey={activeEventKey} onEventSelect={setActiveEventKey} />
         {m.status === 'ft' && (
           <p className="rounded-m border border-line bg-card px-4 py-3 text-[14px]">This match has finished. Markets are closed and open bets have been settled in My bets.</p>
         )}

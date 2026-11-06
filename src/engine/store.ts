@@ -52,7 +52,7 @@ function init(): State {
       score: s.score ?? [0, 0],
       htScore: null,
       corners: s.corners ?? [0, 0],
-      events: s.events ?? [],
+      events: (s.events ?? []).map((event) => ({ ...event, at: now - Math.max(0, (s.clockSec ?? 0) - event.minute * 60) * 1000 })),
       xg: s.xg,
       drift: 0,
       goal: null,
@@ -160,7 +160,7 @@ function repriceMarket(mk: Market, m: Match, now: number, force = false): Market
     if (pr.closed || selClosed || o === s.odds) return { ...s, closed: selClosed, note: selClosed ? 'Scored' : undefined }
     return {
       ...s, prev: s.odds, odds: o, move: o > s.odds ? ('up' as const) : ('down' as const), movedAt: now,
-      history: [...s.history, o].slice(-5), closed: false, note: undefined,
+      history: [...s.history, o].slice(-5), historyAt: [...s.historyAt, now].slice(-5), closed: false, note: undefined,
     }
   })
   const closed = !!pr.closed
@@ -230,7 +230,7 @@ function tick() {
           m = { ...m, corners: c }
         } else if (Math.random() < 4.2 / 5400) {
           const side = Math.random() < 0.5 ? 0 : 1
-          m = { ...m, events: [...m.events, { minute, type: 'yellow', side, player: pick(teams[side ? m.away : m.home].players) }] }
+          m = { ...m, events: [...m.events, { minute, type: 'yellow', side, player: pick(teams[side ? m.away : m.home].players), at: now }] }
         }
       }
       ended = m.clockSec >= m.endSec
@@ -331,7 +331,7 @@ function goalPatch(s: State, matchId: string, side: 0 | 1, now: number) {
   const player = r < 0.45 ? team.players[0] : r < 0.75 ? team.players[1] : team.players[2]
   const score = [...m0.score] as [number, number]
   score[side]++
-  const m: Match = { ...m0, score, events: [...m0.events, { minute, type: 'goal', side, player }], goal: { side, at: now, player, minute, label: 'Goal', text: `${team.name} · ${player} ${minute}'` } }
+  const m: Match = { ...m0, score, events: [...m0.events, { minute, type: 'goal', side, player, at: now }], goal: { side, at: now, player, minute, label: 'Goal', text: `${team.name} · ${player} ${minute}'` } }
   const markets = { ...s.markets }
   for (const id of s.marketIds[matchId]) {
     const mk = markets[id]
@@ -400,7 +400,7 @@ export const actions = {
           selections: mk.selections.map((x) => {
             if (x.id !== it.selId || x.odds !== it.accepted) return x
             const o = ladder(x.odds * (sign > 0 ? 1.09 : 0.92))
-            return { ...x, prev: x.odds, odds: o, move: o > x.odds ? 'up' : 'down', movedAt: now, history: [...x.history, o].slice(-5) }
+            return { ...x, prev: x.odds, odds: o, move: o > x.odds ? 'up' : 'down', movedAt: now, history: [...x.history, o].slice(-5), historyAt: [...x.historyAt, now].slice(-5) }
           }),
         }
       }

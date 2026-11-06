@@ -2,6 +2,8 @@ import { CircleDot, Flag, Square } from 'lucide-react'
 import type { Match } from '../../engine/types'
 import { teams } from '../../data/teams'
 
+export const matchEventKey = (event: Match['events'][number], index: number) => `${event.minute}-${event.type}-${event.player}-${index}`
+
 const eventMeta = {
   goal: { Icon: CircleDot, label: 'Goal', style: 'bg-up/10 text-upText' },
   yellow: { Icon: Square, label: 'Yellow card', style: 'bg-warnBg text-warn' },
@@ -9,7 +11,7 @@ const eventMeta = {
 } as const
 
 /** Compact, simulated football moments sourced from the match state. */
-export function MatchTimeline({ match }: { match: Match }) {
+export function MatchTimeline({ match, activeEventKey, onEventSelect }: { match: Match; activeEventKey?: string | null; onEventSelect?: (key: string) => void }) {
   if (match.sport !== 'football') return null
 
   const events = [...match.events].sort((a, b) => a.minute - b.minute)
@@ -31,8 +33,10 @@ export function MatchTimeline({ match }: { match: Match }) {
             const meta = eventMeta[event.type]
             const { Icon } = meta
             const team = teams[event.side ? match.away : match.home]
+            const key = matchEventKey(event, index)
             return (
-              <li key={`${event.minute}-${event.type}-${event.player}-${index}`} className="flex min-h-12 items-center gap-3 px-4 py-2.5 sm:px-5">
+              <li key={key} className="event-enter">
+                <button type="button" onClick={() => onEventSelect?.(key)} aria-pressed={activeEventKey === key} className={`flex min-h-12 w-full items-center gap-3 px-4 py-2.5 text-left transition-colors sm:px-5 ${activeEventKey === key ? 'bg-brand/10' : 'hover:bg-sunk/60'}`}>
                 <time className="tnum w-10 shrink-0 text-[12px] font-extrabold text-muted">{event.minute}&apos;</time>
                 <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${meta.style}`}>
                   <Icon size={15} fill={event.type === 'goal' ? 'currentColor' : 'none'} aria-hidden="true" />
@@ -42,6 +46,7 @@ export function MatchTimeline({ match }: { match: Match }) {
                   <span className="block truncate text-[11.5px] text-muted">{team.name}{event.type === 'goal' ? ` · ${event.player}` : ''}</span>
                 </span>
                 {event.type === 'goal' && <Flag size={14} className="shrink-0 text-brand" aria-label="Goal" />}
+                </button>
               </li>
             )
           })}

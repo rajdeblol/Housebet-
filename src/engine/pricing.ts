@@ -159,9 +159,13 @@ function buildFootballMarkets(m: Match, now: number): Market[] {
         // seed a short believable history so sparklines exist on load
         const o = pr.odds[i]
         const hist = [0, 0, 0, 0].map(() => ladder(o * (1 + (Math.random() - 0.5) * 0.12)))
+        const tickTimes = Array.from({ length: 5 }, (_, index) => {
+          if (m.status === 'live') return m.kickoff + (m.clockSec * 1000 * index) / 4
+          return now - (4 - index) * 60_000
+        })
         return {
           id: `${m.id}:${d.key}:${i}`, label, odds: o, prev: null, move: null, movedAt: 0,
-          history: [...hist, o], closed: !!pr.selClosed?.[i], note: pr.selClosed?.[i] ? 'Scored' : undefined,
+          history: [...hist, o], historyAt: tickTimes, closed: !!pr.selClosed?.[i], note: pr.selClosed?.[i] ? 'Scored' : undefined,
         }
       }),
     } satisfies Market

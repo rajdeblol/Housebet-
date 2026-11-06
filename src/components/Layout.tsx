@@ -21,6 +21,7 @@ import { BetCardModal } from './card/BetCardModal'
 import { Sidebar } from './Sidebar'
 import { WalletModal } from './WalletModal'
 import { NavigationDrawer } from './NavigationDrawer'
+import { PriceAlertWatcher } from '../lib/priceAlerts'
 
 const tab = ({ isActive }: { isActive: boolean }) =>
   cx(
@@ -180,6 +181,7 @@ export function Layout() {
       <MobileSlip />
       <DemoPanel />
       <Toasts />
+      <PriceAlertWatcher />
       <BetCardModal />
       <WalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />
       <NavigationDrawer
