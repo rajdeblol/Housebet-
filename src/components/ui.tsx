@@ -18,6 +18,20 @@ export function Crest({ id, size = 28, className }: { id: string; size?: number;
     )
   }
 
+  if (t.logo) {
+    return (
+      <span
+        style={{ width: size, height: size }}
+        className={cx('grid shrink-0 place-items-center overflow-hidden rounded-full border border-line bg-white p-0.5', className)}
+        role="img"
+        aria-label={`${t.name} crest`}
+        title={t.name}
+      >
+        <img src={`${import.meta.env.BASE_URL}${t.logo}`} alt="" width={size} height={size} loading="lazy" decoding="async" className={cx('h-full w-full object-contain', t.id === 'rheinau' && 'brightness-0')} />
+      </span>
+    )
+  }
+
   const initials = t.short || t.name.slice(0, 3).toUpperCase()
   const fontSize = Math.max(9, Math.round(size * 0.36))
 

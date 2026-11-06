@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, Compass, Star, Trophy } from 'lucide-react'
+import { ArrowRight, Clock, Compass, Star, Trophy, Activity, Ticket, TrendingUp } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { compById, competitions, sportById, sportPath, sports } from '../data/competitions'
@@ -6,7 +6,7 @@ import { teams } from '../data/teams'
 import { MatchRow } from '../components/MatchRow'
 import { EmptyState, Freshness, LiveDot, SectionHeader } from '../components/ui'
 import { useStore } from '../engine/store'
-import { cx } from '../lib/format'
+import { cx, fmtUSDT } from '../lib/format'
 import { SportIcon } from '../lib/sportIcons'
 import { scoreText, statusShort } from '../lib/sport'
 
@@ -80,6 +80,7 @@ function Following() {
 
 export function HomePage() {
   const matches = useStore((s) => s.matches)
+  const bets = useStore((s) => s.bets)
 
   const { live, soon } = useMemo(() => {
     const all = Object.values(matches)
@@ -106,6 +107,15 @@ export function HomePage() {
   const featuredHome = featured ? teams[featured.home] : null
   const featuredAway = featured ? teams[featured.away] : null
   const featuredScore = featured ? scoreText(featured) : null
+  const artFile: Record<string, string> = {
+    football: 'football', basketball: 'basketball', tennis: 'tennis', americanfootball: 'nfl',
+    baseball: 'mlb', icehockey: 'nhl', cricket: 'cricket', mma: 'ufc',
+  }
+  const settledBets = bets.filter((b) => b.status !== 'open')
+  const openBets = bets.filter((b) => b.status === 'open').length
+  const settledStake = settledBets.reduce((sum, b) => sum + b.stake, 0)
+  const demoNet = settledBets.reduce((sum, b) => sum + (b.returned ?? 0) - b.stake, 0)
+  const demoRoi = settledStake ? (demoNet / settledStake) * 100 : 0
   const exploreSports = [...sports].sort((a, b) => {
     const count = (id: string) => live.filter((m) => m.sport === id).length
     return count(b.id) - count(a.id)
@@ -127,8 +137,8 @@ export function HomePage() {
               <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[.13em] text-ink">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand" /> Demo mode · simulated fixtures
               </p>
-              <h1 id="hero-title" className="max-w-[470px] text-[32px] font-black leading-[1.03] tracking-[-.045em] sm:text-[42px]">The game never stops.</h1>
-              <p className="mt-3 max-w-[430px] text-[14px] leading-relaxed text-muted sm:text-[15px]">Follow the action, explore markets and find your next match. Every score and price here is simulated for this prototype.</p>
+              <h1 id="hero-title" className="max-w-[470px] text-[32px] font-black leading-[1.03] tracking-[-.045em] sm:text-[42px]">Every match. One home.</h1>
+              <p className="mt-3 max-w-[430px] text-[14px] leading-relaxed text-muted sm:text-[15px]">Your matchday dashboard for live scores, upcoming fixtures and Housebets markets. This prototype uses simulated events and prices.</p>
 
               <div className="mt-5 flex flex-wrap gap-2">
                 <Link to="/live" className="inline-flex h-11 items-center gap-2 rounded-s bg-accent px-4 text-[13.5px] font-bold text-page transition-opacity hover:opacity-90">
@@ -159,25 +169,40 @@ export function HomePage() {
             </div>
 
             <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[48%] overflow-hidden sm:block" aria-hidden="true">
-              <svg viewBox="0 0 440 300" className="absolute inset-0 h-full w-full" fill="none">
-                <defs>
-                  <linearGradient id="pitch" x1="64" y1="284" x2="406" y2="8" gradientUnits="userSpaceOnUse"><stop stopColor="rgb(var(--brand))" stopOpacity=".06" /><stop offset="1" stopColor="rgb(var(--brand))" stopOpacity=".5" /></linearGradient>
-                  <linearGradient id="ball" x1="283" y1="111" x2="313" y2="145" gradientUnits="userSpaceOnUse"><stop stopColor="#fff" /><stop offset="1" stopColor="#9CB0B4" /></linearGradient>
-                </defs>
-                <path d="M91 287 224 18h210v269H91Z" fill="url(#pitch)" />
-                <path d="M130 288 249 18M202 288 307 18M276 288 365 18M91 250h343M110 212h324M129 174h305M148 136h286M168 98h266M186 60h248" stroke="rgb(var(--brand))" strokeOpacity=".25" strokeWidth="1.2" />
-                <path d="M339 288v-47h95M370 288v-30h64M266 153a44 44 0 0 1 44 44" stroke="rgb(var(--brand))" strokeOpacity=".65" strokeWidth="2" />
-                <path d="m284 102 72-26M287 108l77-5" stroke="rgb(var(--brand))" strokeOpacity=".65" strokeWidth="2" />
-                <circle cx="298" cy="126" r="36" fill="rgb(var(--brand))" fillOpacity=".12" />
-                <circle cx="298" cy="126" r="21" fill="url(#ball)" />
-                <path d="m298 114 8 6-3 10h-10l-3-10 8-6Zm-8-8 8 8m8 6 10 3m-13 10 1 13m-14-23-10 3" stroke="#34494D" strokeWidth="2" />
-                <circle cx="298" cy="126" r="28" stroke="rgb(var(--brand))" strokeOpacity=".25" />
-              </svg>
-              <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-card to-transparent" />
+              <img
+                src={`${import.meta.env.BASE_URL}sports-share-cards/housebets-${artFile[featured.sport] ?? 'football'}.png`}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover object-[72%_center] opacity-80"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-card via-card/35 to-transparent" />
+              <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-brand/10 to-transparent" />
             </div>
           </div>
         </section>
       )}
+
+      <section aria-label="Demo dashboard summary" className="mb-7 grid grid-cols-2 gap-2.5 xl:grid-cols-4">
+        <Link to="/live" className="group rounded-m border border-line bg-card p-3.5 shadow-raised transition-colors hover:border-brand/60 sm:p-4">
+          <span className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted"><span>Live events</span><Activity size={15} className="text-live" aria-hidden="true" /></span>
+          <span className="mt-2 block text-[25px] font-black leading-none tracking-tight">{live.length}</span>
+          <span className="mt-1 block text-[11px] text-muted">Across {sports.length} sports</span>
+        </Link>
+        <Link to="/football" className="group rounded-m border border-line bg-card p-3.5 shadow-raised transition-colors hover:border-brand/60 sm:p-4">
+          <span className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted"><span>Coming up</span><Clock size={15} className="text-brand" aria-hidden="true" /></span>
+          <span className="mt-2 block text-[25px] font-black leading-none tracking-tight">{soon.length}</span>
+          <span className="mt-1 block text-[11px] text-muted">Scheduled fixtures</span>
+        </Link>
+        <Link to="/bets" className="group rounded-m border border-line bg-card p-3.5 shadow-raised transition-colors hover:border-brand/60 sm:p-4">
+          <span className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted"><span>Open singles</span><Ticket size={15} className="text-brand" aria-hidden="true" /></span>
+          <span className="mt-2 block text-[25px] font-black leading-none tracking-tight">{openBets}</span>
+          <span className="mt-1 block text-[11px] text-muted">In your demo wallet</span>
+        </Link>
+        <Link to="/bets" className="group rounded-m border border-line bg-card p-3.5 shadow-raised transition-colors hover:border-brand/60 sm:p-4">
+          <span className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted"><span>Settled demo net</span><TrendingUp size={15} className={demoNet >= 0 ? 'text-upText' : 'text-down'} aria-hidden="true" /></span>
+          <span className={`mt-2 block text-[25px] font-black leading-none tracking-tight tnum ${demoNet >= 0 ? 'text-upText' : 'text-down'}`}>{demoNet >= 0 ? '+' : '−'}{fmtUSDT(Math.abs(demoNet))}</span>
+          <span className="mt-1 block text-[11px] text-muted">{settledBets.length} settled · {demoRoi >= 0 ? '+' : ''}{demoRoi.toFixed(1)}% demo ROI</span>
+        </Link>
+      </section>
 
       {live.length > 0 && (
         <section aria-label="Live match ticker" className="mb-7">

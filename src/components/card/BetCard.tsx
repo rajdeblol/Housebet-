@@ -20,6 +20,17 @@ const sportTheme: Record<CardSport, { bg: string; line: string; label: string }>
   mma: { bg: '#183640', line: 'rgba(2,247,253,.5)', label: 'MMA / UFC' },
 }
 
+const shareCardArt: Record<CardSport, string> = {
+  football: `${import.meta.env.BASE_URL}sports-share-cards/housebets-football.png`,
+  basketball: `${import.meta.env.BASE_URL}sports-share-cards/housebets-basketball.png`,
+  tennis: `${import.meta.env.BASE_URL}sports-share-cards/housebets-tennis.png`,
+  americanfootball: `${import.meta.env.BASE_URL}sports-share-cards/housebets-nfl.png`,
+  baseball: `${import.meta.env.BASE_URL}sports-share-cards/housebets-mlb.png`,
+  icehockey: `${import.meta.env.BASE_URL}sports-share-cards/housebets-nhl.png`,
+  cricket: `${import.meta.env.BASE_URL}sports-share-cards/housebets-cricket.png`,
+  mma: `${import.meta.env.BASE_URL}sports-share-cards/housebets-ufc.png`,
+}
+
 /** Pitch / court markings for the header band. */
 function Markings({ sport }: { sport: CardSport }) {
   const c = sportTheme[sport].line
@@ -447,20 +458,24 @@ export const BetCard = forwardRef<HTMLDivElement, { bet: Bet; sport?: CardSport 
 
   return (
     <div ref={ref} className="w-[340px] overflow-hidden rounded-2xl border border-line bg-card text-ink shadow-xl" style={{ fontFamily: brand.fontFamily }}>
-      {/* Header Band with Pitch/Court Markings & Sport Player Pose */}
-      <div className="relative h-[200px] overflow-hidden" style={{ background: theme.bg }}>
-        <Markings sport={sport} />
-        <div className="relative flex h-full">
-          <div className="flex flex-1 flex-col justify-between p-4 text-page z-10">
-            <div className="flex items-center gap-2">
-              {pickTeam && <span className="rounded-xl bg-page/95 p-1.5 shadow-xs"><Crest id={pickTeam.id} size={32} /></span>}
-              <div className="leading-tight">
-                <p className="text-[10px] font-black uppercase tracking-[.16em] opacity-85">{theme.label}</p>
-                <p className="text-[13px] font-extrabold truncate max-w-[120px]">{bet.compName}</p>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
+      {/* Sport artwork supplied for Housebets share cards. */}
+      <div className="relative h-[200px] overflow-hidden bg-cover bg-center" style={{ backgroundColor: theme.bg, backgroundImage: `url("${shareCardArt[sport]}")` }}>
+        {!shareCardArt[sport] && <>
+          <Markings sport={sport} />
+          <div className="absolute inset-y-0 right-0 flex w-[170px] items-end justify-center pb-1">
+            {sport === 'cricket' && <CricketPose shirt={primaryColor} trousers={secondaryColor} />}
+            {sport === 'football' && <FootballPose shirt={primaryColor} shorts={secondaryColor} />}
+            {sport === 'basketball' && <BasketballPose jersey={primaryColor} shorts={secondaryColor} />}
+            {sport === 'tennis' && <TennisPose shirt={primaryColor} shorts={secondaryColor} />}
+            {sport === 'mma' && <MMAPose shorts={primaryColor} />}
+            {sport === 'americanfootball' && <NFLPose jersey={primaryColor} pants={secondaryColor} />}
+            {sport === 'baseball' && <BaseballPose jersey={primaryColor} pants={secondaryColor} />}
+            {sport === 'icehockey' && <HockeyPose jersey={primaryColor} />}
+          </div>
+        </>}
+        <div className="relative flex h-full items-end bg-gradient-to-t from-black/55 via-transparent to-transparent p-4 text-white">
+          <div className="z-10 max-w-[195px] space-y-1.5">
+            <p className="truncate text-[11px] font-extrabold text-white/90">{bet.compName}</p>
               <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${
                 bet.status === 'cashed' ? 'bg-warn text-page' :
                 bet.status === 'won' ? 'bg-up text-white' :
@@ -478,19 +493,6 @@ export const BetCard = forwardRef<HTMLDivElement, { bet: Bet; sport?: CardSport 
                   <p className="text-[15px] font-black tnum leading-none">+{fmtUSDT(profit)} USDT</p>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Dynamic Sports Player Pose Graphic */}
-          <div className="flex w-[170px] items-end justify-center pb-1">
-            {sport === 'cricket' && <CricketPose shirt={primaryColor} trousers={secondaryColor} />}
-            {sport === 'football' && <FootballPose shirt={primaryColor} shorts={secondaryColor} />}
-            {sport === 'basketball' && <BasketballPose jersey={primaryColor} shorts={secondaryColor} />}
-            {sport === 'tennis' && <TennisPose shirt={primaryColor} shorts={secondaryColor} />}
-            {sport === 'mma' && <MMAPose shorts={primaryColor} />}
-            {sport === 'americanfootball' && <NFLPose jersey={primaryColor} pants={secondaryColor} />}
-            {sport === 'baseball' && <BaseballPose jersey={primaryColor} pants={secondaryColor} />}
-            {sport === 'icehockey' && <HockeyPose jersey={primaryColor} />}
           </div>
         </div>
       </div>

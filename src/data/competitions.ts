@@ -1,4 +1,4 @@
-// Competition names only. Every team, player and fighter inside them is fictional.
+// Competition labels are real; football crest/name references are real, while fixture activity remains simulated.
 import type { GroupId, SportId } from '../engine/types'
 
 export interface Competition {
@@ -19,7 +19,7 @@ export const competitions: Competition[] = [
   { id: 'nfl', sport: 'americanfootball', name: 'NFL', region: 'USA', short: 'NFL' },
   { id: 'mlb', sport: 'baseball', name: 'MLB', region: 'USA', short: 'MLB' },
   { id: 'nhl', sport: 'icehockey', name: 'NHL', region: 'North America', short: 'NHL' },
-  { id: 't20', sport: 'cricket', name: 'T20 Premier Cup', region: 'International', short: 'T20' },
+  { id: 't20', sport: 'cricket', name: 'Indian Premier League', region: 'India', short: 'IPL' },
   { id: 'ufc', sport: 'mma', name: 'UFC Fight Night', region: 'Main card', short: 'UFC' },
   { id: 'atp', sport: 'tennis', name: 'ATP Tour', region: 'Hard court', short: 'ATP' },
 ]

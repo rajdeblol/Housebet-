@@ -30,7 +30,9 @@
 
 * **Singles only**: each pick is its own bet with its own stake, decimal odds and stakes in USDT.
 * **Two original looks**: cool scoreboard light mode and a dark navy-teal mode, switchable in the header.
-* **Sample data only**: every team and player is fictional, the wallet is a demo balance and prices are simulated in the browser. No real money.
+* **Sample data only**: football clubs and IPL teams use real names and crests; fixtures, scores, player names, other seeded teams, the demo wallet and prices are simulated in the browser. No real money.
+* **Football crest assets**: bundled locally under `public/team-logos/` from the API-Sports team-logo CDN, whose documented URL format is `https://media.api-sports.io/football/teams/{team_id}.png`.
+* **IPL crest assets**: bundled locally under `public/cricket-team-logos/` from the official IPL team-logo CDN. Team names are listed on [iplt20.com/teams](https://www.iplt20.com/teams).
 
 ---
 
