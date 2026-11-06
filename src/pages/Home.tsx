@@ -134,7 +134,6 @@ function FeaturedMatchCard({ matchId }: { matchId: string }) {
 
 export function HomePage() {
   const matches = useStore((s) => s.matches)
-  const [activeTab, setActiveTab] = useState<'games' | 'props'>('games')
   const [showSpreads, setShowSpreads] = useState(false)
   const [selectedComp, setSelectedComp] = useState<string>('all')
 
@@ -211,30 +210,14 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Subtabs [Games] [Props] & Competitions Filter Bar */}
+      {/* Competitions Filter Bar */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-line/60 pb-3">
         <div className="flex items-center gap-1.5">
           <button
             type="button"
-            onClick={() => setActiveTab('games')}
-            className={`h-7.5 rounded-full px-3 text-xs font-bold transition-all ${
-              activeTab === 'games'
-                ? 'bg-[#E4372B] text-white shadow-xs'
-                : 'border border-line bg-card text-muted hover:text-ink'
-            }`}
+            className="h-7.5 rounded-full bg-[#E4372B] px-3.5 text-xs font-bold text-white shadow-xs"
           >
             Games
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('props')}
-            className={`h-7.5 rounded-full px-3 text-xs font-bold transition-all ${
-              activeTab === 'props'
-                ? 'bg-[#E4372B] text-white shadow-xs'
-                : 'border border-line bg-card text-muted hover:text-ink'
-            }`}
-          >
-            Props
           </button>
         </div>
 
