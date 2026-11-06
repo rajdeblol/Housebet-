@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react'
 import { actions, useStore } from '../engine/store'
-import { teams } from '../data/teams'
 
 const KEY = 'hb.price-alerts.v1'
 
@@ -33,9 +32,7 @@ export function togglePriceAlert(id: string, alert: PriceAlert) {
 /** One-shot local demo alerts fire on the next simulated odds movement. */
 export function PriceAlertWatcher() {
   const markets = useStore((s) => s.markets)
-  const matches = useStore((s) => s.matches)
   const previous = useRef<Record<string, number> | null>(null)
-  const previousGoals = useRef<Record<string, number | null> | null>(null)
 
   useEffect(() => {
     const current: Record<string, number> = {}
@@ -55,20 +52,6 @@ export function PriceAlertWatcher() {
     }
     if (changed) writePriceAlerts(alerts)
   }, [markets])
-
-  useEffect(() => {
-    const current: Record<string, number | null> = {}
-    for (const match of Object.values(matches)) current[match.id] = match.goal?.at ?? null
-    const before = previousGoals.current
-    previousGoals.current = current
-    if (!before) return
-    for (const match of Object.values(matches)) {
-      const at = match.goal?.at
-      if (!at || before[match.id] === at) continue
-      const team = teams[match.goal!.side ? match.away : match.home]?.name ?? match.goal!.text
-      actions.toast(`${match.goal!.label} · ${team}${match.goal!.minute ? ` · ${match.goal!.minute}'` : ''} · simulated.`)
-    }
-  }, [matches])
 
   return null
 }
