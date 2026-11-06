@@ -20,11 +20,23 @@ const rangeMs: Record<Exclude<ChartRange, 'ALL'>, number> = {
 
 function linePath(points: PricePoint[], start: number, end: number) {
   const left = 12, right = 610, top = 18, height = 148
-  return points.map(({ time, value }) => {
+  const coords = points.map(({ time, value }) => {
     const x = left + ((time - start) / Math.max(1, end - start)) * (right - left)
     const y = top + ((100 - value) / 100) * height
-    return `${x},${y}`
-  }).join(' ')
+    return { x, y }
+  })
+  if (coords.length < 3) return coords.map(({ x, y }, index) => `${index ? 'L' : 'M'}${x},${y}`).join(' ')
+  return coords.reduce((path, point, index) => {
+    if (index === 0) return `M${point.x},${point.y}`
+    const previous = coords[index - 1]
+    const before = coords[Math.max(0, index - 2)]
+    const after = coords[Math.min(coords.length - 1, index + 1)]
+    const c1x = previous.x + (point.x - before.x) / 6
+    const c1y = previous.y + (point.y - before.y) / 6
+    const c2x = point.x - (after.x - previous.x) / 6
+    const c2y = point.y - (after.y - previous.y) / 6
+    return `${path} C${c1x},${c1y} ${c2x},${c2y} ${point.x},${point.y}`
+  }, '')
 }
 
 function probabilityY(value: number) { return 18 + ((100 - value) / 100) * 148 }
@@ -33,7 +45,7 @@ function chartTime(time: number) {
   return new Date(time).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
 }
 
-/** Small price-history view powered by the actual simulated odds ticks in the store. */
+/** Price-history view powered by the simulated odds ticks in the store. */
 export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { market?: Market; match: Match; activeEventKey?: string | null; onEventSelect?: (key: string) => void }) {
   const [visible, setVisible] = useState<Record<string, boolean>>({})
   const [alertIds, setAlertIds] = useState<string[]>(() => Object.keys(readPriceAlerts()))
@@ -169,7 +181,7 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
                 const lastPoint = points[points.length - 1]
                 return (
                   <g key={selection.id}>
-                    <polyline points={linePath(points, chartStart, tickEnd)} fill="none" stroke={seriesColors[i % seriesColors.length]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+                    <path d={linePath(points, chartStart, tickEnd)} fill="none" stroke={seriesColors[i % seriesColors.length]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
                     <circle cx={timeToX(lastPoint.time)} cy={probabilityY(lastPoint.value)} r="4" fill={seriesColors[i % seriesColors.length]} stroke="rgb(var(--card))" strokeWidth="2" vectorEffect="non-scaling-stroke" />
                   </g>
                 )

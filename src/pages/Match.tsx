@@ -216,15 +216,21 @@ export function MatchPage() {
             </button>
           ))}
         </nav>
-        {view === 'bet' && <nav aria-label="Bet market groups" className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-3 pt-2">
+      </div>
+
+      {view === 'bet' && <>
+        <div className="mt-4">
+          <MarketPulse market={markets[`${id}:${mainKey(m)}`]} match={m} activeEventKey={activeEventKey} onEventSelect={setActiveEventKey} />
+        </div>
+        <nav aria-label="Bet market groups" className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 pt-3">
           {groups.map((g) => (
             <button key={g.id} type="button" onClick={() => jump(g.id)} aria-current={active === g.id ? 'true' : undefined}
               className={cx('h-10 shrink-0 rounded-full border px-4 text-[13px] font-semibold', active === g.id ? 'border-ink bg-ink text-white' : 'border-line bg-card text-ink hover:border-ink')}>
               {g.name}
             </button>
           ))}
-        </nav>}
-      </div>
+        </nav>
+      </>}
 
       <div className="mt-4 space-y-4" key={view}>
         {view === 'bet' && groups.map((g) => {
