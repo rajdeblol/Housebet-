@@ -4,7 +4,6 @@ import { teams } from '../../data/teams'
 import type { Bet, SportId } from '../../engine/types'
 import { brand, colors } from '../../theme'
 import { dateTime, fmtOdds, fmtUSDT } from '../../lib/format'
-import { Crest } from '../ui'
 import { useStore } from '../../engine/store'
 
 export type CardSport = SportId
