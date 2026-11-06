@@ -170,7 +170,7 @@ export function Layout() {
         {showDesktopSlip && (
           <aside
             aria-label="Bet slip"
-            className="sticky top-[var(--hdr,105px)] hidden h-[calc(100vh-var(--hdr,105px))] w-[300px] min-w-0 shrink-0 border-l border-line bg-card xl:block 2xl:w-[320px]"
+            className="sticky top-[var(--hdr,105px)] hidden h-[calc(100vh-var(--hdr,105px))] w-[340px] min-w-0 shrink-0 border-l border-line bg-card xl:block 2xl:w-[360px]"
           >
             <BetSlip />
           </aside>

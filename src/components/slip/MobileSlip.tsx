@@ -44,10 +44,10 @@ export function MobileSlip() {
             type="button"
             onClick={() => actions.openSheet(true, true)}
             className="slide-in flex h-14 w-full items-center gap-3 rounded-m bg-ink px-4 text-left text-white shadow-raised"
-            aria-label={status === 'placed' ? 'Bet placed. Open bet slip.' : `Open bet slip, ${items.length} ${items.length === 1 ? 'selection' : 'selections'}, potential return ${fmtUSDT(potential)} USDT`}
+            aria-label={status === 'placed' ? 'Bet placed. Open confirmation.' : `Open bet slip, ${items.length} ${items.length === 1 ? 'selection' : 'selections'}, potential return ${fmtUSDT(potential)} USDT`}
           >
             {status === 'placed' ? (
-              <><span className="flex h-7 w-7 items-center justify-center rounded-full bg-up text-white"><Check size={16} strokeWidth={3} aria-hidden="true" /></span><span className="font-bold">Bet placed</span><span className="text-[13px] text-white/75">View card</span></>
+              <><span className="flex h-7 w-7 items-center justify-center rounded-full bg-up text-white"><Check size={16} strokeWidth={3} aria-hidden="true" /></span><span className="font-bold">Bet placed</span><span className="text-[13px] text-white/75">See confirmation</span></>
             ) : (
               <>
                 <span className="tnum relative flex h-8 min-w-8 items-center justify-center rounded-full bg-accent px-2 text-[14px] font-extrabold text-page">

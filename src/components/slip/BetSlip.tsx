@@ -1,9 +1,8 @@
 import { AlertTriangle, Check, RotateCw, Ticket, WifiOff } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { actions, getState, isOffline, itemView, useStore } from '../../engine/store'
 import { cx, fmtOdds, fmtUSDT, timeOfDay } from '../../lib/format'
-import { BetCardPanel } from '../card/BetCardPanel'
 import { Spinner } from '../ui'
 import { SlipItemCard } from './SlipItemCard'
 
@@ -13,8 +12,6 @@ function PlacedView() {
   const bets = useStore((s) => s.bets)
   const sheetOpen = useStore((s) => s.sheetOpen)
   const list = useMemo(() => placed.map((id) => bets.find((b) => b.id === id)!).filter(Boolean), [placed, bets])
-  const [cardIdx, setCardIdx] = useState(0)
-  const bet = list[cardIdx] ?? list[0]
   const total = list.reduce((a, b) => a + b.stake, 0)
   const done = () => { actions.dismissPlaced(); if (sheetOpen) actions.openSheet(false) }
 
@@ -34,22 +31,12 @@ function PlacedView() {
         </div>
 
         <ul className="mt-4 divide-y divide-line border-t border-line text-[13px]">
-          {list.map((b, i) => (
+          {list.map((b) => (
             <li key={b.id} className="flex items-center justify-between gap-2 py-2.5">
               <span className="min-w-0 truncate">
                 <span className="font-bold">{b.pick}</span> <span className="tnum text-muted">@ {fmtOdds(b.odds)}</span>
               </span>
-              {list.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setCardIdx(i)}
-                  aria-pressed={i === cardIdx}
-                  aria-label={`Show share card for ${b.pick}`}
-                  className={cx('tnum h-8 rounded-s px-2 text-[12px] font-bold', i === cardIdx ? 'bg-ink text-white' : 'bg-sunk text-muted')}
-                >
-                  {b.id}
-                </button>
-              )}
+              {list.length > 1 && <span className="tnum shrink-0 text-[11px] text-muted">{b.id}</span>}
             </li>
           ))}
         </ul>
@@ -63,8 +50,6 @@ function PlacedView() {
           </button>
         </div>
       </div>
-
-      {bet && <div className="mt-4" key={bet.id}><BetCardPanel bet={bet} reveal /></div>}
     </div>
   )
 }
