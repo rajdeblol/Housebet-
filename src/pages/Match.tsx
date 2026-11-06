@@ -202,8 +202,11 @@ export function MatchPage() {
 
   return (
     <div className="mx-auto max-w-[860px]">
+      <div className="-mx-4 border-b border-line bg-page px-4 lg:-mx-6 lg:px-6">
+        <Scoreboard m={m} compact={false} />
+      </div>
       <div ref={stickyRef} className="sticky top-[var(--hdr,65px)] z-30 -mx-4 border-b border-line bg-page px-4 lg:-mx-6 lg:px-6">
-        <Scoreboard m={m} compact={compact} />
+        {compact && <Scoreboard m={m} compact />}
         <nav aria-label="Match sections" className="grid grid-cols-3 gap-1 rounded-xl border border-line bg-sunk/70 p-1">
           {([
             { id: 'bet', label: 'Bet', Icon: Ticket },
