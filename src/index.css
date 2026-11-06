@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    @apply bg-page text-ink font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  :focus-visible { outline: 2px solid rgb(var(--ink)); outline-offset: 2px; border-radius: 8px; }
+  button { -webkit-tap-highlight-color: transparent; }
+  input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; }
+}
+
+@layer utilities {
+  .tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1, 'cv11'; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+}
+
+/* ---------- Purposeful motion only ---------- */
+
+/* Live dot: one slow pulse */
+@keyframes live-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgb(var(--live) / 0.45); } 50% { box-shadow: 0 0 0 5px rgb(var(--live) / 0); } }
+.live-dot { animation: live-pulse 2.4s ease-in-out infinite; }
+
+/* Odds tick: 600ms green / red flash */
+@keyframes tick-up { 0% { background-color: rgb(var(--up) / 0.28); } 100% { background-color: transparent; } }
+@keyframes tick-down { 0% { background-color: rgb(var(--down) / 0.24); } 100% { background-color: transparent; } }
+.tick-up { animation: tick-up 600ms ease-out; }
+.tick-down { animation: tick-down 600ms ease-out; }
+
+/* Suspend / reopen shutter */
+@keyframes shutter-down { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.shutter { transform-origin: top; animation: shutter-down 260ms cubic-bezier(.2,.7,.2,1); }
+
+/* Score flip (split-flap) */
+.flap { backface-visibility: hidden; transform-style: preserve-3d; }
+@keyframes flap-top { from { transform: rotateX(0deg); } to { transform: rotateX(-90deg); } }
+@keyframes flap-bottom { from { transform: rotateX(90deg); } to { transform: rotateX(0deg); } }
+.flap-top { transform-origin: bottom; animation: flap-top 280ms ease-in forwards; }
+.flap-bottom { transform-origin: top; transform: rotateX(90deg); animation: flap-bottom 280ms ease-out 280ms forwards; }
+
+/* Slip slide-in / collapse */
+@keyframes slide-in { from { transform: translateX(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+.slide-in { animation: slide-in 220ms cubic-bezier(.2,.7,.2,1); }
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+.sheet-up { animation: sheet-up 260ms cubic-bezier(.2,.7,.2,1); }
+
+/* Bet card slide-down reveal */
+@keyframes reveal-down { from { clip-path: inset(0 0 100% 0); transform: translateY(-8px); } to { clip-path: inset(0 0 0 0); transform: none; } }
+.reveal-down { animation: reveal-down 520ms cubic-bezier(.2,.7,.2,1); }
+
+/* Place bet -> tick */
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+.pop { animation: pop 360ms cubic-bezier(.2,.7,.2,1); }
+
+/* Undo countdown */
+@keyframes countdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.countdown { transform-origin: left; animation: countdown 5s linear forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot, .shutter, .slide-in, .sheet-up, .reveal-down, .pop { animation: none !important; }
+  .flap-top, .flap-bottom { animation: none !important; display: none; }
+  .tick-up, .tick-down { animation-duration: 1ms !important; }
+  .countdown { animation: none; }
+  html { scroll-behavior: auto !important; }
+}
