@@ -6,7 +6,7 @@ import { compById } from '../data/competitions'
 import { otherSeeds } from '../data/otherMatches'
 import { buildMarkets, GOAL_GROUPS, ladder, priceMarket, settleSel } from './pricing'
 import { forceScore, simStep, type SimResult } from './multisport'
-import type { Bet, Market, Match, SlipItem, State } from './types'
+import { PRICE_HISTORY_LIMIT, type Bet, type Market, type Match, type SlipItem, type State } from './types'
 
 export const MIN_STAKE = 1
 export const MAX_STAKE = 500
@@ -160,7 +160,7 @@ function repriceMarket(mk: Market, m: Match, now: number, force = false): Market
     if (pr.closed || selClosed || o === s.odds) return { ...s, closed: selClosed, note: selClosed ? 'Scored' : undefined }
     return {
       ...s, prev: s.odds, odds: o, move: o > s.odds ? ('up' as const) : ('down' as const), movedAt: now,
-      history: [...s.history, o].slice(-5), historyAt: [...s.historyAt, now].slice(-5), closed: false, note: undefined,
+      history: [...s.history, o].slice(-PRICE_HISTORY_LIMIT), historyAt: [...s.historyAt, now].slice(-PRICE_HISTORY_LIMIT), closed: false, note: undefined,
     }
   })
   const closed = !!pr.closed
@@ -400,7 +400,7 @@ export const actions = {
           selections: mk.selections.map((x) => {
             if (x.id !== it.selId || x.odds !== it.accepted) return x
             const o = ladder(x.odds * (sign > 0 ? 1.09 : 0.92))
-            return { ...x, prev: x.odds, odds: o, move: o > x.odds ? 'up' : 'down', movedAt: now, history: [...x.history, o].slice(-5), historyAt: [...x.historyAt, now].slice(-5) }
+            return { ...x, prev: x.odds, odds: o, move: o > x.odds ? 'up' : 'down', movedAt: now, history: [...x.history, o].slice(-PRICE_HISTORY_LIMIT), historyAt: [...x.historyAt, now].slice(-PRICE_HISTORY_LIMIT) }
           }),
         }
       }

@@ -3,7 +3,7 @@
 // so a score moves the moneyline, spread and total together.
 import { teams } from '../data/teams'
 import { ladder, logit, phi, sigmoid, toOdds } from './odds'
-import type { GroupId, Market, Match, OtherKey, TennisState } from './types'
+import { PRICE_HISTORY_LIMIT, type GroupId, type Market, type Match, type OtherKey, type TennisState } from './types'
 
 type TeamSport = 'basketball' | 'americanfootball' | 'baseball' | 'icehockey'
 
@@ -251,7 +251,7 @@ export function buildOtherMarkets(m: Match, now: number): Market[] {
     mk.selections = mk.selections.map((s, i) => {
       const o = pr.odds[i]
       const hist = [0, 0, 0, 0].map(() => ladder(o * (1 + (Math.random() - 0.5) * 0.1)))
-      return { ...s, odds: o, history: [...hist, o], historyAt: [...s.historyAt, now].slice(-5) }
+      return { ...s, odds: o, history: [...hist, o].slice(-PRICE_HISTORY_LIMIT), historyAt: [...s.historyAt, now].slice(-PRICE_HISTORY_LIMIT) }
     })
     return mk
   })

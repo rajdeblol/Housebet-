@@ -1,5 +1,7 @@
 import type { MatchEvent } from '../data/matches'
 
+export const PRICE_HISTORY_LIMIT = 60
+
 export type MatchStatus = 'upcoming' | 'live' | 'ft'
 export type GroupId = 'popular' | 'goals' | 'halves' | 'handicaps' | 'scorers' | 'corners' | 'lines' | 'props'
 
@@ -49,8 +51,8 @@ export interface Selection {
   prev: number | null
   move: 'up' | 'down' | null
   movedAt: number
-  history: number[] // last 5 prices
-  historyAt: number[] // matching simulated tick times
+  history: number[] // recent recorded prices
+  historyAt: number[] // timestamps paired with recorded prices
   closed: boolean // e.g. player already scored
   note?: string
 }
