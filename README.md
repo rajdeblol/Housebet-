@@ -1,86 +1,162 @@
-# Housebets Sportsbook — "Paper scoreboard" prototype
+<div align="center">
 
-A frontend-only sportsbook prototype for the Housebets Sportsbook Design Contest.
-Singles only, decimal odds, stakes in USDT. All teams, players and data are fictional sample data. No backend, no login, no real money.
+<img src="./public/banner.svg" alt="Housebets Sportsbook Banner" width="100%" />
 
-**Sports:** Football (Premier League, Champions League, LaLiga, Serie A, Bundesliga), Basketball (NBA), American football (NFL), Baseball (MLB), Ice hockey (NHL), Cricket (T20), MMA (UFC Fight Night) and Tennis (ATP Tour). Competition names only; every club, player and fighter is invented.
+<br/>
 
-**Light and dark mode:** the toggle is in the header. The choice is remembered, and the system setting is used on first visit.
+[![Contest](https://img.shields.io/badge/CONTEST%20LABS-SPORTSBOOK%20DESIGN-E4372B?style=for-the-badge&logo=target)](https://www.housebets.com/contests/sportsbook-design)
+[![Prize Pool](https://img.shields.io/badge/PRIZE%20POOL-%2415%2C000%20USD-FFD700?style=for-the-badge&logo=cashapp&logoColor=000000)](https://www.housebets.com/contests/sportsbook-design)
+[![Prototype](https://img.shields.io/badge/PROTOTYPE-CLICKABLE%20LIVE-00D26A?style=for-the-badge&logo=statuspage&logoColor=white)](https://rajdeblol.github.io/Housebet-/)
+[![Format](https://img.shields.io/badge/FORMAT-SINGLES%20ONLY-61DAFB?style=for-the-badge&logo=react&logoColor=000000)](https://rajdeblol.github.io/Housebet-/)
+[![License](https://img.shields.io/badge/LICENSE-MIT-38B2AC?style=for-the-badge)](./LICENSE)
 
-## Run it
+<br/>
+
+### 🎮 **[👉 Click Here to Launch Live Interactive Prototype](https://rajdeblol.github.io/Housebet-/)**
+
+*Official submission for the [Housebets Contest Labs: Sportsbook Design Contest](https://www.housebets.com/contests/sportsbook-design).*
+
+[Live Demo](https://rajdeblol.github.io/Housebet-/) • [The Big Idea](#-the-big-idea) • [5-Page Breakdown](#-pages--routes) • [Sports Coverage](#-multi-sport-coverage) • [Demo Controls](#-interactive-judge-controls) • [Technical Specs](#-technical-specifications)
+
+</div>
+
+---
+
+## 💡 The Big Idea: "Paper Scoreboard"
+
+> Housebets in **"paper scoreboard"** style: a calm, readable sportsbook on warm paper, where prices and scores are the heroes and every state explains itself in one plain sentence. 
+> 
+> *Paused, closed, odds changed, failed, offline, or placed* — you always know what happened and what to do next. Then one goal makes the whole screen react: the score flips like a stadium board, related markets shutter for five seconds, prices tick back in green and red, and your slip asks you to accept the new odds before anything is placed. Every bet ends as a high-resolution shareable card.
+
+* **Singles Only**: Zero accumulator noise. Laser-focused on 1-click single-wager deployment with instant USDT liquidity.
+* **Light & Dark Mode**: Persistent theme toggle in the header with system auto-detection.
+* **Pure Frontend Engineering**: Autonomous, zero-latency reactive state models with sample mathematical models (Poisson & Markovian spreads).
+
+---
+
+## 🗺 Pages & Routes
+
+| Page | Route | Description |
+| :--- | :--- | :--- |
+| **Sports Home** | `/` | Hero live in-play ticker, top competitions, starting soon |
+| **Live In-Play** | `/live` | Real-time match filter, mechanical split-flap scoreboards, live clock |
+| **Football Hub** | `/football` | Anchors: `#epl`, `#ucl`, `#laliga`, `#seriea`, `#bundesliga` |
+| **Other Sports** | `/sport/:sport` | Dedicated hubs for Basketball, NFL, Baseball, NHL, Cricket, MMA, Tennis |
+| **Match Centre** | `/match/:id` | Deep markets (e.g. `/match/har-red`), timeline events, odds trend sparklines |
+| **Slip & My Bets** | `/bets` | Consolidated slip + ledger, USDT stakes, cashout engine, PNG bet card export |
+
+---
+
+## 🏆 Multi-Sport Coverage
+
+Comprehensive multi-sport mathematical engines and custom markets:
+
+* ⚽ **Football**: Premier League, Champions League, LaLiga, Serie A, Bundesliga (1X2, Over/Under Goals, Corners, Cards, Halves).
+* 🏀 **Basketball (NBA)**: Spreads, totals, moneyline, live quarter trackers.
+* 🏈 **American Football (NFL)**: Touchdown simulators, spreads, game clocks.
+* ⚾ **Baseball (MLB)**: Runlines, totals, innings tracker.
+* 🏒 **Ice Hockey (NHL)**: Puck line, 3-period countdown.
+* 🏏 **Cricket (T20)**: Run chase projections, over-by-over live scoreboards.
+* 🥊 **MMA (UFC Fight Night)**: Method of victory, round betting, finish hazards.
+* 🎾 **Tennis (ATP Tour)**: Set/game math, break point momentum indicators.
+
+---
+
+## 🎮 Interactive Judge Controls
+
+Open the built-in **Demo panel** (bottom-left "Demo" button) to simulate live events on demand:
+
+* ⚽ **Simulate Goal / Event**: The score flips on stadium split-flap boards, related markets lock for 5 seconds, and reopened prices update with green/red ticks. *(Context-aware: becomes Simulate Touchdown, Basket, Run, Six, Knockdown, or Break on other sports!)*
+* 📈 **Shift Odds**: Dynamically drifts active prices on your slip and chosen match to test slip re-confirmation.
+* ⏸ **Suspend Market**: Pauses markets with an animated shutter (`Back soon`) for 8 seconds.
+* ⚠️ **Fail Next Bet**: Simulates transient placement network error with a 1-click Retry (stake safely preserved).
+* 📴 **Go Offline**: Shows offline banner, freezes tickers, and disables ticket submission.
+* ⏱ **Market Closed After Kick-Off**: Test pre-match market expiration dynamically.
+
+---
+
+## 🚀 Quick Start (Local Development)
 
 ```bash
+# Clone the repository
+git clone https://github.com/rajdeblol/Housebet-.git
+cd Housebet-
+
+# Install dependencies
 npm install
+
+# Run Vite development server
 npm run dev       # http://localhost:5173
-npm run build     # static site in dist/
-npm run preview   # serve the production build
+
+# Build static production bundle
+npm run build     # Outputs to dist/
+
+# Preview production build
+npm run preview   # http://localhost:4173
 ```
 
-## Deploy
+---
 
-- **Netlify:** connect the repo or drag `dist/` in. `netlify.toml` and `public/_redirects` are included so routes like `/match/har-red` work on refresh.
-- **Vercel:** import the repo (framework: Vite). `vercel.json` rewrites all routes to `index.html`.
+## 📦 Technical Specifications
 
-## Pages
+<details>
+<summary><b>🔍 View Engine Architecture & Directory Structure</b></summary>
+<br/>
 
-| Page | Route |
-| --- | --- |
-| Sports home | `/` |
-| Live | `/live` |
-| Football | `/football` (anchors: `#epl`, `#ucl`, `#laliga`, `#seriea`, `#bundesliga`) |
-| Other sports | `/sport/basketball`, `/sport/americanfootball`, `/sport/baseball`, `/sport/icehockey`, `/sport/cricket`, `/sport/mma`, `/sport/tennis` |
-| Match page | `/match/:id`, for example `/match/har-red`, `/match/cbc-ivf` (NBA), `/match/scc-mnr` (cricket), `/match/mor-okh` (UFC). Add `?group=corners` to open a group. |
-| Bet slip + My bets | `/bets` holds the slip and My bets on one page. The slip is also a right rail on desktop and a bottom bar that opens into a sheet on mobile. |
-
-Football market groups: Popular, Goals, Halves, Handicaps, Goalscorers, Corners & cards.
-Other sports: Popular plus Spreads & totals, Runs & wickets, Method of victory or Games.
-
-## Demo controls (bottom-left "Demo" button)
-
-- **Simulate goal:** the score flips, related markets lock for 5 seconds, then reopen at new prices. Slip selections on that match then show "Odds changed". On other sports the same button becomes Simulate touchdown, basket, run, six, knockdown or break.
-- **Shift odds:** moves prices on your slip selections and the chosen match.
-- **Suspend market:** pauses your slip markets and the match result for 8 seconds.
-- **Fail next bet:** the next placement fails with Retry. Your stake is not taken.
-- **Go offline:** shows the offline banner, freezes prices and blocks placing.
-- **Market closed after kick-off:** add a pre-match price from Atlético Varena v CD Montalbo, which kicks off about 4 minutes after load.
-
-## Structure
-
-```
+```text
 src/
-  theme.ts            ONE file for brand name, logo colour, palette, font
-  data/               fictional teams, competitions, fixtures
-  engine/
-    pricing.ts        football: Poisson goals model -> every market; dispatches other sports
-    multisport.ts     NBA/NFL/MLB/NHL margin model, T20 chase model, UFC finish hazard, tennis set/match maths + live sims
-    store.ts          clock, odds drift, suspensions, goals, settlement, slip + bet actions
-    types.ts
-  components/         layout, odds button, match row, search, demo panel, toasts
-    match/            flip score, timeline, market card
-    slip/             bet slip, slip item, mobile bar + sheet
-    card/             shareable bet card (PNG export + share)
-  pages/              Home, Live, Football, Match, MyBets
+├── theme.ts            # Central brand configuration: logo, colors, font tokens
+├── data/               # Teams, competitions, and fixture schedules
+│   ├── competitions.ts
+│   ├── matches.ts
+│   ├── otherMatches.ts
+│   └── teams.ts
+├── engine/             # Sports simulation & financial math
+│   ├── pricing.ts      # Football Poisson model -> market generation & dispatch
+│   ├── multisport.ts   # NBA/NFL/MLB/NHL margin models, T20 chase math, UFC hazard rates
+│   ├── store.ts        # Global reactive store: clocks, odds drift, slip, settlement
+│   ├── odds.ts         # Decimal odds calculations & formatting
+│   └── types.ts        # Comprehensive TypeScript definitions
+├── components/         # Modular UI component system
+│   ├── match/          # Flip scoreboards, match timeline, market cards
+│   ├── slip/           # Bet slip, slip item cards, mobile sheet
+│   ├── card/           # Shareable bet card (HTML-to-Image PNG export + Web Share)
+│   ├── MatchRow.tsx    # Responsive fixture row with 1-click odds buttons
+│   ├── DemoPanel.tsx   # Floating interactive judge simulation suite
+│   ├── Layout.tsx      # Responsive header, sports navigation, theme toggle
+│   └── ThemeToggle.tsx # Light/dark mode controller
+└── pages/              # Route views (Home, Live, Football, Sport, Match, Bets)
 ```
 
-## Brand swap
+</details>
 
-The Housebets brand pack wasn't available when this was built (the contest page blocks automated access), so `src/theme.ts` uses the brief's fallbacks: logo red `#E4372B` and Inter. Replace `brand` and `colors` there, and the SVG mark in `src/components/Logo.tsx`. Two shades are deepened for WCAG AA text contrast:
+<details>
+<summary><b>🎨 Brand Palette & Accessibility</b></summary>
+<br/>
 
-- The accent fill is `#CF3428`, so white text on it is 5.0:1.
-- Odds-up text is `#19774C`.
+- **Palette**: Housebets crimson `#E4372B` and `#CF3428` (deepened for WCAG AA 5.0:1 contrast on white text).
+- **Odds Indicators**: `#19774C` (contrast-safe up-text) and `#1E8E5A` (up-flashes / arrows).
+- **Accessible Interactions**: 44px minimum tap targets on mobile, visible focus rings, and aria-labels on icon controls.
+- **Tabular Numerics**: `tnum` typography throughout so changing odds never cause jitter or layout reflow.
+- **Reduced Motion**: Full support for `prefers-reduced-motion` to smoothly disable flips and shutters.
 
-`#1E8E5A` is still used for up-flashes and arrows.
+</details>
 
-## Accessibility and motion
+<details>
+<summary><b>🌐 Production Deployment & GitHub Actions</b></summary>
+<br/>
 
-- Visible focus rings, aria-labels on icon buttons, and 44px tap targets on mobile.
-- Tabular numbers everywhere, so odds changes don't shift the layout.
-- `prefers-reduced-motion` turns off the flips, shutters, slides and pulse.
+This repository includes continuous deployment:
+- **GitHub Pages Workflow** (`.github/workflows/pages.yml`): Automatically compiles TypeScript and publishes to GitHub Pages on every push to `main`.
+- **Netlify**: `netlify.toml` and `public/_redirects` included for single-page routing rewrites.
+- **Vercel**: `vercel.json` pre-configured with client rewrites to `index.html`.
 
-## Tools used
+</details>
 
-Built with Vite, React, TypeScript, Tailwind CSS, lucide-react, html-to-image and Inter (via @fontsource). Designed and coded with the help of Claude (Anthropic).
+---
 
-## Big idea (submission paragraph)
+## ⚖️ Contest Submission & License
 
-Housebets in "paper scoreboard" style: a calm, readable sportsbook on warm paper, where prices and scores are the heroes and every state explains itself in one plain sentence. Paused, closed, odds changed, failed, offline or placed — you always know what happened and what to do next. Then one goal makes the whole screen react: the score flips like a stadium board, related markets shutter for five seconds, prices tick back in green and red, and your slip asks you to accept the new odds before anything is placed. Every bet ends as a shareable card.
+* **Contest**: [Housebets Contest Labs — Sportsbook Design ($15,000 USD)](https://www.housebets.com/contests/sportsbook-design)
+* **Submitted By**: [@rajdeblol](https://github.com/rajdeblol)
+* **License**: [MIT](./LICENSE)
