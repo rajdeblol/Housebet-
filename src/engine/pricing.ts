@@ -4,6 +4,7 @@ import { teams } from '../data/teams'
 import type { FootballKey, GroupId, Market, Match } from './types'
 import { ladder, toOdds } from './odds'
 import { buildOtherMarkets, priceOther, settleOther } from './multisport'
+import { demoPriceHistory } from './demoPriceHistory'
 
 export { ladder }
 
@@ -159,25 +160,10 @@ function buildFootballMarkets(m: Match, now: number): Market[] {
         // Seed a visibly moving but bounded demo history so the market chart has
         // a useful shape immediately, before simulated live ticks accumulate.
         const o = pr.odds[i]
-        const seedText = `${m.id}:${d.key}:${i}`
-        const seed = [...seedText].reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 2166136261)
-        const hist = Array.from({ length: 24 }, (_, index) => {
-          const progress = index / 23
-          const phase = (seed % 1000) / 1000 * Math.PI * 2
-          const envelope = 1 - progress
-          const wave = Math.sin(progress * Math.PI * 5 + phase) * 0.09
-            + Math.sin(progress * Math.PI * 11 + phase * 1.7) * 0.045
-            + Math.sin(progress * Math.PI * 19 + phase * 0.6) * 0.025
-          return ladder(o * (1 + wave * envelope))
-        })
-        const tickTimes = Array.from({ length: 25 }, (_, index) => {
-          const progress = index / 24
-          if (m.status === 'live') return m.kickoff + m.clockSec * 1000 * progress
-          return now - (24 - index) * 60_000
-        })
+        const { history, historyAt } = demoPriceHistory(o, `${m.id}:${d.key}:${i}`, m, now)
         return {
           id: `${m.id}:${d.key}:${i}`, label, odds: o, prev: null, move: null, movedAt: 0,
-          history: [...hist, o], historyAt: tickTimes, closed: !!pr.selClosed?.[i], note: pr.selClosed?.[i] ? 'Scored' : undefined,
+          history, historyAt, closed: !!pr.selClosed?.[i], note: pr.selClosed?.[i] ? 'Scored' : undefined,
         }
       }),
     } satisfies Market
