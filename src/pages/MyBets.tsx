@@ -100,6 +100,21 @@ function BetRow({ bet }: { bet: Bet }) {
         </div>
       </dl>
 
+      {bet.status !== 'open' && (
+        <div className={`mt-2.5 flex items-center justify-between rounded-lg px-3 py-1.5 text-xs font-bold ${
+          (bet.returned ?? 0) > bet.stake
+            ? 'bg-emerald-500/10 border border-emerald-500/25 text-emerald-400'
+            : 'bg-sunk text-muted'
+        }`}>
+          <span>{bet.status === 'won' ? '🏆 Won Profit' : bet.status === 'cashed' ? '⚡ Cashed Out' : 'Settled'}</span>
+          <span className="tnum font-black">
+            {(bet.returned ?? 0) > bet.stake
+              ? `+${fmtUSDT((bet.returned ?? 0) - bet.stake)} USDT Profit`
+              : `${fmtUSDT((bet.returned ?? 0) - bet.stake)} USDT`}
+          </span>
+        </div>
+      )}
+
       {bet.status === 'open' && <div className="mt-3"><CashOut bet={bet} /></div>}
 
       <div className="mt-3 flex items-center justify-between gap-2 text-[12px] text-muted">

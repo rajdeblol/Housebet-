@@ -13,7 +13,7 @@ const labels: Record<CardSport, string> = {
 export function BetCardPanel({ bet, reveal = false }: { bet: Bet; reveal?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   const [sport, setSport] = useState<CardSport>(bet.sport)
-  const styles = Array.from(new Set<CardSport>([bet.sport, 'football', 'basketball', 'tennis'])).map((id) => ({ id, label: labels[id] }))
+  const styles = Array.from(new Set<CardSport>([bet.sport, 'cricket', 'football', 'basketball', 'tennis', 'mma'])).map((id) => ({ id, label: labels[id] }))
   const [saving, setSaving] = useState(false)
 
   const save = async () => {

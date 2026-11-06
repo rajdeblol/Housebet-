@@ -21,8 +21,10 @@ import { Toasts } from './Toasts'
 import { DemoPanel } from './DemoPanel'
 import { BetCardModal } from './card/BetCardModal'
 import { Sidebar } from './Sidebar'
+import { WalletModal } from './WalletModal'
+import { NavigationDrawer } from './NavigationDrawer'
 
-function TopBar() {
+function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpenMenu: () => void }) {
   const balance = useStore((s) => s.balance)
   const [searchOpen, setSearchOpen] = useState(false)
   const { pathname } = useLocation()
@@ -77,11 +79,16 @@ function TopBar() {
 
           <ThemeToggle />
 
-          {/* Wallet / Balance Pill */}
-          <div className="flex h-9 items-center gap-2 rounded-full border border-line bg-card px-3 text-xs font-bold text-ink shadow-2xs">
+          {/* Wallet / Balance Pill (Clickable button) */}
+          <button
+            type="button"
+            onClick={onOpenWallet}
+            className="flex h-9 items-center gap-2 rounded-full border border-line bg-card px-3 text-xs font-bold text-ink shadow-2xs hover:border-[#E4372B]/60 hover:bg-sunk/60 transition-all cursor-pointer"
+            title="Open Housebets Wallet & Deposit"
+          >
             <span className="text-muted">Wallet:</span>
             <span className="tnum text-[#E4372B] font-extrabold">${fmtUSDT(balance)}</span>
-          </div>
+          </button>
 
           {/* Get Started Pill Button (Probly purple -> Housebets Crimson) */}
           <Link
@@ -91,10 +98,13 @@ function TopBar() {
             Get Started
           </Link>
 
+          {/* 3-lines Hamburger Menu button */}
           <button
             type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-card text-ink hover:bg-sunk"
-            aria-label="Menu"
+            onClick={onOpenMenu}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-card text-ink hover:bg-sunk hover:border-[#E4372B]/50 transition-colors cursor-pointer"
+            aria-label="Open Navigation Menu"
+            title="Open Menu"
           >
             <Menu size={16} />
           </button>
@@ -222,13 +232,19 @@ export function Footer() {
 
 export function Layout() {
   const { pathname, hash } = useLocation()
+  const [walletOpen, setWalletOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+
   useEffect(() => {
     if (!hash) window.scrollTo(0, 0)
   }, [pathname, hash])
 
   return (
     <div className="min-h-screen bg-page text-ink antialiased">
-      <TopBar />
+      <TopBar
+        onOpenWallet={() => setWalletOpen(true)}
+        onOpenMenu={() => setMenuOpen(true)}
+      />
       <OfflineBanner />
 
       <div className="mx-auto flex max-w-[1520px]">
@@ -254,6 +270,15 @@ export function Layout() {
       <DemoPanel />
       <Toasts />
       <BetCardModal />
+      <WalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />
+      <NavigationDrawer
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        onOpenWallet={() => {
+          setMenuOpen(false)
+          setWalletOpen(true)
+        }}
+      />
     </div>
   )
 }

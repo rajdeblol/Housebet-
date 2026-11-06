@@ -99,6 +99,18 @@ function init(): State {
       settledAt: now - 24 * 3600_000, finalScore: [3, 1],
     },
     {
+      id: 'HB-8CK9TR', placedAt: now - 3 * 3600_000, matchId: null, marketId: null, selId: null, sport: 'cricket',
+      compName: 'T20 Premier League', home: 'Saffron Coast Chargers', away: 'Monsoon Riders', homeId: 'saffron', awayId: 'monsoon',
+      marketName: 'Match winner', pick: 'Saffron Coast Chargers', odds: 2.15, stake: 50, status: 'won', returned: 107.50,
+      settledAt: now - 1 * 3600_000, finalScore: [186, 172],
+    },
+    {
+      id: 'HB-3BB6KD', placedAt: now - 12 * 3600_000, matchId: null, marketId: null, selId: null, sport: 'basketball',
+      compName: 'NBA Championship', home: 'Calder Bay Comets', away: 'Ironvale Forge', homeId: 'calder', awayId: 'ironvale',
+      marketName: 'Moneyline', pick: 'Calder Bay Comets', odds: 1.95, stake: 40, status: 'cashed', returned: 68.20,
+      settledAt: now - 10 * 3600_000, finalScore: [108, 102],
+    },
+    {
       id: 'HB-7RHN5W', placedAt: now - 50 * 3600_000, matchId: null, marketId: null, selId: null, sport: 'football',
       compName: 'Serie A', home: 'Torrenza', away: 'Virtus Calanne', homeId: 'torrenza', awayId: 'calanne',
       marketName: 'Both teams to score', pick: 'Yes', odds: 1.72, stake: 15, status: 'lost', returned: 0,
@@ -509,7 +521,24 @@ export const actions = {
     set((s) => ({
       bets: s.bets.map((b) => (b.id === betIdv ? { ...b, status: 'cashed', returned: value, settledAt: now } : b)),
       balance: round2(s.balance + value),
-      toast: { id: now, kind: 'info', text: `Cashed out ${value.toFixed(2)} USDT. It's in your balance.`, at: now },
+      cardBetId: betIdv,
+      toast: { id: now, kind: 'info', text: `Cashed out ${value.toFixed(2)} USDT. Check your shareable card!`, at: now },
+    }))
+  },
+
+  deposit(amount: number) {
+    const now = Date.now()
+    set((s) => ({
+      balance: round2(s.balance + amount),
+      toast: { id: now, kind: 'info', text: `Deposited +${amount.toFixed(2)} USDT to wallet!`, at: now },
+    }))
+  },
+
+  resetBalance(amount = 1250) {
+    const now = Date.now()
+    set(() => ({
+      balance: amount,
+      toast: { id: now, kind: 'info', text: `Wallet balance reset to ${amount.toFixed(2)} USDT.`, at: now },
     }))
   },
 
