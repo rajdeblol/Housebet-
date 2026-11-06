@@ -5,12 +5,13 @@ import { compById, sportById, sportPath } from '../data/competitions'
 import { teams } from '../data/teams'
 import { FlipScore } from '../components/match/FlipScore'
 import { MarketCard } from '../components/match/MarketCard'
+import { MarketPulse, MatchMarketInfo } from '../components/match/MatchInsights'
 import { Crest, FollowButton, LiveDot } from '../components/ui'
 import { NotFound } from './NotFound'
 import { getState, useStore } from '../engine/store'
 import type { GroupId, Match } from '../engine/types'
 import { cx, kickoffLabel } from '../lib/format'
-import { detailLine, scoreText, statusLong, statusShort } from '../lib/sport'
+import { detailLine, mainKey, scoreText, statusLong, statusShort } from '../lib/sport'
 
 function useCompact() {
   const [compact, setCompact] = useState(false)
@@ -200,6 +201,7 @@ export function MatchPage() {
       </div>
 
       <div className="mt-4 space-y-4">
+        <MarketPulse market={markets[`${id}:${mainKey(m)}`]} match={m} />
         {m.status === 'ft' && (
           <p className="rounded-m border border-line bg-card px-4 py-3 text-[14px]">This match has finished. Markets are closed and open bets have been settled in My bets.</p>
         )}
@@ -228,6 +230,7 @@ export function MatchPage() {
             </section>
           )
         })}
+        <MatchMarketInfo match={m} />
       </div>
     </div>
   )
