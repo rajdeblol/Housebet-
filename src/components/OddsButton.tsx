@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Lock } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, Lock } from 'lucide-react'
 import { useRef } from 'react'
 import { actions, useStore } from '../engine/store'
 import { cx, fmtOdds } from '../lib/format'
@@ -31,7 +31,7 @@ export function OddsButton({ selId, tag, label, className }: Props) {
   const aria = closed
     ? `${name}: ${sel.note ?? 'closed'}`
     : suspended
-      ? `${name}: market paused`
+      ? `${name}: suspended`
       : `${name} at ${fmtOdds(sel.odds)}${selected ? ', in bet slip' : ''}${showArrow ? (sel.move === 'up' ? ', price up' : ', price down') : ''}`
 
   return (
@@ -63,6 +63,7 @@ export function OddsButton({ selId, tag, label, className }: Props) {
         ) : (
           <>
             <span className="inline-flex w-3 justify-center" aria-hidden="true">
+              {selected && !showArrow && <Check size={13} strokeWidth={3} />}
               {showArrow && (sel.move === 'up'
                 ? <ArrowUp size={12} strokeWidth={3} className={selected ? 'text-white' : 'text-up'} />
                 : <ArrowDown size={12} strokeWidth={3} className={selected ? 'text-white' : 'text-down'} />)}

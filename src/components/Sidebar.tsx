@@ -1,108 +1,75 @@
-import { ChevronDown, Radio } from 'lucide-react'
-import { NavLink, useLocation } from 'react-router-dom'
-import { sportPath, sports } from '../data/competitions'
+import { House, Radio, Ticket } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { NavLink } from 'react-router-dom'
+import { competitions, sportPath, sports } from '../data/competitions'
 import { useStore } from '../engine/store'
 import { cx } from '../lib/format'
+import { SportIcon } from '../lib/sportIcons'
 
+const item = (active: boolean) =>
+  cx(
+    'flex h-10 items-center gap-2.5 rounded-s px-2.5 text-[13.5px] transition-colors',
+    active ? 'bg-sunk font-bold text-ink' : 'font-medium text-ink/85 hover:bg-sunk/70 hover:text-ink',
+  )
+
+function Count({ n, live }: { n: number; live?: boolean }) {
+  return <span className={cx('tnum ml-auto text-[12px] font-semibold', live ? 'text-live' : 'text-muted')}>{n}</span>
+}
+
+function Item({ to, end, icon, label, count }: { to: string; end?: boolean; icon: ReactNode; label: string; count?: ReactNode }) {
+  return (
+    <li>
+      <NavLink to={to} end={end} className={({ isActive }) => item(isActive)}>
+        {icon}
+        <span className="truncate">{label}</span>
+        {count}
+      </NavLink>
+    </li>
+  )
+}
+
+/** Desktop left nav: Home, Live, every sport (football competitions listed), My bets. */
 export function Sidebar() {
   const matches = useStore((s) => s.matches)
-  const { pathname } = useLocation()
-
-  const liveMatches = Object.values(matches).filter((m) => m.status === 'live')
-  const count = (pred: (m: { compId: string; sport: string; status: string }) => boolean) =>
-    Object.values(matches).filter((m) => m.status !== 'ft' && pred(m)).length
-
-  // Authentic Probly-style sport icons with colored SVG badges
-  const sportMeta: Record<string, { label: string; iconBg: string; emoji: string; hasDropdown?: boolean }> = {
-    americanfootball: { label: 'NFL', iconBg: '#013369', emoji: '🏈', hasDropdown: false },
-    football: { label: 'Football', iconBg: '#2E7D32', emoji: '⚽', hasDropdown: true },
-    baseball: { label: 'MLB', iconBg: '#002D72', emoji: '⚾', hasDropdown: false },
-    tennis: { label: 'Tennis', iconBg: '#7CB342', emoji: '🎾', hasDropdown: true },
-    icehockey: { label: 'NHL', iconBg: '#111111', emoji: '🏒', hasDropdown: false },
-    mma: { label: 'UFC', iconBg: '#D20A0A', emoji: '🥊', hasDropdown: false },
-    basketball: { label: 'Basketball', iconBg: '#E65100', emoji: '🏀', hasDropdown: true },
-    cricket: { label: 'Cricket', iconBg: '#0288D1', emoji: '🏏', hasDropdown: true },
-  }
+  const all = Object.values(matches)
+  const liveN = all.filter((m) => m.status === 'live').length
+  const count = (sport: string) => all.filter((m) => m.sport === sport && m.status !== 'ft').length
+  const football = competitions.filter((c) => c.sport === 'football')
 
   return (
-    <aside
-      className="sticky top-[var(--hdr,65px)] hidden h-[calc(100vh-var(--hdr,65px))] w-[200px] shrink-0 overflow-y-auto border-r border-line bg-page px-3 py-4 text-[13.5px] lg:block"
-      aria-label="Probly Sportsbook Navigation"
+    <nav
+      aria-label="Sports navigation"
+      className="sticky top-[var(--hdr,65px)] hidden h-[calc(100vh-var(--hdr,65px))] w-[216px] shrink-0 overflow-y-auto border-r border-line px-3 py-4 lg:block"
     >
-      {/* 1. Top Live Item with Red Radio Icon */}
-      <div className="mb-4">
-        <NavLink
-          to="/live"
-          className={({ isActive }) =>
-            cx(
-              'flex items-center justify-between rounded-lg px-3 py-2.5 font-medium transition-colors',
-              isActive
-                ? 'bg-sunk font-bold text-ink'
-                : 'text-ink/90 hover:bg-sunk hover:text-ink',
-            )
-          }
-        >
-          <div className="flex items-center gap-2.5">
-            <Radio size={16} className="text-[#E4372B] animate-pulse" />
-            <span className="font-semibold">Live</span>
-          </div>
-          <span className="tnum text-xs font-semibold text-muted">
-            {liveMatches.length || 1}
-          </span>
-        </NavLink>
-      </div>
-
-      <div className="mb-3 border-t border-line/60" />
-
-      {/* 2. ALL SPORTS Section Header */}
-      <div className="px-3 pb-2 pt-1">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
-          All Sports
-        </span>
-      </div>
-
-      {/* 3. Sport List (Exact Probly screenshot format) */}
       <ul className="space-y-0.5">
-        {sports.map((sp) => {
-          const meta = sportMeta[sp.id] || { label: sp.name, iconBg: '#333333', emoji: '🏆' }
-          const total = count((m) => m.sport === sp.id)
-          const isCurrent = pathname === sportPath(sp.id) || (sp.id === 'football' && pathname === '/')
-
-          return (
-            <li key={sp.id}>
-              <NavLink
-                to={sportPath(sp.id)}
-                className={({ isActive }) =>
-                  cx(
-                    'group flex h-10 items-center justify-between rounded-lg px-2.5 transition-colors',
-                    isActive || isCurrent
-                      ? 'bg-sunk font-bold text-ink'
-                      : 'text-ink/85 hover:bg-sunk/60 hover:text-ink',
-                  )
-                }
-              >
-                <div className="flex items-center gap-2.5 truncate">
-                  <span
-                    style={{ backgroundColor: meta.iconBg }}
-                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[13px] shadow-xs"
-                    aria-hidden="true"
-                  >
-                    {meta.emoji}
-                  </span>
-                  <span className="truncate">{meta.label}</span>
-                </div>
-
-                <div className="flex items-center gap-1 text-xs text-muted">
-                  <span className="tnum font-medium">{total}</span>
-                  {meta.hasDropdown && (
-                    <ChevronDown size={13} className="text-muted/70 group-hover:text-ink" />
-                  )}
-                </div>
-              </NavLink>
-            </li>
-          )
-        })}
+        <Item to="/" end icon={<House size={16} aria-hidden="true" />} label="Home" />
+        <Item to="/live" icon={<Radio size={16} className="text-live" aria-hidden="true" />} label="Live" count={<Count n={liveN} live />} />
+        <Item to="/bets" icon={<Ticket size={16} aria-hidden="true" />} label="Bet slip & My bets" />
       </ul>
-    </aside>
+
+      <p className="mb-1.5 mt-5 px-2.5 text-[11px] font-bold uppercase tracking-wider text-muted">Sports</p>
+      <ul className="space-y-0.5">
+        {sports.map((sp) => (
+          <li key={sp.id}>
+            <NavLink to={sportPath(sp.id)} className={({ isActive }) => item(isActive)}>
+              <SportIcon id={sp.id} />
+              <span className="truncate">{sp.name}</span>
+              <Count n={count(sp.id)} />
+            </NavLink>
+            {sp.id === 'football' && (
+              <ul className="mb-1 ml-[22px] border-l border-line pl-2">
+                {football.map((c) => (
+                  <li key={c.id}>
+                    <NavLink to={`/football#${c.id}`} className="flex h-8 items-center rounded-s px-2 text-[12.5px] font-medium text-muted hover:bg-sunk/70 hover:text-ink">
+                      {c.name}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
   )
 }

@@ -19,7 +19,7 @@ export function DemoPanel() {
   const toggle = (on: boolean) => on ? 'flex h-11 w-full items-center gap-2.5 rounded-s border border-ink bg-ink px-3 text-left text-[14px] font-semibold text-white' : btn
 
   return (
-    <div className={cx('fixed left-3 z-50 lg:bottom-4 lg:left-4', barVisible ? 'bottom-[84px]' : 'bottom-4')}>
+    <div className={cx('fixed left-3 z-50 xl:bottom-4 xl:left-4', barVisible ? 'bottom-[84px]' : 'bottom-4')}>
       {open ? (
         <div role="dialog" aria-label="Demo controls" className="slide-in w-[288px] rounded-m border border-line bg-page p-3 shadow-raised">
           <div className="mb-2 flex items-center justify-between">
@@ -55,8 +55,8 @@ export function DemoPanel() {
         </div>
       ) : (
         <button type="button" onClick={() => setOpen(true)} aria-label="Open demo controls"
-          className="flex h-11 items-center gap-2 rounded-full border border-line bg-card px-4 text-[13px] font-bold shadow-raised hover:border-ink">
-          <FlaskConical size={15} aria-hidden="true" /> Demo
+          className="flex h-11 w-11 items-center justify-center gap-2 rounded-full border border-line bg-card lg:w-auto lg:px-4 text-[13px] font-bold shadow-raised hover:border-ink">
+          <FlaskConical size={15} aria-hidden="true" /> <span className="hidden lg:inline">Demo</span>
         </button>
       )}
     </div>

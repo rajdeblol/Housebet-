@@ -108,6 +108,8 @@ export interface Toast { id: number; kind: 'undo' | 'info'; text: string; at: nu
 
 export interface State {
   now: number
+  /** Last time prices and scores were refreshed (frozen while offline). */
+  pricesAt: number
   matches: Record<string, Match>
   markets: Record<string, Market>
   marketIds: Record<string, string[]> // by match

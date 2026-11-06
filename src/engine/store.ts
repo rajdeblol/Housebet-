@@ -100,13 +100,13 @@ function init(): State {
     },
     {
       id: 'HB-8CK9TR', placedAt: now - 3 * 3600_000, matchId: null, marketId: null, selId: null, sport: 'cricket',
-      compName: 'T20 Premier League', home: 'Saffron Coast Chargers', away: 'Monsoon Riders', homeId: 'saffron', awayId: 'monsoon',
+      compName: 'T20 Premier Cup', home: 'Saffron Coast Chargers', away: 'Monsoon Riders', homeId: 'saffron', awayId: 'monsoon',
       marketName: 'Match winner', pick: 'Saffron Coast Chargers', odds: 2.15, stake: 50, status: 'won', returned: 107.50,
       settledAt: now - 1 * 3600_000, finalScore: [186, 172],
     },
     {
       id: 'HB-3BB6KD', placedAt: now - 12 * 3600_000, matchId: null, marketId: null, selId: null, sport: 'basketball',
-      compName: 'NBA Championship', home: 'Calder Bay Comets', away: 'Ironvale Forge', homeId: 'calder', awayId: 'ironvale',
+      compName: 'NBA', home: 'Calder Bay Comets', away: 'Ironvale Forge', homeId: 'calder', awayId: 'ironvale',
       marketName: 'Moneyline', pick: 'Calder Bay Comets', odds: 1.95, stake: 40, status: 'cashed', returned: 68.20,
       settledAt: now - 10 * 3600_000, finalScore: [108, 102],
     },
@@ -119,7 +119,7 @@ function init(): State {
   ]
 
   return {
-    now, matches, markets, marketIds,
+    now, pricesAt: now, matches, markets, marketIds,
     slip: { items: [], status: 'idle', placed: [], placedAt: null, removed: null },
     bets, balance: 1250,
     follows: loadFollows(),
@@ -309,7 +309,7 @@ function tick() {
   let toast = s.toast
   if (toast && now - toast.at > (toast.kind === 'undo' ? 5000 : 3000)) toast = null
 
-  state = { ...s, slip, toast, now }
+  state = { ...s, slip, toast, now, pricesAt: offline ? s.pricesAt : now }
   listeners.forEach((l) => l())
 }
 
@@ -530,7 +530,7 @@ export const actions = {
     const now = Date.now()
     set((s) => ({
       balance: round2(s.balance + amount),
-      toast: { id: now, kind: 'info', text: `Deposited +${amount.toFixed(2)} USDT to wallet!`, at: now },
+      toast: { id: now, kind: 'info', text: `Added ${amount.toFixed(2)} demo USDT.`, at: now },
     }))
   },
 

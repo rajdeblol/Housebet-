@@ -22,15 +22,15 @@
 
 ---
 
-## 💡 The Big Idea: "Paper Scoreboard"
+## 💡 The Big Idea: "Every state explains itself"
 
-> Housebets in **"paper scoreboard"** style: a calm, readable sportsbook on warm paper, where prices and scores are the heroes and every state explains itself in one plain sentence. 
-> 
-> *Paused, closed, odds changed, failed, offline, or placed* — you always know what happened and what to do next. Then one goal makes the whole screen react: the score flips like a stadium board, related markets shutter for five seconds, prices tick back in green and red, and your slip asks you to accept the new odds before anything is placed. Every bet ends as a high-resolution shareable card.
+> A calm, readable sportsbook where prices and scores are the heroes and every state explains itself in one plain sentence: suspended, odds changed, closed, failed, offline or placed. You always know what happened and what to do next.
+>
+> One goal makes the whole screen react: the score flips like a stadium board, related markets are suspended for a few seconds, prices tick back in green and red, and your slip asks you to accept the new odds before anything is placed. Every bet ends as a shareable card.
 
-* **Singles Only**: Zero accumulator noise. Laser-focused on 1-click single-wager deployment with instant USDT liquidity.
-* **Light & Dark Mode**: Persistent theme toggle in the header with system auto-detection.
-* **Pure Frontend Engineering**: Autonomous, zero-latency reactive state models with sample mathematical models (Poisson & Markovian spreads).
+* **Singles only**: each pick is its own bet with its own stake, decimal odds and stakes in USDT.
+* **Two original looks**: warm "paper scoreboard" light mode and a charcoal dark mode, switchable in the header.
+* **Sample data only**: every team and player is fictional, the wallet is a demo balance and prices are simulated in the browser. No real money.
 
 ---
 

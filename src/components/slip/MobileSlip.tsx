@@ -30,14 +30,14 @@ export function MobileSlip() {
 
   // close the sheet if it is resized to desktop
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
+    const mq = window.matchMedia('(min-width: 1280px)')
     const on = () => { if (mq.matches) actions.openSheet(false) }
     mq.addEventListener('change', on)
     return () => mq.removeEventListener('change', on)
   }, [])
 
   return (
-    <div className="lg:hidden">
+    <div className="xl:hidden">
       {show && !open && (
         <div className="fixed inset-x-0 bottom-0 z-40 px-3" style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}>
           <button
@@ -52,7 +52,7 @@ export function MobileSlip() {
               <>
                 <span className="tnum relative flex h-8 min-w-8 items-center justify-center rounded-full bg-accent px-2 text-[14px] font-extrabold text-white">
                   {items.length}
-                  {attention && <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-ink bg-[#E9B949]" aria-hidden="true" />}
+                  {attention && <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-ink bg-warn" aria-hidden="true" />}
                 </span>
                 <span className="font-bold">Bet slip</span>
                 <span className="ml-auto text-right leading-tight">

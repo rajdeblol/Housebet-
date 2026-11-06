@@ -1,19 +1,19 @@
-import { ArrowRight, ChevronRight, Info, Sparkles } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ArrowRight, Clock, Star, Trophy } from 'lucide-react'
+import { useMemo } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { compById, sportPath, sports } from '../data/competitions'
-import { MatchRow } from '../components/MatchRow'
-import { WaveBanner } from '../components/WaveBanner'
-import { Crest, LiveDot } from '../components/ui'
-import { actions, useStore } from '../engine/store'
-import { cx, fmtOdds, kickoffLabel } from '../lib/format'
+import { compById, competitions, sportById, sportPath, sports } from '../data/competitions'
 import { teams } from '../data/teams'
-import { scoreText, statusShort } from '../lib/sport'
+import { MatchRow } from '../components/MatchRow'
+import { EmptyState, Freshness, LiveDot, SectionHeader } from '../components/ui'
+import { useStore } from '../engine/store'
+import { cx } from '../lib/format'
+import { SportIcon } from '../lib/sportIcons'
 
+/** Horizontal sport chips (phones and tablets; desktop has the left nav). */
 export function SportsNav() {
   const matches = useStore((s) => s.matches)
   return (
-    <nav aria-label="Sports" className="no-scrollbar -mx-4 mb-3 flex gap-1.5 overflow-x-auto px-4 lg:hidden">
+    <nav aria-label="Sports" className="no-scrollbar relative -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 lg:hidden">
       {sports.map((sp) => {
         const liveN = Object.values(matches).filter((m) => m.sport === sp.id && m.status === 'live').length
         return (
@@ -22,15 +22,16 @@ export function SportsNav() {
             to={sportPath(sp.id)}
             className={({ isActive }) =>
               cx(
-                'flex h-8.5 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-colors',
+                'flex h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 text-[13px] font-semibold transition-colors',
                 isActive ? 'border-ink bg-ink text-white' : 'border-line bg-card text-ink',
               )
             }
           >
+            <SportIcon id={sp.id} size={15} />
             {sp.name}
             {liveN > 0 && (
-              <span className="inline-flex items-center gap-0.5 text-[10.5px] font-extrabold text-live">
-                <LiveDot /> <span className="tnum">{liveN}</span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-live">
+                <LiveDot /> <span className="tnum">{liveN}</span><span className="sr-only"> live</span>
               </span>
             )}
           </NavLink>
@@ -40,256 +41,132 @@ export function SportsNav() {
   )
 }
 
-function FeaturedMatchCard({ matchId }: { matchId: string }) {
-  const m = useStore((s) => s.matches[matchId])
-  const slipItems = useStore((s) => s.slip.items)
-  const now = useStore((s) => s.now)
-  const mainMarket = useStore((s) => s.markets[`${matchId}:mr`] || s.markets[`${matchId}:ml`])
-
-  if (!m || !mainMarket) return null
-
-  const H = teams[m.home], A = teams[m.away]
-  const score = m.status === 'upcoming' ? null : scoreText(m)
+/** Chips for the competitions and teams the player follows. */
+function Following() {
+  const follows = useStore((s) => s.follows)
+  const matches = useStore((s) => s.matches)
+  const items = [
+    ...follows.comps.map((id) => compById[id] && { key: 'c' + id, label: compById[id].name, to: `${sportPath(compById[id].sport)}#${id}` }),
+    ...follows.teams.map((id) => {
+      const t = teams[id]
+      if (!t) return null
+      const next = Object.values(matches).find((m) => m.status !== 'ft' && (m.home === id || m.away === id))
+      return { key: 't' + id, label: t.name, to: next ? `/match/${next.id}` : '/football' }
+    }),
+  ].filter(Boolean) as { key: string; label: string; to: string }[]
 
   return (
-    <div className="mb-4 overflow-hidden rounded-2xl border border-line bg-card p-4 shadow-xs">
-      <div className="flex items-center justify-between text-xs font-bold text-muted mb-3">
-        <span className="inline-flex items-center gap-1.5 text-[#E4372B] uppercase tracking-wider font-extrabold">
-          <Sparkles size={13} /> Featured Match · {compById[m.compId]?.name}
-        </span>
-        <Link
-          to={`/match/${m.id}`}
-          className="inline-flex items-center gap-1 rounded-full border border-line bg-sunk/40 px-2.5 py-0.5 text-[11px] font-semibold text-ink hover:bg-sunk transition-colors"
-        >
-          Game View <ChevronRight size={12} />
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-center">
-        {/* Teams and Score */}
-        <Link to={`/match/${m.id}`} className="group flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Crest id={H.id} size={30} />
-            <div>
-              <p className="text-[15px] font-extrabold text-ink group-hover:underline">{H.name}</p>
-              <p className="text-[11px] text-muted">Home</p>
-            </div>
-          </div>
-
-          <div className="text-center px-2">
-            {score ? (
-              <div className="flex flex-col items-center">
-                <span className="tnum text-xl font-black text-ink">{score[0]} - {score[1]}</span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-live">
-                  <LiveDot /> {statusShort(m)}
-                </span>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center">
-                <span className="text-xs font-bold text-muted">VS</span>
-                <span className="text-[10px] text-muted font-medium">{kickoffLabel(m.kickoff, now)}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3 flex-row-reverse text-right">
-            <Crest id={A.id} size={30} />
-            <div>
-              <p className="text-[15px] font-extrabold text-ink group-hover:underline">{A.name}</p>
-              <p className="text-[11px] text-muted">Away</p>
-            </div>
-          </div>
-        </Link>
-
-        {/* Quick Odds 1X2 row */}
-        <div className="flex gap-1.5 sm:w-[220px]">
-          {mainMarket.selections.slice(0, 3).map((sel, i) => {
-            const selId = `${m.id}:${mainMarket.id.split(':')[1]}:${i}`
-            const isSelected = slipItems.some((item) => item.selId === selId)
-            const label = i === 0 ? '1' : i === 1 && mainMarket.selections.length === 3 ? 'X' : '2'
-
-            return (
-              <button
-                key={sel.id}
-                type="button"
-                disabled={mainMarket.closed || sel.closed || !!mainMarket.suspendedUntil}
-                onClick={() => actions.toggleSelection(selId)}
-                className={cx(
-                  'flex flex-1 flex-col items-center justify-center rounded-lg py-1.5 text-xs font-bold transition-all',
-                  isSelected
-                    ? 'bg-[#E4372B] text-white shadow-xs'
-                    : 'border border-line bg-sunk/60 text-ink hover:border-ink hover:bg-sunk',
-                )}
-              >
-                <span className="text-[10px] opacity-75">{label}</span>
-                <span className="tnum font-extrabold text-[12px]">{fmtOdds(sel.odds)}x</span>
-              </button>
-            )
-          })}
+    <section aria-labelledby="h-following" className="mb-7">
+      <h2 id="h-following" className="mb-2 flex items-center gap-1.5 text-[13px] font-bold uppercase tracking-wider text-muted">
+        <Star size={13} aria-hidden="true" /> Following
+      </h2>
+      {items.length ? (
+        <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
+          {items.map((it) => (
+            <Link key={it.key} to={it.to} className="inline-flex h-9 shrink-0 items-center rounded-full border border-line bg-card px-3.5 text-[13px] font-semibold hover:border-ink">
+              {it.label}
+            </Link>
+          ))}
         </div>
-      </div>
-    </div>
+      ) : (
+        <p className="text-[13.5px] text-muted">
+          Tap the star on any team or competition to keep it here. <Link to="/football" className="font-semibold text-ink underline underline-offset-2">Browse football</Link>
+        </p>
+      )}
+    </section>
   )
 }
 
 export function HomePage() {
   const matches = useStore((s) => s.matches)
-  const [showSpreads, setShowSpreads] = useState(false)
-  const [selectedComp, setSelectedComp] = useState<string>('all')
 
-  const topComps = useMemo(() => {
-    return [
-      { id: 'all', name: 'All Competitions' },
-      { id: 'epl', name: 'Premier League' },
-      { id: 'seriea', name: 'Serie A' },
-      { id: 'ucl', name: 'Champions League' },
-      { id: 'nba', name: 'NBA' },
-      { id: 't20', name: 'T20 Cricket' },
-    ]
-  }, [])
-
-  const { live, today, upcoming, featuredId } = useMemo(() => {
+  const { live, soon } = useMemo(() => {
     const all = Object.values(matches)
-    const filtered = selectedComp === 'all' ? all : all.filter((m) => m.compId === selectedComp)
-
-    const liveList = filtered
-      .filter((m) => m.status === 'live')
-      .sort((a, b) => sports.findIndex((x) => x.id === a.sport) - sports.findIndex((x) => x.id === b.sport))
-
-    const upcomingList = filtered
-      .filter((m) => m.status === 'upcoming')
-      .sort((a, b) => a.kickoff - b.kickoff)
-
+    const order = (id: string) => sports.findIndex((x) => x.id === id)
     return {
-      live: liveList,
-      today: upcomingList.slice(0, 5),
-      upcoming: upcomingList.slice(5),
-      featuredId: liveList[0]?.id || all[0]?.id || 'har-red',
+      live: all.filter((m) => m.status === 'live').sort((a, b) => order(a.sport) - order(b.sport)),
+      soon: all.filter((m) => m.status === 'upcoming').sort((a, b) => a.kickoff - b.kickoff),
     }
-  }, [matches, selectedComp])
+  }, [matches])
+
+  const topComps = useMemo(
+    () =>
+      ['epl', 'ucl', 'laliga', 'seriea', 'bundesliga', 'nba', 'nfl', 'atp']
+        .map((id) => competitions.find((c) => c.id === id))
+        .filter(Boolean)
+        .map((c) => {
+          const ms = Object.values(matches).filter((m) => m.compId === c!.id && m.status !== 'ft')
+          return { c: c!, total: ms.length, live: ms.filter((m) => m.status === 'live').length }
+        }),
+    [matches],
+  )
 
   return (
     <div className="mx-auto max-w-[940px]">
-      <h1 className="sr-only">Housebets Sportsbook Feed</h1>
+      <SportsNav />
 
-      {/* Hero Banner (Compact & Compliant) */}
-      <WaveBanner />
-
-      {/* Featured Match Card */}
-      {featuredId && <FeaturedMatchCard matchId={featuredId} />}
-
-      {/* Feed Controls Row: Sport Title, Local Time & Toggle */}
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-[22px] font-black tracking-tight text-ink">
-            Sportsbook Feed
-          </h2>
-          <span className="inline-flex items-center gap-1 rounded-full border border-line bg-card px-2.5 py-0.5 text-xs font-semibold text-muted">
-            <Info size={12} /> Local Time
-          </span>
-        </div>
-
-        {/* Show Spreads + Totals Toggle Switch */}
-        <div className="flex items-center gap-2 text-xs font-semibold text-muted">
-          <span>Show Spreads + Totals</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={showSpreads}
-            onClick={() => setShowSpreads((v) => !v)}
-            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-              showSpreads ? 'bg-[#E4372B]' : 'bg-line'
-            }`}
-          >
-            <span
-              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
-                showSpreads ? 'translate-x-4' : 'translate-x-0'
-              }`}
-            />
-          </button>
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h1 className="text-[28px] font-extrabold tracking-tight">Sports</h1>
+          <p className="text-[13.5px] text-muted">Singles only · decimal odds · stakes in USDT · times in your local time</p>
         </div>
       </div>
 
-      {/* Competitions Filter Bar */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-line/60 pb-3">
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            className="h-7.5 rounded-full bg-[#E4372B] px-3.5 text-xs font-bold text-white shadow-xs"
-          >
-            Games
-          </button>
-        </div>
+      <Following />
 
-        {/* Top Competitions Filter Chips */}
-        <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto text-xs">
-          {topComps.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setSelectedComp(c.id)}
-              className={cx(
-                'h-7 rounded-lg px-2.5 font-semibold transition-all shrink-0',
-                selectedComp === c.id
-                  ? 'bg-ink text-white font-bold'
-                  : 'border border-line bg-card text-muted hover:text-ink',
-              )}
-            >
-              {c.name}
-            </button>
-          ))}
-        </div>
-      </div>
+      <section aria-labelledby="h-live" className="mb-8">
+        <SectionHeader
+          title={<span id="h-live">Live now</span>}
+          icon={<LiveDot className="h-2.5 w-2.5" />}
+          sub={<Freshness />}
+          right={
+            live.length > 0 && (
+              <Link to="/live" className="inline-flex min-h-[36px] shrink-0 items-center gap-1 text-[13px] font-semibold hover:underline">
+                All live ({live.length}) <ArrowRight size={14} aria-hidden="true" />
+              </Link>
+            )
+          }
+        />
+        {live.length ? (
+          <ul>{live.slice(0, 5).map((m) => <MatchRow key={m.id} id={m.id} />)}</ul>
+        ) : (
+          <EmptyState icon={<Clock size={18} />} title="Nothing in play right now" body="The next kick-offs are just below." />
+        )}
+      </section>
 
-      {/* Live In-Play Section */}
-      {live.length > 0 && (
-        <section className="mb-5">
-          <div className="mb-2 flex items-center justify-between text-xs font-extrabold uppercase tracking-wider text-muted">
-            <span className="flex items-center gap-1.5 text-live font-black">
-              <span className="h-2 w-2 rounded-full bg-live animate-ping" />
-              Live Now ({live.length})
-            </span>
-            <Link to="/live" className="text-muted hover:text-ink flex items-center gap-0.5">
-              View all live <ArrowRight size={12} />
-            </Link>
-          </div>
-          <ul className="space-y-2.5">
-            {live.map((m) => (
-              <MatchRow key={m.id} id={m.id} showComp={compById[m.compId]?.short} />
-            ))}
-          </ul>
-        </section>
-      )}
+      <section aria-labelledby="h-soon" className="mb-8">
+        <SectionHeader title={<span id="h-soon">Starting soon</span>} icon={<Clock size={17} aria-hidden="true" />} />
+        {soon.length ? (
+          <ul>{soon.slice(0, 5).map((m) => <MatchRow key={m.id} id={m.id} />)}</ul>
+        ) : (
+          <EmptyState icon={<Clock size={18} />} title="No upcoming games" body="Check back later for new fixtures." />
+        )}
+      </section>
 
-      {/* Starting Soon / Today Section */}
-      <section className="mb-5">
-        <div className="mb-2.5 flex items-center justify-between">
-          <h3 className="text-sm font-black text-ink">Starting Soon & Today</h3>
-          <span className="text-[11px] text-muted font-medium">{today.length} fixtures</span>
-        </div>
-
-        <ul className="space-y-2.5">
-          {today.map((m) => (
-            <MatchRow key={m.id} id={m.id} showComp={compById[m.compId]?.short} />
+      <section aria-labelledby="h-comps" className="mb-4">
+        <SectionHeader title={<span id="h-comps">Top competitions</span>} icon={<Trophy size={17} aria-hidden="true" />} />
+        <ul className="grid grid-cols-1 gap-2.5 xs:grid-cols-2 md:grid-cols-4">
+          {topComps.map(({ c, total, live: liveN }) => (
+            <li key={c.id}>
+              <Link
+                to={`${sportPath(c.sport)}#${c.id}`}
+                className="flex h-full items-center gap-3 rounded-m border border-line bg-card p-3 shadow-raised transition-colors hover:border-ink"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-s bg-sunk text-ink" aria-hidden="true">
+                  <SportIcon id={c.sport} size={17} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[14px] font-bold">{c.name}</span>
+                  <span className="flex items-center gap-1.5 text-[12px] text-muted">
+                    {sportById[c.sport].name} · {total} {total === 1 ? 'game' : 'games'}
+                    {liveN > 0 && <span className="font-semibold text-live">· {liveN} live</span>}
+                  </span>
+                </span>
+              </Link>
+            </li>
           ))}
         </ul>
       </section>
-
-      {/* Upcoming Section */}
-      {upcoming.length > 0 && (
-        <section className="mb-6">
-          <div className="mb-2.5 flex items-center justify-between">
-            <h3 className="text-sm font-black text-ink">Upcoming Fixtures</h3>
-            <span className="text-[11px] text-muted font-medium">{upcoming.length} fixtures</span>
-          </div>
-
-          <ul className="space-y-2.5">
-            {upcoming.map((m) => (
-              <MatchRow key={m.id} id={m.id} showComp={compById[m.compId]?.short} />
-            ))}
-          </ul>
-        </section>
-      )}
     </div>
   )
 }

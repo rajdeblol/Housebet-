@@ -29,7 +29,7 @@ export function Crest({ id, size = 28, className }: { id: string; size?: number;
         background: `linear-gradient(135deg, ${t.primary} 0%, ${t.secondary} 100%)`,
       }}
       className={cx(
-        'relative flex shrink-0 items-center justify-center rounded-full border border-black/15 shadow-sm text-white select-none overflow-hidden transition-transform hover:scale-105',
+        'relative flex shrink-0 items-center justify-center rounded-full border border-black/15 text-white select-none overflow-hidden',
         className
       )}
       title={t.name}
@@ -115,4 +115,18 @@ export function Sparkline({ values, label }: { values: number[]; label: string }
 
 export function Spinner() {
   return <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white motion-reduce:animate-none" aria-hidden="true" />
+}
+
+/** "Updated 3s ago" for live prices; says plainly when prices are frozen offline. */
+export function Freshness({ className }: { className?: string }) {
+  const now = useStore((s) => s.now)
+  const at = useStore((s) => s.pricesAt)
+  const offline = useStore((s) => s.demo.offline || s.netOffline)
+  const secs = Math.max(0, Math.round((now - at) / 1000))
+  const ago = secs <= 1 ? 'just now' : secs < 60 ? `${secs}s ago` : `${Math.floor(secs / 60)}m ago`
+  return (
+    <span className={cx('tnum text-[12px] font-medium', offline ? 'text-warn' : 'text-muted', className)}>
+      {offline ? `Paused offline · last update ${ago}` : `Sample data · updated ${ago}`}
+    </span>
+  )
 }

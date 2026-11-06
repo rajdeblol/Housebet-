@@ -1,7 +1,4 @@
 import {
-  Bookmark,
-  ChevronRight,
-  Flame,
   Menu,
   Radio,
   Search as SearchIcon,
@@ -23,18 +20,16 @@ import { BetCardModal } from './card/BetCardModal'
 import { Sidebar } from './Sidebar'
 import { WalletModal } from './WalletModal'
 import { NavigationDrawer } from './NavigationDrawer'
-import { HowItWorksModal } from './HowItWorksModal'
 
-function TopBar({
-  onOpenWallet,
-  onOpenMenu,
-  onOpenHowItWorks,
-}: {
-  onOpenWallet: () => void
-  onOpenMenu: () => void
-  onOpenHowItWorks: () => void
-}) {
+const tab = ({ isActive }: { isActive: boolean }) =>
+  cx(
+    'flex h-11 shrink-0 items-center gap-1.5 border-b-2 text-[13.5px] font-semibold transition-colors',
+    isActive ? 'border-accent text-ink' : 'border-transparent text-muted hover:text-ink',
+  )
+
+function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpenMenu: () => void }) {
   const balance = useStore((s) => s.balance)
+  const liveN = useStore((s) => Object.values(s.matches).filter((m) => m.status === 'live').length)
   const [searchOpen, setSearchOpen] = useState(false)
   const { pathname } = useLocation()
   const ref = useRef<HTMLElement>(null)
@@ -52,71 +47,47 @@ function TopBar({
 
   return (
     <header ref={ref} className="sticky top-0 z-40 border-b border-line bg-page/95 backdrop-blur-md">
-      {/* 1. Main Header Row (Logo, Search, Promo Ticker, Get Started) */}
-      <div className="mx-auto flex h-14 max-w-[1520px] items-center justify-between gap-4 px-4 lg:px-6">
-        <div className="flex items-center gap-4">
+      <div className="mx-auto flex h-16 max-w-[1520px] items-center justify-between gap-3 px-4 lg:px-6">
+        <div className="flex min-w-0 items-center gap-6">
           <Link to="/" aria-label="Housebets home" className="shrink-0">
             <Logo />
           </Link>
-
-          {/* Central Pill Search Bar (Probly style: "Search what you need") */}
-          <div className="hidden w-[320px] lg:block">
+          <div className="hidden w-[340px] lg:block">
             <Search />
           </div>
         </div>
 
-        {/* Compliance Ticker in Middle */}
-        <div className="hidden items-center gap-2 text-xs font-bold md:flex">
-          <span className="text-[#E4372B]">CONTEST DEMO</span>
-          <span className="text-muted/60">·</span>
-          <span className="text-ink/80">Simulated Odds & Balance</span>
-          <span className="rounded-full bg-[#E4372B]/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#E4372B]">
-            Singles Only
-          </span>
-        </div>
-
-        {/* Right Actions: How it works / Demo Balance + Hamburger */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-card lg:hidden"
-            aria-label={searchOpen ? 'Close search' : 'Open search'}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-s border border-line bg-card lg:hidden"
+            aria-label={searchOpen ? 'Close search' : 'Search teams, players, competitions and markets'}
+            aria-expanded={searchOpen}
             onClick={() => setSearchOpen((v) => !v)}
           >
-            {searchOpen ? <X size={16} /> : <SearchIcon size={16} />}
+            {searchOpen ? <X size={18} /> : <SearchIcon size={18} />}
           </button>
 
-          <ThemeToggle />
+          <div className="hidden sm:block"><ThemeToggle /></div>
 
-          {/* Demo Balance Pill (Clickable button) */}
           <button
             type="button"
             onClick={onOpenWallet}
-            className="flex h-9 items-center gap-1.5 rounded-full border border-line bg-card px-3 text-xs font-bold text-ink shadow-2xs hover:border-[#E4372B]/60 hover:bg-sunk/60 transition-all cursor-pointer"
-            title="Open Demo Balance & Simulation Funds"
+            className="flex h-11 items-center gap-2 rounded-s border border-line bg-card px-3 text-[13px] font-semibold text-ink transition-colors hover:border-ink lg:h-10"
+            aria-label={`Demo balance ${fmtUSDT(balance)} USDT. Open demo wallet`}
           >
-            <span className="text-muted">Demo:</span>
-            <span className="tnum text-[#E4372B] font-extrabold">${fmtUSDT(balance)} USDT</span>
+            <span className="hidden text-muted sm:inline">Demo</span>
+            <span className="tnum font-extrabold">{fmtUSDT(balance)}</span>
+            <span className="hidden text-[11px] font-bold text-muted sm:inline">USDT</span>
           </button>
 
-          {/* How it works Button */}
-          <button
-            type="button"
-            onClick={onOpenHowItWorks}
-            className="inline-flex h-9 items-center justify-center rounded-full bg-[#E4372B] px-3.5 text-xs font-extrabold text-white shadow-xs transition-transform hover:bg-[#CF3428] active:scale-95 cursor-pointer"
-          >
-            How it works
-          </button>
-
-          {/* 3-lines Hamburger Menu button */}
           <button
             type="button"
             onClick={onOpenMenu}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-card text-ink hover:bg-sunk hover:border-[#E4372B]/50 transition-colors cursor-pointer"
-            aria-label="Open Navigation Menu"
-            title="Open Menu"
+            className="flex h-11 w-11 items-center justify-center rounded-s border border-line bg-card text-ink transition-colors hover:border-ink lg:hidden"
+            aria-label="Open menu"
           >
-            <Menu size={16} />
+            <Menu size={18} />
           </button>
         </div>
       </div>
@@ -127,95 +98,18 @@ function TopBar({
         </div>
       )}
 
-      {/* 2. Sub-Header Horizontal Category Tabs (Watchlist, Trending, Live 22, Sports, etc.) */}
-      <div className="no-scrollbar border-t border-line/70 px-4 lg:px-6">
-        <div className="mx-auto flex max-w-[1520px] items-center gap-6 overflow-x-auto text-[13px] font-semibold">
-          <button
-            type="button"
-            className="flex h-10 items-center gap-1.5 text-muted hover:text-ink shrink-0"
-          >
-            <Bookmark size={14} />
-            <span>Watchlist</span>
-          </button>
-
-          <button
-            type="button"
-            className="flex h-10 items-center gap-1.5 text-muted hover:text-ink shrink-0"
-          >
-            <Flame size={14} className="text-amber-500" />
-            <span>Trending</span>
-          </button>
-
-          <NavLink
-            to="/live"
-            className={({ isActive }) =>
-              cx(
-                'flex h-10 items-center gap-1.5 shrink-0 transition-colors',
-                isActive ? 'border-b-2 border-[#E4372B] font-bold text-ink' : 'text-muted hover:text-ink',
-              )
-            }
-          >
-            <Radio size={13} className="text-[#E4372B] animate-pulse" />
-            <span>Live</span>
-            <span className="tnum rounded-full bg-live/15 px-1.5 py-0.2 text-[10px] font-extrabold text-[#E4372B]">
-              14
-            </span>
+      {/* Phones and tablets: the four main pages (desktop uses the left nav) */}
+      <nav aria-label="Main" className="no-scrollbar border-t border-line/70 px-4 lg:hidden">
+        <div className="flex items-center gap-6 overflow-x-auto">
+          <NavLink to="/" end className={tab}>Home</NavLink>
+          <NavLink to="/live" className={tab}>
+            <Radio size={14} className="text-live" aria-hidden="true" /> Live
+            <span className="tnum rounded-full bg-live/15 px-1.5 text-[11px] font-bold text-live">{liveN}</span>
           </NavLink>
-
-          <NavLink
-            to="/"
-            end
-            className={({ isActive }) =>
-              cx(
-                'flex h-10 items-center gap-1.5 shrink-0 transition-colors',
-                isActive ? 'border-b-2 border-ink font-bold text-ink' : 'text-muted hover:text-ink',
-              )
-            }
-          >
-            <span>Sports</span>
-          </NavLink>
-
-          <NavLink
-            to="/football"
-            className={({ isActive }) =>
-              cx(
-                'flex h-10 items-center gap-1.5 shrink-0 transition-colors',
-                isActive ? 'border-b-2 border-ink font-bold text-ink' : 'text-muted hover:text-ink',
-              )
-            }
-          >
-            <span>Football</span>
-          </NavLink>
-
-          <Link to="/sport/basketball" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
-            <span>Basketball</span>
-          </Link>
-
-          <Link to="/sport/americanfootball" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
-            <span>NFL</span>
-          </Link>
-
-          <Link to="/sport/tennis" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
-            <span>Tennis</span>
-          </Link>
-
-          <Link to="/sport/mma" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
-            <span>MMA / UFC</span>
-          </Link>
-
-          <Link to="/sport/cricket" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
-            <span>Cricket</span>
-          </Link>
-
-          <Link to="/bets" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
-            <span>My Bets</span>
-          </Link>
-
-          <div className="ml-auto flex items-center gap-1 text-muted">
-            <ChevronRight size={14} />
-          </div>
+          <NavLink to="/football" className={tab}>Football</NavLink>
+          <NavLink to="/bets" className={tab}>My bets</NavLink>
         </div>
-      </div>
+      </nav>
     </header>
   )
 }
@@ -235,7 +129,7 @@ function OfflineBanner() {
 export function Footer() {
   return (
     <footer className="mt-12 border-t border-line pt-6 pb-4 text-xs text-muted">
-      <p>Housebets Sportsbook · 5-Page Clickable Singles Prototype · 18+, play responsibly.</p>
+      <p>Housebets Sportsbook prototype · sample data only, no real teams, players or money · 18+, play responsibly.</p>
     </footer>
   )
 }
@@ -244,7 +138,6 @@ export function Layout() {
   const { pathname, hash } = useLocation()
   const [walletOpen, setWalletOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [howItWorksOpen, setHowItWorksOpen] = useState(false)
 
   useEffect(() => {
     if (!hash) window.scrollTo(0, 0)
@@ -255,21 +148,17 @@ export function Layout() {
       <TopBar
         onOpenWallet={() => setWalletOpen(true)}
         onOpenMenu={() => setMenuOpen(true)}
-        onOpenHowItWorks={() => setHowItWorksOpen(true)}
       />
       <OfflineBanner />
 
       <div className="mx-auto flex max-w-[1520px]">
-        {/* Left Column: Probly-style Sport Sidebar */}
         <Sidebar />
 
-        {/* Middle Column: Feed */}
         <main id="main" className="min-w-0 flex-1 px-4 pb-32 pt-5 sm:px-6 lg:pb-10">
           <Outlet />
           <Footer />
         </main>
 
-        {/* Right Column: Probly-style Single Betslip Widget */}
         <aside
           aria-label="Bet slip"
           className="sticky top-[var(--hdr,105px)] hidden h-[calc(100vh-var(--hdr,105px))] w-[340px] shrink-0 border-l border-line xl:block"
@@ -283,7 +172,6 @@ export function Layout() {
       <Toasts />
       <BetCardModal />
       <WalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />
-      <HowItWorksModal open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
       <NavigationDrawer
         open={menuOpen}
         onClose={() => setMenuOpen(false)}

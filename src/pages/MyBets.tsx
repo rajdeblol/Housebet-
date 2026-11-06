@@ -26,17 +26,17 @@ function CashOut({ bet }: { bet: Bet }) {
   if (confirming !== null) {
     const moved = value !== confirming
     return (
-      <div className="rounded-s border border-ink p-3" role="group" aria-label="Confirm simulated cash out">
+      <div className="rounded-s border border-ink p-3" role="group" aria-label="Confirm cash out">
         <p className="text-[13.5px]">
           {moved
-            ? <>The value changed from <span className="tnum line-through">{fmtUSDT(confirming)}</span> to <span className="tnum font-bold">{fmtUSDT(value)}</span> Demo USDT. Confirm the new amount?</>
-            : <>Simulate cash out now for <span className="tnum font-bold">{fmtUSDT(value)} Demo USDT</span>? This settles the bet into your demo balance.</>}
+            ? <>The value changed from <span className="tnum line-through">{fmtUSDT(confirming)}</span> to <span className="tnum font-bold">{fmtUSDT(value)}</span> USDT. Confirm the new amount?</>
+            : <>Cash out now for <span className="tnum font-bold">{fmtUSDT(value)} USDT</span>? This settles the bet.</>}
         </p>
         <div className="mt-2.5 grid grid-cols-2 gap-2">
           <button type="button" onClick={() => setConfirming(null)} className="h-11 rounded-s border border-line bg-card text-[14px] font-semibold hover:border-ink">Cancel</button>
           <button ref={confirmRef} type="button" onClick={() => (moved ? setConfirming(value) : actions.cashOut(bet.id, value))}
             className="tnum h-11 rounded-s bg-accent text-[14px] font-bold text-white">
-            {moved ? 'Review new amount' : `Confirm ${fmtUSDT(value)} USDT`}
+            {moved ? 'Review new amount' : `Confirm ${fmtUSDT(value)}`}
           </button>
         </div>
       </div>
@@ -45,7 +45,7 @@ function CashOut({ bet }: { bet: Bet }) {
 
   return (
     <button type="button" onClick={() => setConfirming(value)} className="flex h-11 w-full items-center justify-between rounded-s border border-ink bg-card px-3 text-[14px] font-semibold hover:bg-sunk">
-      <span>Simulated Cash Out</span>
+      <span>Cash out</span>
       <span className="tnum font-extrabold">{fmtUSDT(value)} USDT</span>
     </button>
   )
@@ -101,18 +101,12 @@ function BetRow({ bet }: { bet: Bet }) {
       </dl>
 
       {bet.status !== 'open' && (
-        <div className={`mt-2.5 flex items-center justify-between rounded-lg px-3 py-1.5 text-xs font-bold ${
-          (bet.returned ?? 0) > bet.stake
-            ? 'bg-emerald-500/10 border border-emerald-500/25 text-emerald-400'
-            : 'bg-sunk text-muted'
-        }`}>
-          <span>{bet.status === 'won' ? '🏆 Won Profit' : bet.status === 'cashed' ? '⚡ Cashed Out' : 'Settled'}</span>
-          <span className="tnum font-black">
-            {(bet.returned ?? 0) > bet.stake
-              ? `+${fmtUSDT((bet.returned ?? 0) - bet.stake)} USDT Profit`
-              : `${fmtUSDT((bet.returned ?? 0) - bet.stake)} USDT`}
+        <p className={cx('mt-2.5 flex items-center justify-between rounded-s bg-sunk px-3 py-2 text-[12.5px] font-semibold', (bet.returned ?? 0) > bet.stake ? 'text-upText' : 'text-muted')}>
+          <span>{bet.status === 'cashed' ? 'Cashed out' : 'Settled'}{bet.settledAt ? ` · ${dateTime(bet.settledAt)}` : ''}</span>
+          <span className="tnum">
+            {(bet.returned ?? 0) - bet.stake >= 0 ? '+' : '−'}{fmtUSDT(Math.abs((bet.returned ?? 0) - bet.stake))} USDT
           </span>
-        </div>
+        </p>
       )}
 
       {bet.status === 'open' && <div className="mt-3"><CashOut bet={bet} /></div>}
@@ -137,12 +131,12 @@ export function MyBetsPage() {
   return (
     <div className="mx-auto max-w-[720px]">
       <h1 className="text-[26px] font-extrabold tracking-tight">Bet slip & My bets</h1>
-      <p className="mb-5 text-[14px] text-muted">Your selections and every bet you've placed, in one place.</p>
+      <p className="mb-5 text-[14px] text-muted">Your selections and every bet you've placed, in one place. <span className="hidden xl:inline">Your bet slip is on the right.</span></p>
 
-      <section aria-label="Bet slip" className="mb-8 overflow-hidden rounded-m border border-line bg-page lg:hidden">
+      <section aria-label="Bet slip" className="mb-8 overflow-hidden rounded-m border border-line bg-page xl:hidden">
         <BetSlip />
       </section>
-      <h2 className="mb-3 text-[18px] font-extrabold tracking-tight">My bets</h2>
+      <h2 id="my-bets" className="mb-3 scroll-mt-24 text-[18px] font-extrabold tracking-tight">My bets</h2>
 
       <div role="tablist" aria-label="My bets" className="mb-4 inline-flex rounded-m border border-line bg-sunk p-1">
         {(['open', 'settled'] as const).map((t) => (

@@ -5,14 +5,12 @@ import { compById, sportById, sportPath } from '../data/competitions'
 import { teams } from '../data/teams'
 import { FlipScore } from '../components/match/FlipScore'
 import { MarketCard } from '../components/match/MarketCard'
-import { Timeline } from '../components/match/Timeline'
-import { MatchStatsPanel } from '../components/match/MatchStatsPanel'
 import { Crest, FollowButton, LiveDot } from '../components/ui'
 import { NotFound } from './NotFound'
 import { getState, useStore } from '../engine/store'
 import type { GroupId, Match } from '../engine/types'
 import { cx, kickoffLabel } from '../lib/format'
-import { detailLine, periodBar, scoreText, statusLong, statusShort } from '../lib/sport'
+import { detailLine, scoreText, statusLong, statusShort } from '../lib/sport'
 
 function useCompact() {
   const [compact, setCompact] = useState(false)
@@ -53,25 +51,11 @@ function GoalTicker({ m }: { m: Match }) {
   )
 }
 
-function PeriodStrip({ m }: { m: Match }) {
-  const { progress, ticks } = periodBar(m)
+/** Scoreboard detail (e.g. innings, sets, down & distance). No trackers: out of scope. */
+function DetailLine({ m }: { m: Match }) {
   const detail = detailLine(m)
-  return (
-    <div className="mt-1 px-1">
-      {detail && <p className="mb-2 text-center text-[13px] font-semibold">{detail}</p>}
-      <div className="relative h-6" aria-hidden="true">
-        <div className="absolute inset-x-0 top-1.5 h-1.5 rounded-full bg-sunk" />
-        <div className="absolute left-0 top-1.5 h-1.5 rounded-full bg-ink transition-[width] duration-1000 ease-linear" style={{ width: `${progress * 100}%` }} />
-        {ticks.map((t) => (
-          <span key={t.label} className="absolute top-0 text-[10px] font-semibold text-muted" style={{ left: `${t.at * 100}%` }}>
-            <span className="block h-4 w-px bg-muted/60" />
-            <span className="-ml-px block pt-0.5">{t.label}</span>
-          </span>
-        ))}
-      </div>
-      <div className="h-3" />
-    </div>
-  )
+  if (!detail) return null
+  return <p className="mt-1 text-center text-[13px] font-semibold text-muted">{detail}</p>
 }
 
 function Scoreboard({ m, compact }: { m: Match; compact: boolean }) {
@@ -124,7 +108,7 @@ function Scoreboard({ m, compact }: { m: Match; compact: boolean }) {
         </div>
       </div>
       <div className="mt-3 min-h-[34px]"><GoalTicker m={m} /></div>
-      {m.status !== 'upcoming' && (m.sport === 'football' ? <div className="mt-1 px-1"><Timeline m={m} /></div> : <PeriodStrip m={m} />)}
+      {m.status !== 'upcoming' && <DetailLine m={m} />}
     </div>
   )
 }
@@ -216,9 +200,6 @@ export function MatchPage() {
       </div>
 
       <div className="mt-4 space-y-4">
-        {/* Match Statistics & Live In-Play Timeline */}
-        <MatchStatsPanel m={m} />
-
         {m.status === 'ft' && (
           <p className="rounded-m border border-line bg-card px-4 py-3 text-[14px]">This match has finished. Markets are closed and open bets have been settled in My bets.</p>
         )}
