@@ -44,6 +44,15 @@
 @keyframes live-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgb(var(--live) / 0.45); } 50% { box-shadow: 0 0 0 5px rgb(var(--live) / 0); } }
 .live-dot { animation: live-pulse 2.4s ease-in-out infinite; }
 
+/* Compact live football pitch cast. */
+.mini-cast-pitch { background: repeating-linear-gradient(0deg, #0c463a 0 25%, #10503f 25% 50%); background-size: 100% 40px; }
+.cast-ball { left: var(--cast-x); top: var(--cast-y); transform: translate(-50%, -50%); transition: left 900ms cubic-bezier(.2,.7,.2,1), top 900ms cubic-bezier(.2,.7,.2,1); }
+.cast-goalbox-active { animation: goalbox-glow 850ms ease-out 2; }
+.cast-goal-wash { background: radial-gradient(ellipse at center, rgb(255 255 255 / .16), transparent 72%); animation: goal-wash 1s ease-out both; }
+.cast-goal-dot { animation: live-pulse 1.4s ease-in-out 2; }
+@keyframes goalbox-glow { 0%, 100% { background: transparent; box-shadow: none; } 40% { background: rgb(var(--accent)); box-shadow: 0 0 22px 8px rgb(var(--accent) / .7); } }
+@keyframes goal-wash { 0% { opacity: 0; } 35% { opacity: 1; } 100% { opacity: 0; } }
+
 /* Odds tick: 600ms green / red flash */
 @keyframes tick-up { 0% { background-color: rgb(var(--up) / 0.28); } 100% { background-color: transparent; } }
 @keyframes tick-down { 0% { background-color: rgb(var(--down) / 0.24); } 100% { background-color: transparent; } }
@@ -94,7 +103,8 @@
 .countdown { transform-origin: left; animation: countdown 5s linear forwards; }
 
 @media (prefers-reduced-motion: reduce) {
-  .live-dot, .shutter, .slide-in, .slip-value-change, .sheet-up, .reveal-down, .pop, .score-updated, .team-score-flash, .event-enter, .event-marker-active circle, .odds-selected, .settled-reveal { animation: none !important; }
+  .live-dot, .cast-ball, .cast-goalbox-active, .cast-goal-wash, .cast-goal-dot, .shutter, .slide-in, .slip-value-change, .sheet-up, .reveal-down, .pop, .score-updated, .team-score-flash, .event-enter, .event-marker-active circle, .odds-selected, .settled-reveal { animation: none !important; }
+  .cast-ball { transition: none; }
   .flap-top, .flap-bottom { animation: none !important; display: none; }
   .tick-up, .tick-down { animation-duration: 1ms !important; }
   .countdown { animation: none; }
