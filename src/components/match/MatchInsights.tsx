@@ -1,5 +1,5 @@
 import { Activity, Bell, BellRing, Check, CircleHelp, Clock3, ShieldCheck } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Market, Match } from '../../engine/types'
 import { cx, kickoffLabel } from '../../lib/format'
 import { statusShort } from '../../lib/sport'
@@ -8,19 +8,26 @@ import { LiveDot } from '../ui'
 import { matchEventKey } from './MatchTimeline'
 import { readPriceAlerts, togglePriceAlert } from '../../lib/priceAlerts'
 
-const seriesColors = ['#00AEB7', '#8C62FF', '#E89536']
+const seriesColors = ['#FF5C64', '#518BFF', '#00B7AC']
 
 interface PricePoint { time: number; value: number }
+type ChartRange = '1H' | '6H' | '1D' | '1W' | '1M' | 'ALL'
+const chartRanges: ChartRange[] = ['1H', '6H', '1D', '1W', '1M', 'ALL']
+const rangeMs: Record<Exclude<ChartRange, 'ALL'>, number> = {
+  '1H': 60 * 60_000, '6H': 6 * 60 * 60_000, '1D': 24 * 60 * 60_000,
+  '1W': 7 * 24 * 60 * 60_000, '1M': 30 * 24 * 60 * 60_000,
+}
 
-function linePath(points: PricePoint[], min: number, max: number, start: number, end: number) {
-  const width = 640, top = 18, height = 126
-  const spread = max - min || 1
+function linePath(points: PricePoint[], start: number, end: number) {
+  const left = 12, right = 610, top = 18, height = 148
   return points.map(({ time, value }) => {
-    const x = 12 + ((time - start) / Math.max(1, end - start)) * (width - 24)
-    const y = top + ((max - value) / spread) * height
+    const x = left + ((time - start) / Math.max(1, end - start)) * (right - left)
+    const y = top + ((100 - value) / 100) * height
     return `${x},${y}`
   }).join(' ')
 }
+
+function probabilityY(value: number) { return 18 + ((100 - value) / 100) * 148 }
 
 function chartTime(time: number) {
   return new Date(time).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
@@ -32,6 +39,7 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
   const [alertIds, setAlertIds] = useState<string[]>(() => Object.keys(readPriceAlerts()))
   const [hoverTime, setHoverTime] = useState<number | null>(null)
   const [touchPinned, setTouchPinned] = useState(false)
+  const [range, setRange] = useState<ChartRange>('ALL')
   const now = useStore((s) => s.now)
   const selections = market?.selections ?? []
 
@@ -39,6 +47,7 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
     setVisible(Object.fromEntries(selections.map((selection) => [selection.id, true])))
     setHoverTime(null)
     setTouchPinned(false)
+    setRange('ALL')
   }, [market?.id])
 
   useEffect(() => {
@@ -46,14 +55,6 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
     window.addEventListener('hb-price-alerts-change', sync)
     return () => window.removeEventListener('hb-price-alerts-change', sync)
   }, [])
-
-  const bounds = useMemo(() => {
-    const vals = selections.flatMap((selection) => selection.history)
-    if (vals.length === 0) return { min: 1, max: 2 }
-    const low = Math.min(...vals), high = Math.max(...vals)
-    const pad = Math.max((high - low) * 0.18, 0.08)
-    return { min: Math.max(1, low - pad), max: high + pad }
-  }, [selections])
 
   const openCount = selections.filter((selection) => !selection.closed).length
   const suspended = !!market?.suspendedUntil && market.suspendedUntil > now
@@ -69,19 +70,33 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
   const allTimes = series.flatMap((points) => points.map((point) => point.time))
   const tickStart = allTimes.length ? Math.min(...allTimes) : match.kickoff
   const tickEnd = allTimes.length ? Math.max(...allTimes) : now
-  const timeToX = (time: number) => 12 + ((time - tickStart) / Math.max(1, tickEnd - tickStart)) * 616
+  const selectedStart = range === 'ALL' ? tickStart : Math.max(tickStart, tickEnd - rangeMs[range])
+  const chartStart = selectedStart < tickEnd ? selectedStart : tickStart
+  const timeToX = (time: number) => 12 + ((time - chartStart) / Math.max(1, tickEnd - chartStart)) * 598
+  const chartTimes = [...new Set(allTimes.filter((time) => time >= chartStart && time <= tickEnd))].sort((a, b) => a - b)
+  if (!chartTimes.length) chartTimes.push(tickEnd)
+  const probabilitySeries = selections.map((selection, index) => ({ selection, index, points: [] as PricePoint[] }))
+  for (const time of chartTimes) {
+    const currentPrices = series.map((points, index) => [...points].reverse().find((point) => point.time <= time)?.value ?? points[0]?.value ?? selections[index]?.odds ?? 1)
+    const implied = currentPrices.map((odds) => 1 / Math.max(1.01, odds))
+    const total = implied.reduce((sum, value) => sum + value, 0) || 1
+    probabilitySeries.forEach((item, index) => item.points.push({ time, value: implied[index] / total * 100 }))
+  }
+  const currentImplied = selections.map((selection) => 1 / Math.max(1.01, selection.odds))
+  const currentTotal = currentImplied.reduce((sum, value) => sum + value, 0) || 1
+  const currentProbabilities = currentImplied.map((value) => value / currentTotal * 100)
   const hoveredPrices = hoverTime === null ? [] : selections.map((selection, index) => {
-    const point = [...series[index]].reverse().find((item) => item.time <= hoverTime) ?? series[index][0] ?? null
+    const point = [...probabilitySeries[index].points].reverse().find((item) => item.time <= hoverTime) ?? probabilitySeries[index].points[0] ?? null
     return { selection, point }
   })
 
   const setHoverFromClientX = (clientX: number, svg: SVGSVGElement) => {
     const rect = svg.getBoundingClientRect()
     const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
-    setHoverTime(tickStart + ratio * (tickEnd - tickStart))
+    setHoverTime(chartStart + ratio * (tickEnd - chartStart))
   }
   const visibleEvents = sortedEvents.map((event, index) => ({ event, key: matchEventKey(event, index) }))
-    .filter(({ event }) => !!event.at && event.at >= tickStart && event.at <= tickEnd)
+    .filter(({ event }) => !!event.at && event.at >= chartStart && event.at <= tickEnd)
 
   return (
     <section aria-labelledby="market-pulse-title" className="overflow-hidden rounded-[18px] border border-line bg-card shadow-raised">
@@ -89,7 +104,7 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
         <div>
           <p className="mb-1 flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[.16em] text-brand"><Activity size={13} /> Market movement</p>
           <h3 id="market-pulse-title" className="text-[17px] font-extrabold tracking-tight">{market?.name ?? 'Price history'}</h3>
-          <p className="mt-0.5 text-[12px] text-muted">Recent price ticks · demo simulation</p>
+          <p className="mt-0.5 text-[12px] text-muted">Implied probability · demo market history</p>
         </div>
         <div className="flex items-center gap-2">
           <span className={cx('rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider', currentState === 'Open' ? 'bg-up/10 text-upText' : currentState === 'Paused' ? 'bg-warnBg text-warn' : 'bg-sunk text-muted')}>
@@ -101,14 +116,15 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
 
       {market && selections.length > 0 ? (
         <div className="p-4 sm:px-5 sm:py-4">
-          <div className="mb-3 flex flex-wrap gap-2" aria-label="Chart overlays">
+          <div className="mb-3 flex flex-wrap gap-2" aria-label="Chart outcomes">
             {selections.map((selection, i) => (
               <div key={selection.id} className="inline-flex min-h-8 items-center overflow-hidden rounded-full border border-line bg-page">
                 <button type="button" aria-pressed={visible[selection.id] !== false} onClick={() => setVisible((current) => ({ ...current, [selection.id]: current[selection.id] === false }))}
                   className={cx('inline-flex min-h-8 items-center gap-2 px-2.5 text-[11px] font-semibold transition-colors', visible[selection.id] !== false ? 'text-ink' : 'text-muted opacity-65')}>
                   <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: seriesColors[i % seriesColors.length] }} />
                   <span className="max-w-[115px] truncate">{selection.label}</span>
-                  <span className="tnum font-extrabold">{selection.odds.toFixed(2)}</span>
+                  <span className="tnum font-extrabold">{currentProbabilities[i]?.toFixed(0)}%</span>
+                  <span className="tnum text-muted">{selection.odds.toFixed(2)}</span>
                 </button>
                 <button type="button" onClick={() => {
                   const enabled = togglePriceAlert(selection.id, { matchId: match.id, selectionLabel: selection.label, baseline: selection.odds })
@@ -122,8 +138,14 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
             ))}
           </div>
 
+          <div className="mb-2 flex items-center justify-between gap-2" aria-label="Chart time range">
+            <p className="text-[10px] font-semibold text-muted">Market probability</p>
+            <div className="flex items-center gap-0.5 rounded-full bg-sunk p-1">
+              {chartRanges.map((item) => <button key={item} type="button" aria-pressed={range === item} onClick={() => { setRange(item); setHoverTime(null); setTouchPinned(false) }} className={cx('min-w-8 rounded-full px-2 py-1 text-[10px] font-bold transition-colors', range === item ? 'bg-card text-ink shadow-sm' : 'text-muted hover:text-ink')}>{item}</button>)}
+            </div>
+          </div>
           <div className="relative rounded-[12px] border border-line bg-page/70 px-2 pt-2">
-            <svg viewBox="0 0 640 176" className="h-[152px] w-full touch-pan-y sm:h-[180px]" role="group" tabIndex={0} aria-label={`${market.name} simulated odds history. Hover or use arrow keys to inspect prices by date and time.`} preserveAspectRatio="none"
+            <svg viewBox="0 0 640 198" className="h-[168px] w-full touch-pan-y sm:h-[190px]" role="group" tabIndex={0} aria-label={`${market.name} simulated implied probability history. Hover or use arrow keys to inspect percentages by date and time.`} preserveAspectRatio="none"
               onPointerMove={(event) => setHoverFromClientX(event.clientX, event.currentTarget)}
               onPointerDown={(event) => {
                 if (event.pointerType === 'touch') {
@@ -136,49 +158,48 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
                 if (event.key === 'Escape') { setHoverTime(null); setTouchPinned(false); return }
                 if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return
                 event.preventDefault()
-                const times = [...new Set(allTimes)].sort((a, b) => a - b)
+                const times = chartTimes
                 const current = hoverTime === null ? (event.key === 'ArrowRight' ? -1 : times.length) : times.reduce((best, time, index) => Math.abs(time - hoverTime) < Math.abs(times[best] - hoverTime) ? index : best, 0)
                 const next = Math.max(0, Math.min(times.length - 1, current + (event.key === 'ArrowRight' ? 1 : -1)))
                 if (times[next] !== undefined) setHoverTime(times[next])
               }}>
-              {[24, 66, 108, 150].map((y) => <line key={y} x1="10" x2="630" y1={y} y2={y} stroke="rgb(var(--line))" strokeWidth="1" strokeDasharray="3 5" />)}
-              {selections.map((selection, i) => {
+              {[18, 55, 92, 129, 166].map((y, index) => <g key={y}><line x1="10" x2="610" y1={y} y2={y} stroke="rgb(var(--line))" strokeWidth="1" strokeDasharray="3 5" /><text x="634" y={y + 3} textAnchor="end" fill="rgb(var(--muted))" fontSize="9">{100 - index * 25}%</text></g>)}
+              {probabilitySeries.map(({ selection, index: i, points }) => {
                 if (visible[selection.id] === false) return null
-                const points = series[i].length ? series[i] : [{ time: tickEnd, value: selection.odds }]
-                const values = points.map((point) => Math.max(bounds.min, Math.min(bounds.max, point.value)))
                 const lastPoint = points[points.length - 1]
                 return (
                   <g key={selection.id}>
-                    <polyline points={linePath(points.map((point, pointIndex) => ({ ...point, value: values[pointIndex] })), bounds.min, bounds.max, tickStart, tickEnd)} fill="none" stroke={seriesColors[i % seriesColors.length]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-                    <circle cx={timeToX(lastPoint.time)} cy={18 + ((bounds.max - lastPoint.value) / (bounds.max - bounds.min || 1)) * 126} r="4" fill={seriesColors[i % seriesColors.length]} stroke="rgb(var(--card))" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                    <polyline points={linePath(points, chartStart, tickEnd)} fill="none" stroke={seriesColors[i % seriesColors.length]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+                    <circle cx={timeToX(lastPoint.time)} cy={probabilityY(lastPoint.value)} r="4" fill={seriesColors[i % seriesColors.length]} stroke="rgb(var(--card))" strokeWidth="2" vectorEffect="non-scaling-stroke" />
                   </g>
                 )
               })}
-              {hoverTime !== null && <line x1={timeToX(hoverTime)} x2={timeToX(hoverTime)} y1="18" y2="150" stroke="rgb(var(--ink))" strokeWidth="1.5" strokeDasharray="3 3" opacity=".8" pointerEvents="none" />}
+              {hoverTime !== null && <line x1={timeToX(hoverTime)} x2={timeToX(hoverTime)} y1="18" y2="166" stroke="rgb(var(--ink))" strokeWidth="1.5" strokeDasharray="3 3" opacity=".8" pointerEvents="none" />}
               {hoverTime !== null && hoveredPrices.map(({ selection, point }, index) => point && visible[selection.id] !== false && (
-                <circle key={`hover-${selection.id}`} cx={timeToX(point.time)} cy={18 + ((bounds.max - point.value) / (bounds.max - bounds.min || 1)) * 126} r="5" fill={seriesColors[index % seriesColors.length]} stroke="rgb(var(--card))" strokeWidth="2" pointerEvents="none" />
+                <circle key={`hover-${selection.id}`} cx={timeToX(point.time)} cy={probabilityY(point.value)} r="5" fill={seriesColors[index % seriesColors.length]} stroke="rgb(var(--card))" strokeWidth="2" pointerEvents="none" />
               ))}
               {visibleEvents.map(({ event, key }) => {
                 const x = timeToX(event.at!)
                 const active = activeEventKey === key
                 return (
                   <g key={key} role="button" tabIndex={0} aria-label={`${event.type === 'goal' ? 'Goal' : `${event.type} card`} at ${event.minute} minutes. Select event.`} onClick={() => onEventSelect?.(key)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEventSelect?.(key) } }} className={cx('cursor-pointer', active && 'event-marker-active')}>
-                    <line x1={x} x2={x} y1="18" y2="150" stroke={active ? 'rgb(var(--brand))' : 'rgb(var(--muted))'} strokeWidth={active ? 2 : 1} strokeDasharray="4 4" opacity={active ? 0.9 : 0.45} />
+                    <line x1={x} x2={x} y1="18" y2="166" stroke={active ? 'rgb(var(--brand))' : 'rgb(var(--muted))'} strokeWidth={active ? 2 : 1} strokeDasharray="4 4" opacity={active ? 0.9 : 0.45} />
                     <circle cx={x} cy="18" r={active ? 7 : 5} fill={event.type === 'goal' ? 'rgb(var(--up))' : 'rgb(var(--warn))'} stroke="rgb(var(--card))" strokeWidth="2" />
-                    <rect x={x - 10} y="10" width="20" height="145" fill="transparent" />
+                    <rect x={x - 10} y="10" width="20" height="165" fill="transparent" />
                   </g>
                 )
               })}
-              <text x="12" y="170" fill="rgb(var(--muted))" fontSize="10">Earlier</text>
-              <text x="603" y="170" fill="rgb(var(--muted))" fontSize="10">Now</text>
+              <text x="12" y="191" fill="rgb(var(--muted))" fontSize="9">{chartTime(chartStart)}</text>
+              <text x="310" y="191" textAnchor="middle" fill="rgb(var(--muted))" fontSize="9">{chartTime(chartStart + (tickEnd - chartStart) / 2)}</text>
+              <text x="610" y="191" textAnchor="end" fill="rgb(var(--muted))" fontSize="9">{chartTime(tickEnd)}</text>
             </svg>
             {hoverTime !== null && (
               <div className={cx('pointer-events-none absolute top-2 z-10 min-w-[145px] rounded-lg border border-line bg-card/95 px-3 py-2 shadow-raised backdrop-blur-sm', timeToX(hoverTime) / 640 > .62 ? 'right-2' : 'left-2')}>
                 <div className="flex items-start justify-between gap-3">
-                  <div><p className="text-[10px] font-bold uppercase tracking-wider text-muted">Simulated price history</p><p className="tnum text-[11px] font-semibold">{chartTime(hoverTime)}</p></div>
+                  <div><p className="text-[10px] font-bold uppercase tracking-wider text-muted">Implied probability</p><p className="tnum text-[11px] font-semibold">{chartTime(hoverTime)}</p></div>
                   {touchPinned && <button type="button" onClick={() => { setTouchPinned(false); setHoverTime(null) }} className="pointer-events-auto -mr-2 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded text-muted hover:bg-sunk" aria-label="Close price details">×</button>}
                 </div>
-                <div className="mt-1.5 grid gap-0.5">{hoveredPrices.map(({ selection, point }, index) => point && visible[selection.id] !== false && <p key={selection.id} className="flex items-center justify-between gap-3 text-[11px]"><span className="flex min-w-0 items-center gap-1.5 truncate"><i className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: seriesColors[index % seriesColors.length] }} />{selection.label}</span><b className="tnum">{point.value.toFixed(2)}</b></p>)}</div>
+                <div className="mt-1.5 grid gap-0.5">{hoveredPrices.map(({ selection, point }, index) => point && visible[selection.id] !== false && <p key={selection.id} className="flex items-center justify-between gap-3 text-[11px]"><span className="flex min-w-0 items-center gap-1.5 truncate"><i className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: seriesColors[index % seriesColors.length] }} />{selection.label}</span><b className="tnum">{point.value.toFixed(1)}%</b></p>)}</div>
               </div>
             )}
           </div>
@@ -197,7 +218,7 @@ export function MarketPulse({ market, match, activeEventKey, onEventSelect }: { 
             }).join(' · ')
             return <p className="mt-2 rounded-lg border border-brand/20 bg-brand/5 px-3 py-2 text-[11.5px] text-muted" role="status">At {event.minute}&apos; · {event.type === 'goal' ? 'Goal' : `${event.type} card`} · nearest simulated prices before → after: {beforeAfter}</p>
           })()}
-          <p className="mt-2 text-[11px] text-muted">Hover or focus the chart to inspect dated prices · last 60 recorded demo ticks · illustrative, not live market data.</p>
+          <p className="mt-2 text-[11px] text-muted">Hover or focus the chart to inspect dated probabilities · based on available simulated odds history, not live market data.</p>
         </div>
       ) : (
         <div className="p-5 text-[13px] text-muted">No price history is available for this match yet.</div>
