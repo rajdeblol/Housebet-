@@ -1,5 +1,14 @@
-import { Activity, CircleDot, Home, Receipt, Search as SearchIcon, Star, WifiOff, X } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  Bookmark,
+  ChevronRight,
+  Flame,
+  Menu,
+  Radio,
+  Search as SearchIcon,
+  WifiOff,
+  X,
+} from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { isOffline, useStore } from '../engine/store'
 import { cx, fmtUSDT } from '../lib/format'
@@ -11,115 +20,182 @@ import { Search } from './Search'
 import { Toasts } from './Toasts'
 import { DemoPanel } from './DemoPanel'
 import { BetCardModal } from './card/BetCardModal'
-import { LiveDot } from './ui'
 import { Sidebar } from './Sidebar'
 
-/** The match we promote as "Top match" in the main nav. */
-export function useTopMatchId() {
-  const matches = useStore((s) => s.matches)
-  return useMemo(() => {
-    const live = Object.values(matches).filter((m) => m.status === 'live')
-    if (matches['har-red']?.status === 'live') return 'har-red'
-    if (live[0]) return live[0].id
-    return Object.values(matches).filter((m) => m.status === 'upcoming').sort((a, b) => a.kickoff - b.kickoff)[0]?.id ?? 'har-red'
-  }, [matches])
-}
-
-function MainNav({ className }: { className?: string }) {
-  const liveCount = useStore((s) => Object.values(s.matches).filter((m) => m.status === 'live').length)
-  const openBets = useStore((s) => s.bets.filter((b) => b.status === 'open').length)
-  const top = useTopMatchId()
-  const { pathname } = useLocation()
-  const items = [
-    { to: '/', label: 'Home', icon: Home, end: true },
-    { to: '/live', label: 'Live', icon: Activity, badge: liveCount, live: true },
-    { to: '/football', label: 'Football', icon: CircleDot },
-    { to: `/match/${top}`, label: 'Top match', icon: Star, activeWhen: pathname.startsWith('/match/') },
-    { to: '/bets', label: 'Bet slip & My bets', short: 'My bets', icon: Receipt, badge: openBets },
-  ]
-  return (
-    <nav aria-label="Main" className={className}>
-      <ul className="flex items-center gap-1">
-        {items.map((it) => (
-          <li key={it.label} className="shrink-0">
-            <NavLink
-              to={it.to}
-              end={it.end}
-              className={({ isActive }) => cx(
-                'relative flex h-10 items-center gap-2 rounded-lg px-3 text-[13.5px] font-semibold transition-colors',
-                (it.activeWhen ?? isActive) ? 'bg-ink text-white shadow-xs' : 'text-ink hover:bg-sunk',
-              )}
-            >
-              {it.live && it.badge ? <LiveDot /> : <it.icon size={15} aria-hidden="true" />}
-              <span className="hidden xl:inline">{it.label}</span>
-              <span className="xl:hidden">{it.short ?? it.label}</span>
-              {!!it.badge && (
-                <span className={cx('tnum inline-flex h-5 min-w-5 items-center justify-center gap-1 rounded-full px-1.5 text-[11px] font-bold', it.live ? 'bg-live text-white' : 'bg-sunk text-ink')}>
-                  {it.badge}
-                </span>
-              )}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )
-}
-
-function Header() {
+function TopBar() {
   const balance = useStore((s) => s.balance)
   const [searchOpen, setSearchOpen] = useState(false)
   const { pathname } = useLocation()
   const ref = useRef<HTMLElement>(null)
+
   useEffect(() => setSearchOpen(false), [pathname])
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const ro = new ResizeObserver(() => document.documentElement.style.setProperty('--hdr', `${el.offsetHeight}px`))
+    const ro = new ResizeObserver(() =>
+      document.documentElement.style.setProperty('--hdr', `${el.offsetHeight}px`),
+    )
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
 
   return (
     <header ref={ref} className="sticky top-0 z-40 border-b border-line bg-page/95 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1520px] items-center justify-between gap-3 px-4 sm:gap-4 lg:px-6">
+      {/* 1. Main Header Row (Logo, Search, Promo Ticker, Get Started) */}
+      <div className="mx-auto flex h-14 max-w-[1520px] items-center justify-between gap-4 px-4 lg:px-6">
         <div className="flex items-center gap-4">
-          <Link to="/" aria-label="Housebets home" className="shrink-0 rounded-lg"><Logo /></Link>
-          <MainNav className="hidden lg:block" />
+          <Link to="/" aria-label="Housebets home" className="shrink-0">
+            <Logo />
+          </Link>
+
+          {/* Central Pill Search Bar (Probly style: "Search what you need") */}
+          <div className="hidden w-[320px] lg:block">
+            <Search />
+          </div>
         </div>
 
-        {/* Central Search Bar (Probly style) */}
-        <div className="hidden max-w-[360px] flex-1 lg:block">
-          <Search />
+        {/* Promo Wave Ticker in Middle */}
+        <div className="hidden items-center gap-2 text-xs font-bold md:flex">
+          <span className="text-[#E4372B]">WAVE 2</span>
+          <span className="text-muted/60">·</span>
+          <span className="text-ink/80">($5,000,000 USDT)</span>
+          <span className="rounded-full bg-[#E4372B]/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#E4372B]">
+            Singles Only
+          </span>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        {/* Right Actions: Get Started / Wallet + Hamburger */}
+        <div className="flex items-center gap-3">
           <button
             type="button"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-line bg-card lg:hidden"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-card lg:hidden"
             aria-label={searchOpen ? 'Close search' : 'Open search'}
-            aria-expanded={searchOpen}
             onClick={() => setSearchOpen((v) => !v)}
           >
-            {searchOpen ? <X size={18} aria-hidden="true" /> : <SearchIcon size={18} aria-hidden="true" />}
+            {searchOpen ? <X size={16} /> : <SearchIcon size={16} />}
           </button>
 
           <ThemeToggle />
 
-          {/* USDT Demo Balance */}
-          <div className="flex h-10 shrink-0 items-center gap-2 rounded-lg border border-line bg-card px-3 shadow-xs" aria-label={`Demo balance ${fmtUSDT(balance)} USDT`}>
-            <div className="flex flex-col text-right leading-none">
-              <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-muted">Balance</span>
-              <span className="tnum text-[13.5px] font-bold">{fmtUSDT(balance)} <span className="text-[10.5px] text-muted">USDT</span></span>
-            </div>
-            <span className="rounded bg-[#E4372B]/15 px-1.5 py-0.5 text-[9.5px] font-black uppercase tracking-wider text-[#E4372B]">
-              DEMO
+          {/* Wallet / Balance Pill */}
+          <div className="flex h-9 items-center gap-2 rounded-full border border-line bg-card px-3 text-xs font-bold text-ink shadow-2xs">
+            <span className="text-muted">Wallet:</span>
+            <span className="tnum text-[#E4372B] font-extrabold">${fmtUSDT(balance)}</span>
+          </div>
+
+          {/* Get Started Pill Button (Probly purple -> Housebets Crimson) */}
+          <Link
+            to="/bets"
+            className="inline-flex h-9 items-center justify-center rounded-full bg-[#E4372B] px-4 text-xs font-extrabold text-white shadow-xs transition-transform hover:bg-[#CF3428] active:scale-95"
+          >
+            Get Started
+          </Link>
+
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-card text-ink hover:bg-sunk"
+            aria-label="Menu"
+          >
+            <Menu size={16} />
+          </button>
+        </div>
+      </div>
+
+      {searchOpen && (
+        <div className="border-t border-line px-4 py-2.5 lg:hidden">
+          <Search autoFocus onDone={() => setSearchOpen(false)} />
+        </div>
+      )}
+
+      {/* 2. Sub-Header Horizontal Category Tabs (Watchlist, Trending, Live 22, Sports, etc.) */}
+      <div className="no-scrollbar border-t border-line/70 px-4 lg:px-6">
+        <div className="mx-auto flex max-w-[1520px] items-center gap-6 overflow-x-auto text-[13px] font-semibold">
+          <button
+            type="button"
+            className="flex h-10 items-center gap-1.5 text-muted hover:text-ink shrink-0"
+          >
+            <Bookmark size={14} />
+            <span>Watchlist</span>
+          </button>
+
+          <button
+            type="button"
+            className="flex h-10 items-center gap-1.5 text-muted hover:text-ink shrink-0"
+          >
+            <Flame size={14} className="text-amber-500" />
+            <span>Trending</span>
+          </button>
+
+          <NavLink
+            to="/live"
+            className={({ isActive }) =>
+              cx(
+                'flex h-10 items-center gap-1.5 shrink-0 transition-colors',
+                isActive ? 'border-b-2 border-[#E4372B] font-bold text-ink' : 'text-muted hover:text-ink',
+              )
+            }
+          >
+            <Radio size={13} className="text-[#E4372B] animate-pulse" />
+            <span>Live</span>
+            <span className="tnum rounded-full bg-live/15 px-1.5 py-0.2 text-[10px] font-extrabold text-[#E4372B]">
+              14
             </span>
+          </NavLink>
+
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              cx(
+                'flex h-10 items-center gap-1.5 shrink-0 transition-colors',
+                isActive ? 'border-b-2 border-ink font-bold text-ink' : 'text-muted hover:text-ink',
+              )
+            }
+          >
+            <span>Sports</span>
+          </NavLink>
+
+          <NavLink
+            to="/football"
+            className={({ isActive }) =>
+              cx(
+                'flex h-10 items-center gap-1.5 shrink-0 transition-colors',
+                isActive ? 'border-b-2 border-ink font-bold text-ink' : 'text-muted hover:text-ink',
+              )
+            }
+          >
+            <span>Football</span>
+          </NavLink>
+
+          <Link to="/sport/basketball" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
+            <span>Basketball</span>
+          </Link>
+
+          <Link to="/sport/americanfootball" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
+            <span>NFL</span>
+          </Link>
+
+          <Link to="/sport/tennis" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
+            <span>Tennis</span>
+          </Link>
+
+          <Link to="/sport/mma" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
+            <span>MMA / UFC</span>
+          </Link>
+
+          <Link to="/sport/cricket" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
+            <span>Cricket</span>
+          </Link>
+
+          <Link to="/bets" className="flex h-10 items-center text-muted hover:text-ink shrink-0">
+            <span>My Bets</span>
+          </Link>
+
+          <div className="ml-auto flex items-center gap-1 text-muted">
+            <ChevronRight size={14} />
           </div>
         </div>
       </div>
-      {searchOpen && <div className="border-t border-line px-4 py-3 lg:hidden"><Search autoFocus onDone={() => setSearchOpen(false)} /></div>}
-      <MainNav className="no-scrollbar overflow-x-auto border-t border-line px-2 py-1 lg:hidden" />
     </header>
   )
 }
@@ -129,8 +205,8 @@ function OfflineBanner() {
   if (!offline) return null
   return (
     <div role="status" className="border-b border-line bg-warnBg">
-      <p className="mx-auto flex max-w-[1520px] items-center gap-2 px-4 py-2.5 text-[14px] font-medium text-warn lg:px-6">
-        <WifiOff size={16} aria-hidden="true" /> You're offline. Prices are paused and bets can't be placed until you reconnect.
+      <p className="mx-auto flex max-w-[1520px] items-center gap-2 px-4 py-2 text-[13px] font-semibold text-warn lg:px-6">
+        <WifiOff size={15} /> Prices paused while offline.
       </p>
     </div>
   )
@@ -138,30 +214,42 @@ function OfflineBanner() {
 
 export function Footer() {
   return (
-    <footer className="mt-12 border-t border-line pt-5 pb-2 text-[12.5px] text-muted">
-      <p>Housebets Sportsbook prototype · 5-Page Clickable Singles Engine · 18+, play responsibly.</p>
+    <footer className="mt-12 border-t border-line pt-6 pb-4 text-xs text-muted">
+      <p>Housebets Sportsbook · 5-Page Clickable Singles Prototype · 18+, play responsibly.</p>
     </footer>
   )
 }
 
 export function Layout() {
   const { pathname, hash } = useLocation()
-  useEffect(() => { if (!hash) window.scrollTo(0, 0) }, [pathname, hash])
+  useEffect(() => {
+    if (!hash) window.scrollTo(0, 0)
+  }, [pathname, hash])
+
   return (
     <div className="min-h-screen bg-page text-ink antialiased">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-lg focus:bg-ink focus:px-3 focus:py-2 focus:text-white">Skip to content</a>
-      <Header />
+      <TopBar />
       <OfflineBanner />
+
       <div className="mx-auto flex max-w-[1520px]">
+        {/* Left Column: Probly-style Sport Sidebar */}
         <Sidebar />
-        <main id="main" className="min-w-0 flex-1 px-4 pb-32 pt-5 lg:px-6 lg:pb-10">
+
+        {/* Middle Column: Feed */}
+        <main id="main" className="min-w-0 flex-1 px-4 pb-32 pt-5 sm:px-6 lg:pb-10">
           <Outlet />
           <Footer />
         </main>
-        <aside aria-label="Bet slip" className="sticky top-[var(--hdr,65px)] hidden h-[calc(100vh-var(--hdr,65px))] w-[340px] shrink-0 border-l border-line xl:block">
+
+        {/* Right Column: Probly-style Single Betslip Widget */}
+        <aside
+          aria-label="Bet slip"
+          className="sticky top-[var(--hdr,105px)] hidden h-[calc(100vh-var(--hdr,105px))] w-[340px] shrink-0 border-l border-line xl:block"
+        >
           <BetSlip />
         </aside>
       </div>
+
       <MobileSlip />
       <DemoPanel />
       <Toasts />
