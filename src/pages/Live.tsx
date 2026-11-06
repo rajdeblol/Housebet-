@@ -69,14 +69,20 @@ export function LivePage() {
             title={label ? `Nothing live in ${label} right now` : 'Nothing is live right now'}
             body="Live matches appear here the moment they kick off. Here's what starts next."
           />
-          {soon.length > 0 && (
-            <section className="mt-6" aria-labelledby="soon-live-h">
-              <SectionHeader title={<span id="soon-live-h">Starting soon</span>} icon={<Clock size={17} aria-hidden="true" />} />
+          <section className="mt-6" aria-labelledby="soon-live-h">
+            <SectionHeader title={<span id="soon-live-h">Starting soon</span>} icon={<Clock size={17} aria-hidden="true" />} />
+            {soon.length > 0 ? (
               <ul className="overflow-hidden rounded-m border border-line bg-card">
                 {soon.map((m) => <MatchRow key={m.id} id={m.id} showComp={compById[m.compId].short} />)}
               </ul>
-            </section>
-          )}
+            ) : (
+              <EmptyState
+                icon={<Clock size={18} aria-hidden="true" />}
+                title="No upcoming matches for these filters"
+                body="Try another sport or competition to see what starts next."
+              />
+            )}
+          </section>
         </>
       )}
     </div>
