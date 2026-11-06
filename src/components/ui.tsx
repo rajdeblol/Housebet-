@@ -64,7 +64,7 @@ export function Crest({ id, size = 28, className }: { id: string; size?: number;
 }
 
 export function LiveDot({ className }: { className?: string }) {
-  return <span className={cx('inline-block h-2 w-2 rounded-full bg-live live-dot animate-pulse', className)} aria-hidden="true" />
+  return <span className={cx('inline-block h-2 w-2 rounded-full bg-live live-dot', className)} aria-hidden="true" />
 }
 
 export function FollowButton({ kind, id, label, size = 'sm' }: { kind: 'teams' | 'comps'; id: string; label: string; size?: 'sm' | 'md' }) {

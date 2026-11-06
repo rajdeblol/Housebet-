@@ -146,7 +146,7 @@ export function BetSlip({ inSheet = false }: { inSheet?: boolean }) {
               <dt className="text-muted">Total stake</dt>
               <dd className="tnum text-right font-semibold">{fmtUSDT(totalStake)} USDT</dd>
               <dt className="text-muted">Potential return</dt>
-              <dd className="tnum text-right text-[16px] font-extrabold">{fmtUSDT(potential)} USDT</dd>
+              <dd key={potential} className="tnum slip-value-change text-right text-[16px] font-extrabold">{fmtUSDT(potential)} USDT</dd>
             </dl>
             <p className="mb-2 text-[11.5px] text-muted">Return includes your stake.</p>
 
