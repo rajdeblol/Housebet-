@@ -241,17 +241,30 @@ export function buildOtherMarkets(m: Match, now: number): Market[] {
       id: `${m.id}:${d.key}`, matchId: m.id, key: d.key, group: d.group, name: d.name, line: d.line,
       suspendedUntil: null, closed: false, selections: [],
     }
-    const tickTimes = Array.from({ length: 5 }, (_, index) => m.status === 'live'
-      ? m.kickoff + (m.clockSec * 1000 * index) / 4
-      : now - (4 - index) * 60_000)
+    const tickTimes = Array.from({ length: 25 }, (_, index) => {
+      const progress = index / 24
+      return m.status === 'live'
+        ? m.kickoff + m.clockSec * 1000 * progress
+        : now - (24 - index) * 60_000
+    })
     mk.selections = d.labels.map((label, i) => ({ id: `${m.id}:${d.key}:${i}`, label, odds: 2, prev: null, move: null, movedAt: now - 10000, history: [], historyAt: tickTimes, closed: false }))
     const pr = priceOther(m, mk)
     mk.closed = !!pr.closed
     mk.closedReason = pr.closed
     mk.selections = mk.selections.map((s, i) => {
       const o = pr.odds[i]
-      const hist = [0, 0, 0, 0].map(() => ladder(o * (1 + (Math.random() - 0.5) * 0.1)))
-      return { ...s, odds: o, history: [...hist, o].slice(-PRICE_HISTORY_LIMIT), historyAt: [...s.historyAt, now].slice(-PRICE_HISTORY_LIMIT) }
+      const seedText = `${m.id}:${d.key}:${i}`
+      const seed = [...seedText].reduce((value, char) => (value * 31 + char.charCodeAt(0)) >>> 0, 2166136261)
+      const hist = Array.from({ length: 24 }, (_, index) => {
+        const progress = index / 23
+        const phase = (seed % 1000) / 1000 * Math.PI * 2
+        const envelope = 1 - progress
+        const wave = Math.sin(progress * Math.PI * 5 + phase) * 0.09
+          + Math.sin(progress * Math.PI * 11 + phase * 1.7) * 0.045
+          + Math.sin(progress * Math.PI * 19 + phase * 0.6) * 0.025
+        return ladder(o * (1 + wave * envelope))
+      })
+      return { ...s, odds: o, history: [...hist, o].slice(-PRICE_HISTORY_LIMIT), historyAt: tickTimes.slice(-PRICE_HISTORY_LIMIT) }
     })
     return mk
   })

@@ -165,9 +165,9 @@ function buildFootballMarkets(m: Match, now: number): Market[] {
           const progress = index / 23
           const phase = (seed % 1000) / 1000 * Math.PI * 2
           const envelope = 1 - progress
-          const wave = Math.sin(progress * Math.PI * 5 + phase) * 0.045
-            + Math.sin(progress * Math.PI * 11 + phase * 1.7) * 0.022
-            + Math.sin(progress * Math.PI * 19 + phase * 0.6) * 0.012
+          const wave = Math.sin(progress * Math.PI * 5 + phase) * 0.09
+            + Math.sin(progress * Math.PI * 11 + phase * 1.7) * 0.045
+            + Math.sin(progress * Math.PI * 19 + phase * 0.6) * 0.025
           return ladder(o * (1 + wave * envelope))
         })
         const tickTimes = Array.from({ length: 25 }, (_, index) => {
