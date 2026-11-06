@@ -4,7 +4,6 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { compById, sportById, sportPath } from '../data/competitions'
 import { teams } from '../data/teams'
 import { FlipScore } from '../components/match/FlipScore'
-import { MiniMatchCast } from '../components/match/MiniMatchCast'
 import { MatchPrediction } from '../components/match/MatchPrediction'
 import { MatchTimeline } from '../components/match/MatchTimeline'
 import { MarketCard } from '../components/match/MarketCard'
@@ -226,7 +225,6 @@ export function MatchPage() {
           <p className="text-[11.5px] text-muted">Live demo controls · simulated events</p>
           <DemoMomentButton match={m} />
         </div>}
-        <MiniMatchCast match={m} />
         <MatchPrediction match={m} market={markets[`${id}:${mainKey(m)}`]} />
         <MatchTimeline match={m} activeEventKey={activeEventKey} onEventSelect={setActiveEventKey} />
         <MarketPulse market={markets[`${id}:${mainKey(m)}`]} match={m} activeEventKey={activeEventKey} onEventSelect={setActiveEventKey} />
