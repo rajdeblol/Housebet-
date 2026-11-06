@@ -22,6 +22,7 @@ export const competitions: Competition[] = [
   { id: 't20', sport: 'cricket', name: 'Indian Premier League', region: 'India', short: 'IPL' },
   { id: 'ufc', sport: 'mma', name: 'UFC Fight Night', region: 'Main card', short: 'UFC' },
   { id: 'atp', sport: 'tennis', name: 'ATP Tour', region: 'Hard court', short: 'ATP' },
+  { id: 'primeira', sport: 'football', name: 'Liga Portugal', region: 'Portugal', short: 'LP' },
 ]
 
 export const compById = Object.fromEntries(competitions.map((c) => [c.id, c])) as Record<string, Competition>

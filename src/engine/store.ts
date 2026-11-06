@@ -89,19 +89,19 @@ function init(): State {
   const bets: Bet[] = [
     {
       id: 'HB-4QK7TZ', placedAt: now - 26 * 60_000, matchId: 'har-red', marketId: 'har-red:mr', selId: open.id, sport: 'football',
-      compName: 'Premier League', home: 'Harrowgate', away: 'Redfield Town', homeId: 'harrowgate', awayId: 'redfield',
-      marketName: 'Match result', pick: 'Harrowgate', odds: ladder(open.odds * 1.12), stake: 20, status: 'open',
+      compName: 'Premier League', home: 'Arsenal', away: 'Chelsea', homeId: 'harrowgate', awayId: 'redfield',
+      marketName: 'Match result', pick: 'Arsenal', odds: ladder(open.odds * 1.12), stake: 20, status: 'open',
     },
     {
       id: 'HB-9MXC2D', placedAt: now - 26 * 3600_000, matchId: null, marketId: null, selId: null, sport: 'football',
-      compName: 'Premier League', home: 'Redfield Town', away: 'Ashcombe Rovers', homeId: 'redfield', awayId: 'ashcombe',
+      compName: 'Premier League', home: 'Chelsea', away: 'Newcastle United', homeId: 'redfield', awayId: 'ashcombe',
       marketName: 'Total goals 2.5', pick: 'Over 2.5', odds: 1.85, stake: 25, status: 'won', returned: 46.25,
       settledAt: now - 24 * 3600_000, finalScore: [3, 1],
     },
     {
       id: 'HB-8CK9TR', placedAt: now - 3 * 3600_000, matchId: null, marketId: null, selId: null, sport: 'cricket',
-      compName: 'T20 Premier Cup', home: 'Saffron Coast Chargers', away: 'Monsoon Riders', homeId: 'saffron', awayId: 'monsoon',
-      marketName: 'Match winner', pick: 'Saffron Coast Chargers', odds: 2.15, stake: 50, status: 'won', returned: 107.50,
+      compName: 'Indian Premier League', home: 'Chennai Super Kings', away: 'Mumbai Indians', homeId: 'saffron', awayId: 'monsoon',
+      marketName: 'Match winner', pick: 'Chennai Super Kings', odds: 2.15, stake: 50, status: 'won', returned: 107.50,
       settledAt: now - 1 * 3600_000, finalScore: [186, 172],
     },
     {
@@ -112,7 +112,7 @@ function init(): State {
     },
     {
       id: 'HB-7RHN5W', placedAt: now - 50 * 3600_000, matchId: null, marketId: null, selId: null, sport: 'football',
-      compName: 'Serie A', home: 'Torrenza', away: 'Virtus Calanne', homeId: 'torrenza', awayId: 'calanne',
+      compName: 'Serie A', home: 'AC Milan', away: 'Inter Milan', homeId: 'calanne', awayId: 'montefiore',
       marketName: 'Both teams to score', pick: 'Yes', odds: 1.72, stake: 15, status: 'lost', returned: 0,
       settledAt: now - 48 * 3600_000, finalScore: [2, 0],
     },

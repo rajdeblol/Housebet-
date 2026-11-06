@@ -31,7 +31,7 @@ export const matchSeeds: MatchSeed[] = [
     ],
   },
   {
-    id: 'aur-tor', compId: 'seriea', home: 'aurelia', away: 'torrenza', kickoffIn: -27, clockSec: 26 * 60 + 40,
+    id: 'aur-tor', compId: 'laliga', home: 'aurelia', away: 'torrenza', kickoffIn: -27, clockSec: 26 * 60 + 40,
     score: [0, 0], corners: [2, 1], xg: [1.45, 1.05], events: [{ minute: 22, type: 'yellow', side: 0, player: 'M. Corvesi' }],
   },
   {
@@ -50,10 +50,10 @@ export const matchSeeds: MatchSeed[] = [
     score: [0, 1], corners: [3, 2], xg: [1.3, 1.6], events: [{ minute: 29, type: 'goal', side: 1, player: 'I. Morvedra' }],
   },
   // ---- Upcoming (6)
-  { id: 'var-mon', compId: 'laliga', home: 'varena', away: 'montalbo', kickoffIn: 4, xg: [1.6, 1.0] },
+  { id: 'var-mon', compId: 'ucl', home: 'varena', away: 'montalbo', kickoffIn: 4, xg: [1.6, 1.0] },
   { id: 'ash-bla', compId: 'epl', home: 'ashcombe', away: 'blackwater', kickoffIn: 38, xg: [1.35, 1.3] },
   { id: 'cal-mtf', compId: 'seriea', home: 'calanne', away: 'montefiore', kickoffIn: 110, xg: [1.2, 1.15] },
-  { id: 'rhe-kal', compId: 'bundesliga', home: 'rheinau', away: 'kalberg', kickoffIn: 180, xg: [1.75, 1.4] },
+  { id: 'rhe-kal', compId: 'seriea', home: 'rheinau', away: 'kalberg', kickoffIn: 180, xg: [1.75, 1.4] },
   { id: 'fen-alb', compId: 'ucl', home: 'fenwick', away: 'albera', kickoffIn: 60 * 22, xg: [1.5, 1.2] },
-  { id: 'sal-cor', compId: 'laliga', home: 'salvara', away: 'corvera', kickoffIn: 60 * 26, xg: [1.25, 1.1] },
+  { id: 'sal-cor', compId: 'primeira', home: 'salvara', away: 'corvera', kickoffIn: 60 * 26, xg: [1.25, 1.1] },
 ]
