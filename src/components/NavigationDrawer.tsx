@@ -93,7 +93,7 @@ export function NavigationDrawer({ open, onClose, onOpenWallet }: { open: boolea
           </nav>
         </div>
 
-        <p className="border-t border-line px-4 py-3 text-[12px] text-muted">Sample data only. No real teams, players or money.</p>
+        <p className="border-t border-line px-4 py-3 text-[12px] text-muted">Real team identities, fictional player names and simulated fixtures. Demo balance only; no real-money wagers.</p>
       </div>
     </div>
   )

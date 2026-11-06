@@ -149,7 +149,7 @@ export function Search({ autoFocus, onDone }: { autoFocus?: boolean; onDone?: ()
               ))}
             </ul>
           )}
-          <p className="flex items-center gap-1.5 border-t border-line px-4 py-2 text-[12px] text-muted"><Shield size={12} aria-hidden="true" /> Sample data only. All teams and players are fictional.</p>
+          <p className="flex items-center gap-1.5 border-t border-line px-4 py-2 text-[12px] text-muted"><Shield size={12} aria-hidden="true" /> Real team identities · fictional player names · demo fixtures and odds.</p>
         </div>
       )}
     </div>
