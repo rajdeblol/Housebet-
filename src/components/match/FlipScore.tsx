@@ -32,7 +32,7 @@ function FlipDigit({ value, compact }: { value: string; compact: boolean }) {
     </div>
   )
   return (
-    <div className={cx('tnum relative font-extrabold leading-none text-page [perspective:300px]', size)}>
+    <div className={cx('tnum relative font-extrabold leading-none text-page [perspective:300px]', size, anim > 0 && 'score-updated')}>
       <span className="invisible block h-full px-0.5 leading-[inherit]" aria-hidden="true" style={{ lineHeight: 'inherit' }}>{shown.length > 1 ? shown : ''}</span>
       {half(shown, 'top')}
       {half(anim ? prev : shown, 'bottom')}

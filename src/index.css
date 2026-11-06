@@ -60,6 +60,8 @@
 @keyframes flap-bottom { from { transform: rotateX(90deg); } to { transform: rotateX(0deg); } }
 .flap-top { transform-origin: bottom; animation: flap-top 280ms ease-in forwards; }
 .flap-bottom { transform-origin: top; transform: rotateX(90deg); animation: flap-bottom 280ms ease-out 280ms forwards; }
+@keyframes score-highlight { 0% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0); } 28% { box-shadow: 0 0 0 3px rgb(var(--accent) / .5), 0 0 18px rgb(var(--accent) / .45); } 100% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0); } }
+.score-updated { border-radius: 7px; animation: score-highlight 760ms ease-out; }
 
 /* Slip slide-in / collapse */
 @keyframes slide-in { from { transform: translateX(12px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -80,7 +82,7 @@
 .countdown { transform-origin: left; animation: countdown 5s linear forwards; }
 
 @media (prefers-reduced-motion: reduce) {
-  .live-dot, .shutter, .slide-in, .sheet-up, .reveal-down, .pop { animation: none !important; }
+  .live-dot, .shutter, .slide-in, .sheet-up, .reveal-down, .pop, .score-updated { animation: none !important; }
   .flap-top, .flap-bottom { animation: none !important; display: none; }
   .tick-up, .tick-down { animation-duration: 1ms !important; }
   .countdown { animation: none; }

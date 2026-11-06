@@ -4,6 +4,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { compById, sportById, sportPath } from '../data/competitions'
 import { teams } from '../data/teams'
 import { FlipScore } from '../components/match/FlipScore'
+import { MatchTimeline } from '../components/match/MatchTimeline'
 import { MarketCard } from '../components/match/MarketCard'
 import { MarketPulse, MatchMarketInfo } from '../components/match/MatchInsights'
 import { Crest, FollowButton, LiveDot } from '../components/ui'
@@ -201,6 +202,7 @@ export function MatchPage() {
       </div>
 
       <div className="mt-4 space-y-4">
+        <MatchTimeline match={m} />
         <MarketPulse market={markets[`${id}:${mainKey(m)}`]} match={m} />
         {m.status === 'ft' && (
           <p className="rounded-m border border-line bg-card px-4 py-3 text-[14px]">This match has finished. Markets are closed and open bets have been settled in My bets.</p>
