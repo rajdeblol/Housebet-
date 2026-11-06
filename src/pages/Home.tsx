@@ -130,7 +130,7 @@ export function HomePage() {
           <img
             src={`${import.meta.env.BASE_URL}sports-share-cards/housebets-${artFile[featured.sport] ?? 'football'}.png`}
             alt=""
-            className="absolute inset-0 -z-20 h-full w-full object-cover object-[68%_center] opacity-75"
+            className="absolute inset-0 -z-20 h-full w-full object-cover object-right opacity-75"
             aria-hidden="true"
           />
           <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,#061316_0%,rgba(6,19,22,.96)_37%,rgba(6,19,22,.58)_68%,rgba(6,19,22,.16)_100%)]" aria-hidden="true" />
