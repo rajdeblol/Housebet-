@@ -18,14 +18,14 @@ export const brand = {
 
 /** Cool, high-contrast light palette for the Housebets sports identity. */
 export const colors = {
-  page: '#F2F8F8',
+  page: '#F3F7F8',
   card: '#FFFFFF',
-  sunk: '#E5F0F1',
-  ink: '#0B2028',
-  muted: '#4F686D',
-  line: '#C8D8DA',
-  accent: '#006E73',
-  brand: '#00777C',
+  sunk: '#E8F0F2',
+  ink: '#10242B',
+  muted: '#536970',
+  line: '#D0DEE1',
+  accent: '#006F77',
+  brand: '#007F87',
   up: '#1E8E68',
   upText: '#14704F',
   down: '#D94F49',

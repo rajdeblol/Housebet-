@@ -4,7 +4,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { compById, competitions, sportById, sportPath, sports } from '../data/competitions'
 import { teams } from '../data/teams'
 import { MatchRow } from '../components/MatchRow'
-import { EmptyState, Freshness, LiveDot, SectionHeader } from '../components/ui'
+import { Crest, EmptyState, Freshness, LiveDot, SectionHeader } from '../components/ui'
 import { useStore } from '../engine/store'
 import { cx, fmtUSDT } from '../lib/format'
 import { SportIcon } from '../lib/sportIcons'
@@ -14,7 +14,7 @@ import { scoreText, statusShort } from '../lib/sport'
 export function SportsNav() {
   const matches = useStore((s) => s.matches)
   return (
-    <nav aria-label="Sports" className="no-scrollbar relative -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 lg:hidden">
+    <nav aria-label="Sports" className="no-scrollbar relative -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0">
       {sports.map((sp) => {
         const liveN = Object.values(matches).filter((m) => m.sport === sp.id && m.status === 'live').length
         return (
@@ -126,57 +126,59 @@ export function HomePage() {
       <SportsNav />
 
       {featured && featuredHome && featuredAway && (
-        <section aria-labelledby="hero-title" className="relative mb-6 overflow-hidden rounded-[22px] border border-line bg-card shadow-raised">
-          <div
-            className="absolute inset-0"
-            style={{ backgroundImage: 'radial-gradient(ellipse at 78% 45%, rgb(var(--brand) / 0.15), transparent 46%), linear-gradient(115deg, rgb(var(--card)), rgb(var(--sunk)))' }}
+        <section aria-labelledby="hero-title" className="relative isolate mb-6 overflow-hidden rounded-[24px] border border-[#24515A] bg-[#061316] text-white shadow-[0_22px_60px_-32px_rgba(0,28,35,.72)]">
+          <img
+            src={`${import.meta.env.BASE_URL}sports-share-cards/housebets-${artFile[featured.sport] ?? 'football'}.png`}
+            alt=""
+            className="absolute inset-0 -z-20 h-full w-full object-cover object-[68%_center] opacity-75"
             aria-hidden="true"
           />
-          <div className="relative grid min-h-[280px] items-center gap-2 px-5 py-6 sm:min-h-[310px] sm:grid-cols-[minmax(0,1.1fr)_minmax(230px,.9fr)] sm:px-8 sm:py-8">
-            <div className="z-10 max-w-[520px]">
-              <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[.13em] text-ink">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand" /> Demo mode · simulated fixtures
-              </p>
-              <h1 id="hero-title" className="max-w-[470px] text-[32px] font-black leading-[1.03] tracking-[-.045em] sm:text-[42px]">Every match. One home.</h1>
-              <p className="mt-3 max-w-[430px] text-[14px] leading-relaxed text-muted sm:text-[15px]">Your matchday dashboard for live scores, upcoming fixtures and Housebets markets. This prototype uses simulated events and prices.</p>
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,#061316_0%,rgba(6,19,22,.96)_37%,rgba(6,19,22,.58)_68%,rgba(6,19,22,.16)_100%)]" aria-hidden="true" />
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_12%_0%,rgba(2,247,253,.16),transparent_40%)]" aria-hidden="true" />
+          <div className="relative flex min-h-[390px] flex-col justify-between gap-8 px-5 py-6 sm:min-h-[350px] sm:px-8 sm:py-7">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-[#02F7FD]/35 bg-[#02F7FD]/10 text-[18px] font-black text-[#02F7FD]">H</span>
+                <span className="text-[14px] font-black tracking-[.12em] text-white">HOUSEBETS <span className="font-medium tracking-[.18em] text-white/55">SPORTSBOOK</span></span>
+              </div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/25 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-white/85 backdrop-blur-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#02F7FD] shadow-[0_0_12px_#02F7FD]" /> Demo arena
+              </span>
+            </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
-                <Link to="/live" className="inline-flex h-11 items-center gap-2 rounded-s bg-accent px-4 text-[13.5px] font-bold text-page transition-opacity hover:opacity-90">
-                  Explore live markets <ArrowRight size={15} aria-hidden="true" />
+            <div className="max-w-[540px]">
+              <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[.2em] text-[#02F7FD]">The matchday starts here</p>
+              <h1 id="hero-title" className="max-w-[490px] text-[38px] font-black leading-[.98] tracking-[-.055em] sm:text-[52px]">Feel every<br className="hidden sm:block" /> moment.</h1>
+              <p className="mt-3 max-w-[430px] text-[13.5px] leading-relaxed text-white/70 sm:text-[15px]">Live scores, big fixtures and a front-row view of the action. Welcome to Housebets.</p>
+
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                <Link to="/live" className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-[#02F7FD] px-4 text-[13.5px] font-extrabold text-[#052126] shadow-[0_8px_24px_-10px_rgba(2,247,253,.75)] transition-transform hover:-translate-y-0.5">
+                  Watch live action <ArrowRight size={15} aria-hidden="true" />
                 </Link>
-                <Link to="/football" className="inline-flex h-11 items-center rounded-s border border-line bg-card/80 px-4 text-[13.5px] font-semibold transition-colors hover:border-brand/70">
-                  View fixtures
+                <Link to="/football" className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-white/25 bg-black/20 px-4 text-[13.5px] font-bold text-white transition-colors hover:border-white/60 hover:bg-white/10">
+                  Explore fixtures
                 </Link>
               </div>
-
-              <Link to={`/match/${featured.id}`} className="mt-5 flex max-w-[450px] items-center gap-3 rounded-m border border-line bg-page/80 px-3.5 py-3 transition-colors hover:border-brand/70">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-s bg-brand/10 text-brand"><SportIcon id={featured.sport} size={18} /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-muted">Featured {featured.status === 'live' ? 'live demo' : 'upcoming fixture'} · {compById[featured.compId]?.short ?? sportById[featured.sport].name}</span>
-                  <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[13px] font-bold">
-                    <span className="truncate">{featuredHome.name}</span>
-                    {featuredScore && <span className="tnum shrink-0 text-brand">{featuredScore[0]}–{featuredScore[1]}</span>}
-                    <span className="shrink-0 text-muted">v</span>
-                    <span className="truncate">{featuredAway.name}</span>
-                  </span>
-                </span>
-                <span className="shrink-0 text-right">
-                  <span className={cx('block text-[10px] font-extrabold uppercase tracking-wide', featured.status === 'live' ? 'text-live' : 'text-muted')}>{featured.status === 'live' ? '● Live demo' : 'Starting soon'}</span>
-                  <span className="tnum block text-[11px] font-semibold text-muted">{featured.status === 'live' ? statusShort(featured) : 'View fixture'}</span>
-                </span>
-              </Link>
-              <p className="mt-2 max-w-[450px] text-[11.5px] text-muted">Judge tip: open <span className="font-bold text-ink">Demo</span> at the bottom-left to trigger a score, odds move, suspension or offline state.</p>
             </div>
 
-            <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[48%] overflow-hidden sm:block" aria-hidden="true">
-              <img
-                src={`${import.meta.env.BASE_URL}sports-share-cards/housebets-${artFile[featured.sport] ?? 'football'}.png`}
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover object-[72%_center] opacity-80"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-card via-card/35 to-transparent" />
-              <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-brand/10 to-transparent" />
-            </div>
+            <Link to={`/match/${featured.id}`} className="flex w-full max-w-[440px] items-center gap-3 rounded-[14px] border border-white/15 bg-[#071A1F]/90 px-3.5 py-3 shadow-lg backdrop-blur-md transition-colors hover:border-[#02F7FD]/60">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#02F7FD]/10 text-[#02F7FD]"><SportIcon id={featured.sport} size={18} /></span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[9px] font-bold uppercase tracking-[.16em] text-white/55">Featured match · {compById[featured.compId]?.short ?? sportById[featured.sport].name}</span>
+                <span className="mt-1 flex min-w-0 items-center gap-2 text-[12px] font-bold sm:text-[13px]">
+                  <Crest id={featured.home} size={24} />
+                  <span className="truncate">{featuredHome.name}</span>
+                  {featuredScore && <span className="tnum rounded-md bg-white/10 px-2 py-1 text-[#02F7FD]">{featuredScore[0]}–{featuredScore[1]}</span>}
+                  {!featuredScore && <span className="rounded-md bg-white/10 px-2 py-1 text-white/70">VS</span>}
+                  <span className="truncate">{featuredAway.name}</span>
+                  <Crest id={featured.away} size={24} />
+                </span>
+              </span>
+              <span className="shrink-0 text-right">
+                <span className={cx('block text-[9px] font-extrabold uppercase tracking-wide', featured.status === 'live' ? 'text-[#FF7770]' : 'text-white/55')}>{featured.status === 'live' ? '● Live' : 'Soon'}</span>
+                <span className="tnum block text-[10px] font-semibold text-white/55">{featured.status === 'live' ? statusShort(featured) : 'View'}</span>
+              </span>
+            </Link>
           </div>
         </section>
       )}
