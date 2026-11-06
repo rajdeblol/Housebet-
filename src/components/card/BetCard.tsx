@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import { TrendingUp, ArrowUpRight, CheckCircle2, Zap } from 'lucide-react'
+import { CheckCircle2, Zap } from 'lucide-react'
 import { teams } from '../../data/teams'
 import type { Bet, SportId } from '../../engine/types'
 import { brand, colors } from '../../theme'
@@ -442,18 +442,26 @@ export const BetCard = forwardRef<HTMLDivElement, { bet: Bet; sport?: CardSport 
   const primaryColor = pickTeam?.primary ?? '#888888'
   const secondaryColor = pickTeam?.secondary ?? '#ffffff'
 
-  const ret = bet.status === 'won' || bet.status === 'cashed' ? bet.returned ?? 0 : bet.stake * bet.odds
-  const retLabel = bet.status === 'won' ? 'Returned' : bet.status === 'cashed' ? 'Cashed out' : 'Potential return'
+  const ret = bet.status === 'lost' ? 0 : bet.status === 'won' || bet.status === 'cashed' ? bet.returned ?? 0 : bet.stake * bet.odds
+  const retLabel = bet.status === 'cashed' ? 'Cashed out' : bet.status === 'open' ? 'Potential return' : 'Returned'
   const statusLabel = bet.status === 'open' ? 'Open' : bet.status === 'won' ? 'Won' : bet.status === 'lost' ? 'Lost' : 'Cashed out'
   const liveScore = useStore((s) => (bet.matchId ? s.matches[bet.matchId]?.score : undefined))
   const score = bet.finalScore ?? liveScore ?? [0, 0]
 
   // Net Profit calculation
   const isSettled = bet.status === 'won' || bet.status === 'cashed'
-  const profit = isSettled
-    ? (bet.returned ?? 0) - bet.stake
-    : bet.stake * bet.odds - bet.stake
+  const profit = bet.status === 'lost'
+    ? -bet.stake
+    : isSettled
+      ? (bet.returned ?? 0) - bet.stake
+      : bet.stake * bet.odds - bet.stake
   const isProfitPositive = profit > 0
+  const pnlLabel = bet.status === 'open'
+    ? 'Potential profit'
+    : bet.status === 'cashed'
+      ? profit < 0 ? 'Cashed out loss' : 'Cashed out profit'
+      : isProfitPositive ? 'Net profit' : profit < 0 ? 'Net loss' : 'Break even'
+  const pnlColor = profit < 0 ? '#FF7068' : '#2DE0C0'
 
   return (
     <div ref={ref} className="w-[340px] overflow-hidden rounded-2xl border border-line bg-card text-ink shadow-xl" style={{ fontFamily: brand.fontFamily }}>
@@ -473,6 +481,12 @@ export const BetCard = forwardRef<HTMLDivElement, { bet: Bet; sport?: CardSport 
           </div>
         </>}
         <div className="relative flex h-full items-end bg-gradient-to-t from-black/55 via-transparent to-transparent p-4 text-white">
+          <div className="absolute left-4 top-[62px] z-10 max-w-[195px] drop-shadow-[0_2px_8px_rgba(0,0,0,.85)]">
+            <p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-white/80">{pnlLabel}</p>
+            <p className="tnum truncate text-[26px] font-black leading-tight tracking-tight" style={{ color: pnlColor }}>
+              {profit < 0 ? '−' : profit > 0 ? '+' : ''}{fmtUSDT(Math.abs(profit))} <span className="text-[14px]">USDT</span>
+            </p>
+          </div>
           <div className="z-10 max-w-[195px] space-y-1.5">
             <p className="truncate text-[11px] font-extrabold text-white/90">{bet.compName}</p>
               <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${
@@ -486,17 +500,11 @@ export const BetCard = forwardRef<HTMLDivElement, { bet: Bet; sport?: CardSport 
                 {statusLabel}
               </span>
 
-              {isSettled && isProfitPositive && (
-                <div className="rounded-lg bg-black/40 backdrop-blur-xs px-2 py-1 text-upText border border-up/40">
-                  <p className="text-[9px] font-extrabold uppercase tracking-wider text-upText">Net Profit</p>
-                  <p className="text-[15px] font-black tnum leading-none">+{fmtUSDT(profit)} USDT</p>
-                </div>
-              )}
           </div>
         </div>
       </div>
 
-      {/* Body: Pick details, Profit Section, Stake & Return */}
+      {/* Body: Pick details, Stake & Return */}
       <div className="p-4 space-y-3.5">
         <div className="flex items-center justify-between text-xs text-muted font-semibold">
           <span className="truncate max-w-[220px]">{bet.home} v {bet.away}</span>
@@ -512,48 +520,6 @@ export const BetCard = forwardRef<HTMLDivElement, { bet: Bet; sport?: CardSport 
             {fmtOdds(bet.odds)}
           </p>
         </div>
-
-        {/* High-visibility Profit Section */}
-        {isSettled ? (
-          <div className={`flex items-center justify-between rounded-xl p-3 border ${
-            isProfitPositive
-              ? 'bg-up/15 border-up/40 text-upText'
-              : 'bg-down/10 border-down/30 text-down'
-          }`}>
-            <div className="flex items-center gap-2">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-                isProfitPositive ? 'bg-up/15 text-upText' : 'bg-down/15 text-down'
-              }`}>
-                {isProfitPositive ? <TrendingUp size={18} /> : <ArrowUpRight size={18} className="rotate-90" />}
-              </div>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-wider opacity-80">
-                  {bet.status === 'cashed' ? 'Cashed Out Profit' : isProfitPositive ? 'Winning Net Profit' : 'Settled Net'}
-                </p>
-                <p className="text-[18px] font-black tnum leading-tight">
-                  {isProfitPositive ? `+${fmtUSDT(profit)}` : `-${fmtUSDT(Math.abs(profit))}`} USDT
-                </p>
-              </div>
-            </div>
-            {isProfitPositive && (
-              <span className="rounded-full bg-up/15 px-2 py-0.5 text-[10px] font-black">
-                +{((profit / bet.stake) * 100).toFixed(0)}% ROI
-              </span>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center justify-between rounded-xl bg-sunk/60 border border-line p-2.5 text-xs">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted">Potential Profit</p>
-              <p className="text-[15px] font-black tnum text-upText">
-                +{fmtUSDT(profit)} <span className="text-[10px] text-muted">USDT</span>
-              </p>
-            </div>
-            <span className="rounded-md bg-card border border-line px-2 py-0.5 text-[10px] font-bold text-muted">
-              Live Single
-            </span>
-          </div>
-        )}
 
         {/* Stake & Return grid */}
         <div className="grid grid-cols-2 gap-2 text-xs">
