@@ -6,6 +6,7 @@ import { teams } from '../data/teams'
 import { FlipScore } from '../components/match/FlipScore'
 import { MarketCard } from '../components/match/MarketCard'
 import { Timeline } from '../components/match/Timeline'
+import { MatchStatsPanel } from '../components/match/MatchStatsPanel'
 import { Crest, FollowButton, LiveDot } from '../components/ui'
 import { NotFound } from './NotFound'
 import { getState, useStore } from '../engine/store'
@@ -215,6 +216,9 @@ export function MatchPage() {
       </div>
 
       <div className="mt-4 space-y-4">
+        {/* Match Statistics & Live In-Play Timeline */}
+        <MatchStatsPanel m={m} />
+
         {m.status === 'ft' && (
           <p className="rounded-m border border-line bg-card px-4 py-3 text-[14px]">This match has finished. Markets are closed and open bets have been settled in My bets.</p>
         )}

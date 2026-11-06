@@ -81,13 +81,13 @@ export function NavigationDrawer({ open, onClose, onOpenWallet }: NavigationDraw
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
-          {/* Wallet Balance Card in Drawer */}
+          {/* Demo Balance Card in Drawer */}
           <div className="rounded-xl border border-line bg-gradient-to-br from-[#E4372B]/10 to-transparent p-3.5">
             <div className="flex items-center justify-between text-xs text-muted font-bold">
               <span className="flex items-center gap-1.5">
-                <Wallet size={14} className="text-[#E4372B]" /> My Wallet
+                <Wallet size={14} className="text-[#E4372B]" /> Demo Balance
               </span>
-              <span className="text-[10px] uppercase tracking-wider text-emerald-500 font-extrabold">Instant</span>
+              <span className="text-[10px] uppercase tracking-wider text-[#E4372B] font-extrabold">Simulated</span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
               <span className="text-2xl font-black tnum text-ink">
@@ -98,7 +98,7 @@ export function NavigationDrawer({ open, onClose, onOpenWallet }: NavigationDraw
                 onClick={onOpenWallet}
                 className="flex items-center gap-1 rounded-full bg-[#E4372B] px-3 py-1 text-xs font-bold text-white shadow-xs hover:bg-[#CF3428] active:scale-95 transition-all"
               >
-                <PlusCircle size={13} /> Deposit
+                <PlusCircle size={13} /> Add Demo
               </button>
             </div>
           </div>

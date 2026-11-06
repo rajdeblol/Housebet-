@@ -100,7 +100,7 @@ export function Search({ autoFocus, onDone }: { autoFocus?: boolean; onDone?: ()
           id="global-search"
           type="search"
           autoComplete="off"
-          placeholder="Search teams, players, markets"
+          placeholder="Search teams, competitions and markets"
           value={q}
           onChange={(e) => { setQ(e.target.value); setOpen(true); setActive(0) }}
           onFocus={() => setOpen(true)}

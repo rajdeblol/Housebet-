@@ -25,9 +25,15 @@ function PlacedView() {
             <Check size={20} strokeWidth={3} aria-hidden="true" />
           </span>
           <div>
-            <p className="text-[16px] font-extrabold text-ink">Bet Placed Successfully</p>
-            <p className="text-[12.5px] text-muted">
-              {fmtUSDT(total)} USDT staked at <span className="tnum">{placedAt ? timeOfDay(placedAt) : ''}</span>
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-black uppercase text-emerald-600 tracking-wider">
+                DEMO RECEIPT
+              </span>
+              <span className="text-[10px] text-muted font-bold">Simulated Single Wager</span>
+            </div>
+            <p className="text-[16px] font-extrabold text-ink">Simulated Bet Placed</p>
+            <p className="text-[12px] text-muted">
+              {fmtUSDT(total)} Demo USDT staked at <span className="tnum">{placedAt ? timeOfDay(placedAt) : ''}</span>
             </p>
           </div>
         </div>
@@ -177,8 +183,8 @@ export function BetSlip({ inSheet = false }: { inSheet?: boolean }) {
             </div>
 
             <div className="mt-3 flex items-center justify-between border-t border-line/60 pt-2 text-[11.5px] font-semibold text-muted">
-              <span>Wallet Balance:</span>
-              <span className="tnum text-ink font-bold">${fmtUSDT(balance)} USDT</span>
+              <span>Demo Balance:</span>
+              <span className="tnum text-ink font-bold">${fmtUSDT(balance)} USDT (Demo)</span>
             </div>
           </div>
 
@@ -210,18 +216,18 @@ export function BetSlip({ inSheet = false }: { inSheet?: boolean }) {
             </button>
           </div>
 
-          {/* 5. Big Action Button (Review Buy / Place Single Bet in Housebets Crimson) */}
+          {/* 5. Big Action Button (Place Simulated Single Bet) */}
           <button
             type="button"
             disabled={placing || stakeNum <= 0 || stakeNum > balance || offline}
             onClick={actions.placeBets}
             className="flex h-11 w-full items-center justify-center rounded-xl bg-[#E4372B] text-[14px] font-black text-white shadow-md transition-all hover:bg-[#CF3428] active:scale-98 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {placing ? <Spinner /> : offline ? 'You are Offline' : stakeNum > balance ? 'Insufficient Balance' : stakeNum <= 0 ? 'Enter Stake Amount' : 'Review Buy'}
+            {placing ? <Spinner /> : offline ? 'You are Offline' : stakeNum > balance ? 'Insufficient Demo Balance' : stakeNum <= 0 ? 'Enter Stake Amount' : 'Place Simulated Single Bet'}
           </button>
 
           <p className="mt-2.5 text-center text-[10.5px] text-muted">
-            By trading, you agree to the <Link to="/bets" className="underline hover:text-ink">Housebets Rules</Link>.
+            Simulated demo wagering only · <Link to="/bets" className="underline hover:text-ink">Prototype Rules</Link>
           </p>
         </div>
       ) : (

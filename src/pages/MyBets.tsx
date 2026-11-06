@@ -26,17 +26,17 @@ function CashOut({ bet }: { bet: Bet }) {
   if (confirming !== null) {
     const moved = value !== confirming
     return (
-      <div className="rounded-s border border-ink p-3" role="group" aria-label="Confirm cash out">
+      <div className="rounded-s border border-ink p-3" role="group" aria-label="Confirm simulated cash out">
         <p className="text-[13.5px]">
           {moved
-            ? <>The value changed from <span className="tnum line-through">{fmtUSDT(confirming)}</span> to <span className="tnum font-bold">{fmtUSDT(value)}</span> USDT. Confirm the new amount?</>
-            : <>Cash out now for <span className="tnum font-bold">{fmtUSDT(value)} USDT</span>? This settles the bet.</>}
+            ? <>The value changed from <span className="tnum line-through">{fmtUSDT(confirming)}</span> to <span className="tnum font-bold">{fmtUSDT(value)}</span> Demo USDT. Confirm the new amount?</>
+            : <>Simulate cash out now for <span className="tnum font-bold">{fmtUSDT(value)} Demo USDT</span>? This settles the bet into your demo balance.</>}
         </p>
         <div className="mt-2.5 grid grid-cols-2 gap-2">
           <button type="button" onClick={() => setConfirming(null)} className="h-11 rounded-s border border-line bg-card text-[14px] font-semibold hover:border-ink">Cancel</button>
           <button ref={confirmRef} type="button" onClick={() => (moved ? setConfirming(value) : actions.cashOut(bet.id, value))}
             className="tnum h-11 rounded-s bg-accent text-[14px] font-bold text-white">
-            {moved ? 'Review new amount' : `Confirm ${fmtUSDT(value)}`}
+            {moved ? 'Review new amount' : `Confirm ${fmtUSDT(value)} USDT`}
           </button>
         </div>
       </div>
@@ -45,7 +45,7 @@ function CashOut({ bet }: { bet: Bet }) {
 
   return (
     <button type="button" onClick={() => setConfirming(value)} className="flex h-11 w-full items-center justify-between rounded-s border border-ink bg-card px-3 text-[14px] font-semibold hover:bg-sunk">
-      <span>Cash out</span>
+      <span>Simulated Cash Out</span>
       <span className="tnum font-extrabold">{fmtUSDT(value)} USDT</span>
     </button>
   )

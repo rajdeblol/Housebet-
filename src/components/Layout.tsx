@@ -23,8 +23,17 @@ import { BetCardModal } from './card/BetCardModal'
 import { Sidebar } from './Sidebar'
 import { WalletModal } from './WalletModal'
 import { NavigationDrawer } from './NavigationDrawer'
+import { HowItWorksModal } from './HowItWorksModal'
 
-function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpenMenu: () => void }) {
+function TopBar({
+  onOpenWallet,
+  onOpenMenu,
+  onOpenHowItWorks,
+}: {
+  onOpenWallet: () => void
+  onOpenMenu: () => void
+  onOpenHowItWorks: () => void
+}) {
   const balance = useStore((s) => s.balance)
   const [searchOpen, setSearchOpen] = useState(false)
   const { pathname } = useLocation()
@@ -56,17 +65,17 @@ function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpen
           </div>
         </div>
 
-        {/* Promo Wave Ticker in Middle */}
+        {/* Compliance Ticker in Middle */}
         <div className="hidden items-center gap-2 text-xs font-bold md:flex">
-          <span className="text-[#E4372B]">WAVE 2</span>
+          <span className="text-[#E4372B]">CONTEST DEMO</span>
           <span className="text-muted/60">·</span>
-          <span className="text-ink/80">($5,000,000 USDT)</span>
+          <span className="text-ink/80">Simulated Odds & Balance</span>
           <span className="rounded-full bg-[#E4372B]/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#E4372B]">
             Singles Only
           </span>
         </div>
 
-        {/* Right Actions: Get Started / Wallet + Hamburger */}
+        {/* Right Actions: How it works / Demo Balance + Hamburger */}
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -79,24 +88,25 @@ function TopBar({ onOpenWallet, onOpenMenu }: { onOpenWallet: () => void; onOpen
 
           <ThemeToggle />
 
-          {/* Wallet / Balance Pill (Clickable button) */}
+          {/* Demo Balance Pill (Clickable button) */}
           <button
             type="button"
             onClick={onOpenWallet}
-            className="flex h-9 items-center gap-2 rounded-full border border-line bg-card px-3 text-xs font-bold text-ink shadow-2xs hover:border-[#E4372B]/60 hover:bg-sunk/60 transition-all cursor-pointer"
-            title="Open Housebets Wallet & Deposit"
+            className="flex h-9 items-center gap-1.5 rounded-full border border-line bg-card px-3 text-xs font-bold text-ink shadow-2xs hover:border-[#E4372B]/60 hover:bg-sunk/60 transition-all cursor-pointer"
+            title="Open Demo Balance & Simulation Funds"
           >
-            <span className="text-muted">Wallet:</span>
-            <span className="tnum text-[#E4372B] font-extrabold">${fmtUSDT(balance)}</span>
+            <span className="text-muted">Demo:</span>
+            <span className="tnum text-[#E4372B] font-extrabold">${fmtUSDT(balance)} USDT</span>
           </button>
 
-          {/* Get Started Pill Button (Probly purple -> Housebets Crimson) */}
-          <Link
-            to="/bets"
-            className="inline-flex h-9 items-center justify-center rounded-full bg-[#E4372B] px-4 text-xs font-extrabold text-white shadow-xs transition-transform hover:bg-[#CF3428] active:scale-95"
+          {/* How it works Button */}
+          <button
+            type="button"
+            onClick={onOpenHowItWorks}
+            className="inline-flex h-9 items-center justify-center rounded-full bg-[#E4372B] px-3.5 text-xs font-extrabold text-white shadow-xs transition-transform hover:bg-[#CF3428] active:scale-95 cursor-pointer"
           >
-            Get Started
-          </Link>
+            How it works
+          </button>
 
           {/* 3-lines Hamburger Menu button */}
           <button
@@ -234,6 +244,7 @@ export function Layout() {
   const { pathname, hash } = useLocation()
   const [walletOpen, setWalletOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [howItWorksOpen, setHowItWorksOpen] = useState(false)
 
   useEffect(() => {
     if (!hash) window.scrollTo(0, 0)
@@ -244,6 +255,7 @@ export function Layout() {
       <TopBar
         onOpenWallet={() => setWalletOpen(true)}
         onOpenMenu={() => setMenuOpen(true)}
+        onOpenHowItWorks={() => setHowItWorksOpen(true)}
       />
       <OfflineBanner />
 
@@ -271,6 +283,7 @@ export function Layout() {
       <Toasts />
       <BetCardModal />
       <WalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />
+      <HowItWorksModal open={howItWorksOpen} onClose={() => setHowItWorksOpen(false)} />
       <NavigationDrawer
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
