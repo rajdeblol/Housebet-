@@ -140,6 +140,9 @@ export function Layout() {
   const { pathname, hash } = useLocation()
   const [walletOpen, setWalletOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const slipItems = useStore((s) => s.slip.items)
+  const slipStatus = useStore((s) => s.slip.status)
+  const showDesktopSlip = slipItems.length > 0 || slipStatus === 'placed' || slipStatus === 'placing'
 
   useEffect(() => {
     if (!hash) window.scrollTo(0, 0)
@@ -164,12 +167,14 @@ export function Layout() {
           <Footer />
         </main>
 
-        <aside
-          aria-label="Bet slip"
-          className="sticky top-[var(--hdr,105px)] hidden h-[calc(100vh-var(--hdr,105px))] w-[300px] min-w-0 shrink-0 border-l border-line bg-card xl:block 2xl:w-[320px]"
-        >
-          <BetSlip />
-        </aside>
+        {showDesktopSlip && (
+          <aside
+            aria-label="Bet slip"
+            className="sticky top-[var(--hdr,105px)] hidden h-[calc(100vh-var(--hdr,105px))] w-[300px] min-w-0 shrink-0 border-l border-line bg-card xl:block 2xl:w-[320px]"
+          >
+            <BetSlip />
+          </aside>
+        )}
       </div>
 
       <MobileSlip />
