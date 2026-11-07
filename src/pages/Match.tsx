@@ -159,7 +159,7 @@ function JudgeDemoScenarios({ match }: { match: Match }) {
     if (scenario === 'normal') {
       if (!preparePick()) return
       actions.acceptOdds()
-      setMessage('Normal flow ready: place the $10 single, then open it in My bets.')
+      setMessage('Normal flow ready: place the 10 USDT single, then open it in My bets.')
       return
     }
     if (!preparePick()) return
@@ -174,7 +174,7 @@ function JudgeDemoScenarios({ match }: { match: Match }) {
     } else {
       actions.acceptOdds()
       actions.setFailNext(true)
-      setMessage('Failure armed: this match price is held for the demo. Place the $10 single to see the failed state, then retry.')
+      setMessage('Failure armed: this match price is held for the demo. Place the 10 USDT single to see the failed state, then retry.')
     }
   }
 
@@ -185,7 +185,7 @@ function JudgeDemoScenarios({ match }: { match: Match }) {
         <ChevronDown size={16} className="shrink-0 text-muted" aria-hidden="true" />
       </summary>
       <div className="border-t border-brand/15 px-3 pb-3 pt-2.5">
-        <p className="mb-2.5 text-[12px] leading-relaxed text-muted">Each option adds a $10 single from this match to your slip. Try one state, then use the slip action it reveals.</p>
+        <p className="mb-2.5 text-[12px] leading-relaxed text-muted">Each option adds a 10 USDT single from this match to your slip. Try one state, then use the slip action it reveals.</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <button type="button" onClick={() => run('normal')} className="flex min-h-10 items-center justify-center gap-1.5 rounded-s border border-line bg-card px-2 text-[11.5px] font-bold hover:border-ink"><RefreshCw size={13} aria-hidden="true" /> Normal bet flow</button>
           <button type="button" onClick={() => run('changed')} className="flex min-h-10 items-center justify-center gap-1.5 rounded-s border border-line bg-card px-2 text-[11.5px] font-bold hover:border-ink"><Shuffle size={13} aria-hidden="true" /> Odds changed</button>

@@ -64,6 +64,10 @@ function BetRow({ bet }: { bet: Bet }) {
     previousStatus.current = bet.status
   }, [bet.status])
   const m = useStore((s) => (bet.matchId ? s.matches[bet.matchId] : undefined))
+  const currentSelection = useStore((s) => {
+    if (!bet.marketId || !bet.selId) return undefined
+    return s.markets[bet.marketId]?.selections.find((selection) => selection.id === bet.selId)
+  })
   const now = useStore((s) => s.now)
   const badge = {
     open: { t: 'Open', c: 'bg-sunk text-ink' },
@@ -100,8 +104,17 @@ function BetRow({ bet }: { bet: Bet }) {
           <p className="text-[12px] text-muted">{bet.marketName}</p>
           <p className="truncate text-[16px] font-extrabold">{bet.pick}</p>
         </div>
-        <p className="tnum text-[20px] font-extrabold">{fmtOdds(bet.odds)}</p>
+        <div className="text-right">
+          <p className="tnum text-[20px] font-extrabold">{fmtOdds(bet.odds)}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">Price accepted</p>
+        </div>
       </div>
+
+      {bet.status === 'open' && currentSelection && Math.abs(currentSelection.odds - bet.odds) >= 0.005 && (
+        <p className="mt-2 rounded-s bg-sunk px-3 py-2 text-[12px] leading-relaxed text-muted">
+          Accepted when placed at <span className="tnum font-bold text-ink">{fmtOdds(bet.odds)}</span> · current simulated market price <span className="tnum font-bold text-ink">{fmtOdds(currentSelection.odds)}</span>. Your open bet keeps its accepted price.
+        </p>
+      )}
 
       <dl className="mt-2 grid grid-cols-2 gap-2 text-[13px]">
         <div><dt className="text-muted">Stake</dt><dd className="tnum font-semibold">{fmtUSDT(bet.stake)} USDT</dd></div>

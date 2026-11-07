@@ -90,7 +90,7 @@ function init(): State {
     {
       id: 'HB-4QK7TZ', placedAt: now - 26 * 60_000, matchId: 'har-red', marketId: 'har-red:mr', selId: open.id, sport: 'football',
       compName: 'Premier League', home: 'Arsenal', away: 'Chelsea', homeId: 'harrowgate', awayId: 'redfield',
-      marketName: 'Match result', pick: 'Arsenal', odds: ladder(open.odds * 1.12), stake: 20, status: 'open',
+      marketName: 'Match result', pick: 'Arsenal', odds: 3.75, stake: 20, status: 'open',
     },
     {
       id: 'HB-9MXC2D', placedAt: now - 26 * 3600_000, matchId: null, marketId: null, selId: null, sport: 'football',
