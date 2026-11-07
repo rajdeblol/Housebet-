@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { teams } from '../../data/teams'
 import { actions, getState, itemView, MAX_STAKE, useStore } from '../../engine/store'
 import type { SlipItem } from '../../engine/types'
-import { cx, fmtOdds, fmtUSDT } from '../../lib/format'
+import { cx, fmtOdds, fmtUSDT, timeOfDay } from '../../lib/format'
 import { scoreText } from '../../lib/sport'
 
 const CHIPS = [5, 10, 25, 50]
@@ -64,7 +64,11 @@ export const SlipItemCard = forwardRef<HTMLInputElement, { item: SlipItem }>(fun
           )}
         >
           {kind === 'suspended' ? <Lock size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> : kind === 'closed' ? <Ban size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> : <AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />}
-          {kind === 'changed' ? `Odds changed. ${reason}` : reason}
+          {kind === 'changed'
+            ? `Your accepted price was ${fmtOdds(item.accepted)}. The simulated price is now ${fmtOdds(sel.odds)} (changed at ${timeOfDay(sel.movedAt)}). Your return still uses ${fmtOdds(item.accepted)} until you accept; accepting updates this slip to ${fmtOdds(sel.odds)}.`
+            : kind === 'suspended'
+              ? `${reason} Remove this pick to continue, or wait for the market to reopen.`
+              : reason}
         </p>
       )}
 

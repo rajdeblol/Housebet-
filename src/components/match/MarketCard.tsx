@@ -24,15 +24,16 @@ export function MarketCard({ marketId }: { marketId: string }) {
 
   return (
     <section aria-label={mk.name} className="rounded-m border border-line bg-card">
-      <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
+      <header className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
         <h4 className="text-[14.5px] font-bold">{mk.name}</h4>
-        <div className="flex items-center gap-2 text-[12px] text-muted">
+        <div className="flex flex-wrap items-center justify-end gap-1.5 text-[10px] font-bold uppercase tracking-wide text-muted">
+          <span className="rounded-full bg-brand/10 px-2 py-1 text-brand">Demo prices</span>
           {suspended ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-ink px-2 py-0.5 font-semibold text-white"><Lock size={11} aria-hidden="true" /> Suspended</span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-ink px-2 py-1 font-semibold text-white"><Lock size={11} aria-hidden="true" /> Suspended</span>
           ) : closed ? (
-            <span className="rounded-full border border-line px-2 py-0.5 font-semibold">Closed</span>
+            <span className="rounded-full border border-line px-2 py-1 font-semibold">Closed</span>
           ) : (
-            <span className="inline-flex items-center gap-1 font-semibold text-upText">Open</span>
+            <span className="rounded-full bg-up/10 px-2 py-1 font-semibold text-upText">Open</span>
           )}
         </div>
       </header>

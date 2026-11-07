@@ -271,12 +271,14 @@ function tick() {
     // live drift every 5s
     if (tickCount % 5 === 0) {
       const ms = { ...s.matches }
+      const heldMatch = s.demo.failNext ? demoTarget(s) : null
       for (const m of Object.values(ms)) {
         if (m.status !== 'live') continue
+        if (m.id === heldMatch) continue
         ms[m.id] = { ...m, drift: Math.max(-0.35, Math.min(0.35, m.drift + rand(-0.05, 0.05))) }
       }
       s = { ...s, matches: ms }
-      for (const m of Object.values(ms)) if (m.status === 'live') s = { ...s, markets: repriceMatch(s, m.id, now) }
+      for (const m of Object.values(ms)) if (m.status === 'live' && m.id !== heldMatch) s = { ...s, markets: repriceMatch(s, m.id, now) }
 
       // occasional organic suspension (corner / free-kick danger)
       if (Math.random() < 0.12) {
@@ -360,6 +362,14 @@ export function demoTarget(s: State = state): string | null {
   if (s.demo.target && live.includes(s.demo.target)) return s.demo.target
   const fromSlip = s.slip.items.map((i) => i.matchId).find((id) => live.includes(id))
   return fromSlip ?? live[0] ?? null
+}
+
+function slipReadyToPlace(s: State) {
+  if (s.slip.items.length === 0 || isOffline(s)) return false
+  const views = s.slip.items.map((item) => itemView(item, s))
+  const stake = views.reduce((sum, view) => sum + view.stakeNum, 0)
+  return views.every((view) => view.kind === 'ok' && view.stakeNum >= MIN_STAKE && !view.stakeError)
+    && stake <= s.balance
 }
 
 // ---------------------------------------------------------------- actions
@@ -501,9 +511,14 @@ export const actions = {
 
   placeBets() {
     if (state.slip.status === 'placing') return
+    if (!slipReadyToPlace(state)) return
     set((s) => ({ slip: { ...s.slip, status: 'placing' } }))
     window.setTimeout(() => {
       const s = state
+      if (!slipReadyToPlace(s)) {
+        set((latest) => ({ slip: { ...latest.slip, status: 'idle' } }))
+        return
+      }
       if (s.demo.failNext || isOffline(s)) {
         set({ slip: { ...s.slip, status: 'failed' }, demo: { ...s.demo, failNext: false } })
         return

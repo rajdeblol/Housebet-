@@ -175,11 +175,14 @@ export function HomePage() {
                   <Crest id={featured.away} size={24} />
                 </span>
               </span>
-              {featuredMarket?.selections?.length ? <span className="hidden shrink-0 items-center gap-1.5 sm:flex">
-                {featuredMarket.selections.slice(0, 3).map((selection) => <span key={selection.id} className="rounded-lg border border-white/10 bg-white/[.06] px-2 py-1 text-center"><span className="block max-w-[58px] truncate text-[8px] text-white/55">{selection.label}</span><span className="tnum text-[11px] font-extrabold text-[#02F7FD]">{selection.odds.toFixed(2)}</span></span>)}
+              {featuredMarket?.selections?.length ? <span className="hidden shrink-0 flex-col items-end gap-1 sm:flex">
+                <span className="text-[8px] font-extrabold uppercase tracking-[.12em] text-[#02F7FD]/75">Demo prices</span>
+                <span className="flex gap-1.5">
+                  {featuredMarket.selections.slice(0, 3).map((selection) => <span key={selection.id} className="rounded-lg border border-white/10 bg-white/[.06] px-2 py-1 text-center"><span className="block max-w-[58px] truncate text-[8px] text-white/55">{selection.label}</span><span className="tnum text-[11px] font-extrabold text-[#02F7FD]">{selection.odds.toFixed(2)}</span></span>)}
+                </span>
               </span> : null}
               <span className="shrink-0 text-right">
-                <span className={cx('block text-[9px] font-extrabold uppercase tracking-wide', featured.status === 'live' ? 'text-[#FF7770]' : 'text-white/55')}>{featured.status === 'live' ? '● Live' : 'Soon'}</span>
+                <span className={cx('block text-[9px] font-extrabold uppercase tracking-wide', featured.status === 'live' ? 'text-[#FF7770]' : 'text-white/55')}>{featured.status === 'live' ? '● Live · Demo' : 'Soon · Demo'}</span>
                 <span className="tnum block text-[10px] font-semibold text-white/55">{featured.status === 'live' ? statusShort(featured) : 'View'}</span>
               </span>
             </Link>

@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUp, Check, Lock } from 'lucide-react'
 import { actions, useStore } from '../engine/store'
-import { cx, fmtOdds } from '../lib/format'
+import { cx, fmtOdds, timeOfDay } from '../lib/format'
 import { sportAccent } from '../lib/sportIcons'
 
 interface Props {
@@ -26,16 +26,20 @@ export function OddsButton({ selId, tag, label, className }: Props) {
   const disabled = (suspended || closed) && !selected
 
   const name = label ?? sel.label
+  const movementLabel = sel.prev !== null && sel.movedAt > 0
+    ? `Simulated price changed from ${fmtOdds(sel.prev)} to ${fmtOdds(sel.odds)} at ${timeOfDay(sel.movedAt)}`
+    : `Simulated demo price, currently ${fmtOdds(sel.odds)}`
   const aria = closed
     ? `${name}: ${sel.note ?? 'closed'}`
-    : suspended
-      ? `${name}: suspended`
-      : `${name} at ${fmtOdds(sel.odds)}${selected ? ', in bet slip' : ''}${showArrow ? (sel.move === 'up' ? ', price up' : ', price down') : ''}`
+      : suspended
+        ? `${name}: suspended`
+      : `${name} at ${fmtOdds(sel.odds)}. ${movementLabel}${selected ? ', in bet slip' : ''}${showArrow ? (sel.move === 'up' ? ', price up' : ', price down') : ''}`
 
   return (
     <button
       type="button"
       onClick={() => actions.toggleSelection(selId)}
+      title={movementLabel}
       disabled={disabled}
       aria-pressed={selected}
       aria-label={aria}
@@ -54,7 +58,8 @@ export function OddsButton({ selId, tag, label, className }: Props) {
     >
       {label && <span className={cx('relative truncate text-[12.5px] leading-tight', selected ? 'text-page/80' : 'text-muted')}>{label}</span>}
       {tag && <span className={cx('relative text-[12px] font-semibold', selected ? 'text-white/85' : 'text-muted')}>{tag}</span>}
-      <span className="relative flex items-center justify-end gap-1">
+      <span className="relative flex flex-col items-end gap-1">
+        <span className="flex items-center justify-end gap-1">
         {suspended && !closed ? (
           <Lock size={15} aria-hidden="true" />
         ) : closed ? (
@@ -69,6 +74,12 @@ export function OddsButton({ selId, tag, label, className }: Props) {
             </span>
             <span className="tnum text-[17px] font-bold leading-none tracking-tight">{fmtOdds(sel.odds)}</span>
           </>
+        )}
+        </span>
+        {!suspended && !closed && sel.prev !== null && sel.movedAt > 0 && (
+          <span className={cx('max-w-full truncate text-[9px] font-medium leading-none', selected ? 'text-page/75' : 'text-muted')}>
+            was {fmtOdds(sel.prev)} · {timeOfDay(sel.movedAt).slice(0, 5)}
+          </span>
         )}
       </span>
     </button>

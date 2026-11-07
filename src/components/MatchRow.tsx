@@ -16,11 +16,13 @@ function Status({ m, now }: { m: Match; now: number }) {
     return (
       <span className="inline-flex shrink-0 items-center gap-1.5 rounded-s bg-live/10 px-2 py-0.5 font-bold text-live">
         <LiveDot /> <span className="sr-only">Live,</span><span className="tnum">{statusShort(m)}</span>
+        <span className="rounded bg-brand/10 px-1 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-brand">Demo</span>
       </span>
     )
   return (
-    <span className="shrink-0 rounded-s bg-sunk px-2 py-0.5 font-semibold text-muted">
+    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-s bg-sunk px-2 py-0.5 font-semibold text-muted">
       {m.status === 'ft' ? 'Full time' : kickoffLabel(m.kickoff, now)}
+      <span className="rounded bg-brand/10 px-1 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-brand">Demo</span>
     </span>
   )
 }
@@ -59,10 +61,13 @@ export function MatchRow({ id, showComp, followable }: { id: string; followable?
   }
 
   const odds = (
-    <div className={cx('grid gap-1.5', threeWay ? 'grid-cols-3' : 'grid-cols-2')} role="group" aria-label={`Match result, ${H.name} v ${A.name}`}>
-      {tags.map((tag, i) => (
-        <OddsButton key={i} selId={`${m.id}:${mainKey(m)}:${i}`} tag={tag} />
-      ))}
+    <div>
+      <p className="mb-1 flex justify-end text-[9px] font-extrabold uppercase tracking-[.12em] text-brand">Demo prices · simulated</p>
+      <div className={cx('grid gap-1.5', threeWay ? 'grid-cols-3' : 'grid-cols-2')} role="group" aria-label={`Match result, ${H.name} v ${A.name}`}>
+        {tags.map((tag, i) => (
+          <OddsButton key={i} selId={`${m.id}:${mainKey(m)}:${i}`} tag={tag} />
+        ))}
+      </div>
     </div>
   )
 

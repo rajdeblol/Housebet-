@@ -37,10 +37,11 @@ function StatusLine({ m, compact }: { m: Match; compact: boolean }) {
       <span className="inline-flex items-center gap-2 font-semibold text-live">
         <LiveDot /> <span className="tnum">{compact ? statusShort(m) : statusLong(m)}</span>
         {!compact && m.sport === 'football' && <span className="font-medium text-muted">{m.clockSec >= 45 * 60 ? '2nd half' : '1st half'}</span>}
+        <span className="rounded bg-brand/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-brand">Demo</span>
       </span>
     )
-  if (m.status === 'ft') return <span className="font-semibold">{m.sport === 'football' ? 'Full time' : `Final · ${statusShort(m)}`}</span>
-  return <span className="font-semibold">Kick-off {kickoffLabel(m.kickoff, now)}</span>
+  if (m.status === 'ft') return <span className="inline-flex items-center gap-2 font-semibold">{m.sport === 'football' ? 'Full time' : `Final · ${statusShort(m)}`}<span className="rounded bg-brand/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-brand">Demo</span></span>
+  return <span className="inline-flex items-center gap-2 font-semibold">Kick-off {kickoffLabel(m.kickoff, now)}<span className="rounded bg-brand/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-brand">Demo</span></span>
 }
 
 function GoalTicker({ m }: { m: Match }) {
@@ -163,14 +164,17 @@ function JudgeDemoScenarios({ match }: { match: Match }) {
     }
     if (!preparePick()) return
     if (scenario === 'changed') {
+      actions.acceptOdds()
       actions.shiftOdds()
       setMessage('Odds changed: review the new price in the slip and accept it to continue.')
     } else if (scenario === 'suspended') {
+      actions.acceptOdds()
       actions.suspendMarket(60_000)
       setMessage('Selection suspended for 60 seconds: remove it from the slip to continue.')
     } else {
+      actions.acceptOdds()
       actions.setFailNext(true)
-      setMessage('Failure armed: place the $10 single to see the failed state, then retry.')
+      setMessage('Failure armed: this match price is held for the demo. Place the $10 single to see the failed state, then retry.')
     }
   }
 
